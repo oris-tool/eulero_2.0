@@ -17,23 +17,11 @@
 
 package org.oristool.eulero.graph;
 
-import java.util.List;
-
 /**
- * XOR: A random choice between activities
+ * Callbacks for DFS. 
  */
-public class Xor extends Activity {
-    private List<Double> probs;
-    
-    public Xor(List<Double> probs, List<Activity> dependencies) {
-        for (Activity a : dependencies) {
-            addDependency(a);
-        }
-
-        this.probs = probs;
-    }
-
-    public List<Double> probs() {
-        return probs;
-    }
+public interface DFSObserver {
+    default void onOpen(Activity opened, Activity from) { };
+    default void onClose(Activity closed) { };
+    default void onSkipped(Activity skipped, Activity from) { };
 }

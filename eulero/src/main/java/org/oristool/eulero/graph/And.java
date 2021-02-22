@@ -17,55 +17,14 @@
 
 package org.oristool.eulero.graph;
 
-import java.util.Arrays;
-
 /**
  * AND: completes when all dependencies have completed. 
  */
-public class And implements Activity {
-    private int min;
-    private int max;
-    private double[] cdf;
-    private Activity[] dependencies;
-    
+public class And extends Activity {
+
     public And(Activity... dependencies) {
-        min = Arrays.stream(dependencies).mapToInt(s -> s.min()).max().getAsInt(); // max of mins
-        max = Arrays.stream(dependencies).mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
-
-        cdf = new double[max-min-1]; 
-        for (int x = 0; x < cdf.length; x++) {
-            // CDF of max is F(x)*G(x)
-            int t = min + 1 + x;
-            cdf[x] = 1.0;
-            for (int i = 0; i < dependencies.length; i++)
-                cdf[x] *= dependencies[i].CDF(t);
+        for (Activity a : dependencies) {
+            addDependency(a);
         }
-        
-        this.dependencies = dependencies;
-    }
-    
-    @Override
-    public int min() {
-        return min;
-    }
-    
-    @Override
-    public int max() {
-        return max;
-    }
-
-    @Override
-    public double CDF(int time) {
-        if (time <= min)
-            return 0;
-        else if (time >= max)
-            return 1;
-        else 
-            return cdf[time-min-1];
-    }
-    
-    @Override
-    public Activity[] dependencies() {
-        return dependencies;
     }
 }

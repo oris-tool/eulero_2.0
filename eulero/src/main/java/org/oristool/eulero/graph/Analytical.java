@@ -17,9 +17,23 @@
 
 package org.oristool.eulero.graph;
 
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+
 /**
  * Activity with an analytical CDF.
  */
-public class Analytical implements Activity {
-    // TODO: Use Sirio's Function
+public class Analytical extends Activity {
+    
+    private StochasticTransitionFeature pdf;
+    
+    /**
+     * Creates an activity with analytical PDF. 
+     */
+    public Analytical(StochasticTransitionFeature pdf) {
+        this.pdf = pdf;
+    }
+    
+    public StochasticTransitionFeature getPDF() {
+        return pdf;
+    }
 }
