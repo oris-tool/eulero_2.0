@@ -18,12 +18,11 @@
 package org.oristool.eulero.graph;
 
 /**
- * OR: completes when any of the dependencies has completed. 
+ * Callbacks for nested DFS.
+ * 
+ * If a method returns false, the visit stops immediately.
  */
-public class Or extends Activity {   
-    public Or(Activity... dependencies) {
-        for (Activity a : dependencies) {
-            addDependency(a);
-        }
-    }
+public interface DFSNestedObserver extends DFSObserver {
+    default boolean onNestedStart(Activity nested) { return true; };
+    default boolean onNestedEnd(Activity nested) { return true; };
 }
