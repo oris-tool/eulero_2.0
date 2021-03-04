@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.distribution.GammaDistribution;
 
@@ -32,7 +33,8 @@ public class Numerical extends Activity {
     private int max;
     private double[] cdf;
     
-    public Numerical(int min, int max, double[] cdf) {
+    public Numerical(String name, int min, int max, double[] cdf) {
+        super(name);
         this.min = min;
         this.max = max;
         this.cdf = cdf;
@@ -65,10 +67,10 @@ public class Numerical extends Activity {
             cdf[x] = activity.CDF(t);
         }
         
-        return new Numerical(min, max, cdf);
+        return new Numerical(activity.name(), min, max, cdf);
     }
     
-    public static Numerical uniform(BigDecimal a, BigDecimal b, 
+    public static Numerical uniform(String name, BigDecimal a, BigDecimal b, 
             BigDecimal step) {
         
         int min = a.divide(step, MathContext.DECIMAL128)
@@ -82,10 +84,10 @@ public class Numerical extends Activity {
             cdf[x] = (t-min)/(double)(max-min);
         }
         
-        return new Numerical(min, max, cdf);
+        return new Numerical(name, min, max, cdf);
     }
     
-    public static Numerical erlang(int k, double lambda, 
+    public static Numerical erlang(String name, int k, double lambda, 
             double truncationError, BigDecimal step) {
         
         GammaDistribution g = new GammaDistribution(k, 1/lambda);
@@ -100,7 +102,7 @@ public class Numerical extends Activity {
         for (int t=0; t < cdf.length; t++)
             cdf[t] = g.cumulativeProbability(t*s);
         
-        return new Numerical(min, max, cdf);
+        return new Numerical(name, min, max, cdf);
     }
 
     public String toTimeSeries(BigDecimal step) {
@@ -119,7 +121,7 @@ public class Numerical extends Activity {
     public static Numerical and(List<Numerical> activities) {
         int min = activities.stream().mapToInt(s -> s.min()).max().getAsInt(); // max of mins
         int max = activities.stream().mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
-
+        String name = "min(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
         double[] cdf = new double[max-min-1]; 
         for (int x = 0; x < cdf.length; x++) {
             // CDF of max is F(x)*G(x)
@@ -129,12 +131,13 @@ public class Numerical extends Activity {
                 cdf[x] *= a.CDF(t);
         }
 
-        return new Numerical(min, max, cdf);
+        return new Numerical(name, min, max, cdf);
     }
 
     public static Numerical or(List<Numerical> activities) {
         int min = activities.stream().mapToInt(s -> s.min()).min().getAsInt(); // min of mins
         int max = activities.stream().mapToInt(s -> s.max()).min().getAsInt(); // min of maxs
+        String name = "max(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
         
         double[] cdf = new double[max-min-1]; 
         for (int x = 0; x < cdf.length; x++) {
@@ -146,15 +149,17 @@ public class Numerical extends Activity {
             cdf[x] = 1 - cdf[x];
         }
 
-        return new Numerical(min, max, cdf);
+        return new Numerical(name, min, max, cdf);
     }
     
     public static Numerical seq(List<Numerical> activities) {
         
         Numerical s1 = activities.get(0);
         if (activities.size() == 1)
-            return new Numerical(s1.min, s1.max, s1.cdf.clone());
+            return new Numerical(s1.name(), s1.min, s1.max, s1.cdf.clone());
 
+        String name = "sum(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
+        
         for (int i = 1; i < activities.size(); i++) {
             Numerical s2 = activities.get(i);
             
@@ -173,7 +178,7 @@ public class Numerical extends Activity {
                     cdf[x] += (s1.CDF(u)-s1.CDF(u-1)) * (s2.CDF(t-u+1)+s2.CDF(t-u))/2; 
             }
             
-            s1 = new Numerical(min, max, cdf);
+            s1 = new Numerical(name, min, max, cdf);
         }
         
         return s1;
@@ -184,7 +189,8 @@ public class Numerical extends Activity {
         
         int min = activities.stream().mapToInt(s -> s.min()).min().getAsInt(); // min of mins
         int max = activities.stream().mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
-        
+        String name = "choice(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
+
         double[] cdf = new double[max-min-1];
         
         for (int x = 0; x < cdf.length; x++) {
@@ -195,6 +201,6 @@ public class Numerical extends Activity {
                 cdf[x] += probs.get(i) * activities.get(i).CDF(t);
         }
 
-        return new Numerical(min, max, cdf);
+        return new Numerical(name, min, max, cdf);
     }
 }

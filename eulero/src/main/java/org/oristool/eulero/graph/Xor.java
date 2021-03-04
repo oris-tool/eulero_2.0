@@ -18,22 +18,47 @@
 package org.oristool.eulero.graph;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * XOR: A random choice between activities
  */
 public class Xor extends Activity {
     private List<Double> probs;
+    private List<Activity> alternatives;
     
-    public Xor(List<Double> probs, List<Activity> dependencies) {
-        for (Activity a : dependencies) {
-            addDependency(a);
-        }
-
+    public Xor(String name, List<Activity> alternatives, List<Double> probs) {
+        super(name);
+        
         this.probs = probs;
+        this.alternatives = alternatives;
     }
 
     public List<Double> probs() {
         return probs;
+    }
+    
+    public List<Activity> alternatives() {
+        return alternatives;
+    }
+    
+    @Override
+    public List<Activity> nested() {
+        return alternatives;
+    }
+    
+    @Override
+    public String yamlData() {
+        StringBuilder b = new StringBuilder();
+        
+        b.append(String.format("  probs: [%s]\n", probs.stream()
+                .map(d -> String.format("%.3f", d))
+                .collect(Collectors.joining(", "))));
+        
+        b.append(String.format("  alternatives: [%s]\n", alternatives.stream()
+                .map(a -> a.name())
+                .collect(Collectors.joining(", "))));
+        
+        return b.toString();
     }
 }

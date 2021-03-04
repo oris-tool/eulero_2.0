@@ -29,7 +29,8 @@ public class Analytical extends Activity {
     /**
      * Creates an activity with analytical PDF. 
      */
-    public Analytical(StochasticTransitionFeature pdf) {
+    public Analytical(String name, StochasticTransitionFeature pdf) {
+        super(name);
         this.pdf = pdf;
     }
     

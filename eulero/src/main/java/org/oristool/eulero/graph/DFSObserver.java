@@ -18,10 +18,15 @@
 package org.oristool.eulero.graph;
 
 /**
- * Callbacks for DFS. 
+ * Callbacks for DFS.
+ * 
+ * The observer can modify the dependencies of a node during 
+ * onOpen and onClose.
+ * 
+ * If a method returns false, the visit stops immediately.
  */
 public interface DFSObserver {
-    default void onOpen(Activity opened, Activity from) { };
-    default void onClose(Activity closed) { };
-    default void onSkipped(Activity skipped, Activity from) { };
+    default boolean onOpen(Activity opened, Activity from) { return true; };
+    default boolean onClose(Activity closed) { return true; };
+    default boolean onSkipped(Activity skipped, Activity from) { return true; };
 }
