@@ -76,8 +76,9 @@ public class Repeat extends Activity {
         
         Place choose = pn.addPlace("p" + name() + "_choose");
         pn.addPrecondition(choose, repeat);
-        pn.addPrecondition(choose, exit);
         pn.addPostcondition(repeat, in);
+        pn.addPrecondition(choose, exit);
+        pn.addPostcondition(exit, out);
         
         prio = repeatBody.addPetriBlock(pn, in, choose, prio);
         return prio;

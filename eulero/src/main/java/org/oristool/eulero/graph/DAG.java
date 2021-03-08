@@ -375,7 +375,7 @@ public class DAG extends Activity {
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
         this.addPetriBlock(pn, in, out, 1);
-        
+        System.out.println(pn);
         Marking m = new Marking();
         m.addTokens(in, 1);
         
