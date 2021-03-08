@@ -23,21 +23,32 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.GammaDistribution;
+import org.oristool.models.pn.Priority;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
 
 /**
  * Activity with an empirical CDF.
  */
 public class Numerical extends Activity {
+    private BigDecimal step;
     private int min;
     private int max;
     private double[] cdf;
     
-    public Numerical(String name, int min, int max, double[] cdf) {
+    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf) {
         super(name);
+        this.step = step;
         this.min = min;
         this.max = max;
         this.cdf = cdf;
+    }
+    
+    public BigDecimal step() {
+        return step;
     }
     
     public int min() {
@@ -48,6 +59,17 @@ public class Numerical extends Activity {
         return max;
     }
 
+    @Override
+    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        Transition t = pn.addTransition(this.name());
+        t.addFeature(new Priority(prio));
+        // TODO: Add fitting
+        // t.addFeature(pdf);
+        pn.addPrecondition(in, t);
+        pn.addPostcondition(t, out);
+        return prio + 1;
+    }
+    
     public double CDF(int time) {
         if (time <= min)
             return 0;
@@ -55,6 +77,17 @@ public class Numerical extends Activity {
             return 1;
         else 
             return cdf[time-min-1];
+    }
+    
+    @Override
+    public String yamlData() {
+        StringBuilder b = new StringBuilder();
+        b.append(String.format("  support: [%s, %s]\n",
+                new BigDecimal(min).multiply(step),
+                new BigDecimal(max).multiply(step)));
+        b.append(String.format("  pdf: %d samples with step %s\n",
+                this.cdf.length, step));
+        return b.toString();
     }
     
     public static Numerical copyOf(Numerical activity) {
@@ -67,7 +100,7 @@ public class Numerical extends Activity {
             cdf[x] = activity.CDF(t);
         }
         
-        return new Numerical(activity.name(), min, max, cdf);
+        return new Numerical(activity.name(), activity.step(), min, max, cdf);
     }
     
     public static Numerical uniform(String name, BigDecimal a, BigDecimal b, 
@@ -84,7 +117,25 @@ public class Numerical extends Activity {
             cdf[x] = (t-min)/(double)(max-min);
         }
         
-        return new Numerical(name, min, max, cdf);
+        return new Numerical(name, step, min, max, cdf);
+    }
+
+    public static Numerical exp(String name, double lambda, 
+            double truncationError, BigDecimal step) {
+        
+        ExponentialDistribution g = new ExponentialDistribution(1/lambda);
+        
+        int min = 0;
+        int max = new BigDecimal(g.inverseCumulativeProbability(1-truncationError))
+                .divide(step, MathContext.DECIMAL128)
+                .setScale(0, RoundingMode.HALF_UP).intValue();
+        
+        double s = step.doubleValue();
+        double[] cdf = new double[max+1];
+        for (int t=0; t < cdf.length; t++)
+            cdf[t] = g.cumulativeProbability(t*s);
+        
+        return new Numerical(name, step, min, max, cdf);
     }
     
     public static Numerical erlang(String name, int k, double lambda, 
@@ -102,7 +153,7 @@ public class Numerical extends Activity {
         for (int t=0; t < cdf.length; t++)
             cdf[t] = g.cumulativeProbability(t*s);
         
-        return new Numerical(name, min, max, cdf);
+        return new Numerical(name, step, min, max, cdf);
     }
 
     public String toTimeSeries(BigDecimal step) {
@@ -119,6 +170,7 @@ public class Numerical extends Activity {
     }
     
     public static Numerical and(List<Numerical> activities) {
+        BigDecimal step = activities.get(0).step();
         int min = activities.stream().mapToInt(s -> s.min()).max().getAsInt(); // max of mins
         int max = activities.stream().mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
         String name = "min(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
@@ -127,14 +179,18 @@ public class Numerical extends Activity {
             // CDF of max is F(x)*G(x)
             int t = min + 1 + x;
             cdf[x] = 1.0;
-            for (Numerical a : activities)
+            for (Numerical a : activities) {
+                if (a.step().compareTo(step) != 0)
+                    throw new IllegalArgumentException("Steps should be the same");
                 cdf[x] *= a.CDF(t);
+            }
         }
 
-        return new Numerical(name, min, max, cdf);
+        return new Numerical(name, step, min, max, cdf);
     }
 
     public static Numerical or(List<Numerical> activities) {
+        BigDecimal step = activities.get(0).step();
         int min = activities.stream().mapToInt(s -> s.min()).min().getAsInt(); // min of mins
         int max = activities.stream().mapToInt(s -> s.max()).min().getAsInt(); // min of maxs
         String name = "max(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
@@ -144,24 +200,30 @@ public class Numerical extends Activity {
             // CDF of min is 1-(1-F(x))*(1-G(x))
             int t = min + 1 + x;
             cdf[x] = 1.0;
-            for (Numerical a : activities)
+            for (Numerical a : activities) {
+                if (a.step().compareTo(step) != 0)
+                    throw new IllegalArgumentException("Steps should be the same");
                 cdf[x] *= 1 - a.CDF(t);
+            }
             cdf[x] = 1 - cdf[x];
         }
 
-        return new Numerical(name, min, max, cdf);
+        return new Numerical(name, step, min, max, cdf);
     }
     
     public static Numerical seq(List<Numerical> activities) {
         
         Numerical s1 = activities.get(0);
         if (activities.size() == 1)
-            return new Numerical(s1.name(), s1.min, s1.max, s1.cdf.clone());
+            return new Numerical(s1.name(), s1.step, s1.min, s1.max, s1.cdf.clone());
 
         String name = "sum(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
+        BigDecimal step = s1.step();
         
         for (int i = 1; i < activities.size(); i++) {
             Numerical s2 = activities.get(i);
+            if (s2.step().compareTo(step) != 0)
+                throw new IllegalArgumentException("Steps should be the same");
             
             int min = s1.min() + s2.min();
             int max = s1.max() + s2.max();            
@@ -178,7 +240,7 @@ public class Numerical extends Activity {
                     cdf[x] += (s1.CDF(u)-s1.CDF(u-1)) * (s2.CDF(t-u+1)+s2.CDF(t-u))/2; 
             }
             
-            s1 = new Numerical(name, min, max, cdf);
+            s1 = new Numerical(name, step, min, max, cdf);
         }
         
         return s1;
@@ -186,6 +248,13 @@ public class Numerical extends Activity {
     
     public static Numerical xor(List<Double> probs, 
             List<Numerical> activities) {
+        
+        BigDecimal step = activities.get(0).step(); 
+        for (Numerical a : activities) {
+            if (a.step().compareTo(step) != 0) {
+                throw new IllegalArgumentException("Steps should be the same");
+            }
+        }
         
         int min = activities.stream().mapToInt(s -> s.min()).min().getAsInt(); // min of mins
         int max = activities.stream().mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
@@ -201,6 +270,6 @@ public class Numerical extends Activity {
                 cdf[x] += probs.get(i) * activities.get(i).CDF(t);
         }
 
-        return new Numerical(name, min, max, cdf);
+        return new Numerical(name, step, min, max, cdf);
     }
 }

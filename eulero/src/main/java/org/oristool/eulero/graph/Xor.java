@@ -17,8 +17,17 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.MarkingExpr;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
 
 /**
  * XOR: A random choice between activities
@@ -29,7 +38,8 @@ public class Xor extends Activity {
     
     public Xor(String name, List<Activity> alternatives, List<Double> probs) {
         super(name);
-        
+        if (alternatives.size() != probs.size())
+            throw new IllegalArgumentException("Each alternative must have one probability");
         this.probs = probs;
         this.alternatives = alternatives;
     }
@@ -60,5 +70,45 @@ public class Xor extends Activity {
                 .collect(Collectors.joining(", "))));
         
         return b.toString();
+    }
+    
+    @Override
+    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+
+        // input/output places of alternative activities
+        List<Place> act_ins = new ArrayList<>();
+        List<Place> act_outs = new ArrayList<>();
+        
+        for (int i = 0; i < alternatives.size(); i++) {
+            Transition branch = pn.addTransition(name() + "_case" + i);
+            // same priority for all branches to create conflict
+            branch.addFeature(new Priority(prio));
+            branch.addFeature(StochasticTransitionFeature
+                    .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(probs.get(i))));
+            
+            Place act_in = pn.addPlace("p" + name() + "_case" + i);
+            pn.addPrecondition(in, branch);
+            pn.addPostcondition(branch, act_in);
+            act_ins.add(act_in);
+            
+            Place act_out = pn.addPlace("p" + name() + "_end" + i);
+            act_outs.add(act_out);
+        }
+
+        for (int i = 0; i < alternatives.size(); i++) {
+            alternatives.get(i).addPetriBlock(pn, act_ins.get(i), act_outs.get(i), prio++);
+        }
+        
+        for (int i = 0; i < alternatives.size(); i++) {
+            Transition merge = pn.addTransition(name() + "_merge" + i);
+            merge.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO));
+            // new priority not necessary: only one branch will be selected
+            merge.addFeature(new Priority(prio++));
+            pn.addPrecondition(act_outs.get(i), merge);
+            pn.addPostcondition(merge, out);
+        }
+        
+        return prio;
     }
 }

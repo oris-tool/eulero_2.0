@@ -29,17 +29,73 @@ class GraphTest {
 
     @Test
     void testFlatten() {
-        Numerical a = Numerical.uniform("A", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
+        Analytical a = Analytical.uniform("A", BigDecimal.ZERO, BigDecimal.ONE);
         Numerical b = Numerical.uniform("B", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
         Numerical c = Numerical.uniform("C", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
         
         DAG forkJoin = DAG.forkJoin("FJ", b, c); 
         DAG seq = DAG.sequence("SEQ", a, forkJoin);
 
-        Numerical d = Numerical.uniform("D", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
-        Repeat rep = new Repeat("REP", 0.3, seq);
-        Xor xor = new Xor("XOR", List.of(d, rep), List.of(0.1, 0.9));
-        System.out.println(xor.yamlRecursive());
+        assertEquals(seq.yamlRecursive(),
+                "SEQ:\n" +
+                "  type: DAG\n" +
+                "  data:\n" +
+                "    SEQ_BEGIN: [A]\n" +
+                "    A: [FJ]\n" +
+                "    FJ: [SEQ_END]\n" +
+                "  nested:\n" +
+                "    A:\n" +
+                "      type: Analytical\n" +
+                "      data:\n" +
+                "        pdf: [0, 1] 1\n" +
+                "    FJ:\n" +
+                "      type: DAG\n" +
+                "      data:\n" +
+                "        FJ_BEGIN: [B, C]\n" +
+                "        B: [FJ_END]\n" +
+                "        C: [FJ_END]\n" +
+                "      nested:\n" +
+                "        B:\n" +
+                "          type: Numerical\n" +
+                "          data:\n" +
+                "            support: [0.0, 1.0]\n" +
+                "            pdf: 9 samples with step 0.1\n" +
+                "        C:\n" +
+                "          type: Numerical\n" +
+                "          data:\n" +
+                "            support: [0.0, 1.0]\n" +
+                "            pdf: 9 samples with step 0.1\n");
+        
+        seq.flatten();
+        
+        assertEquals(seq.yamlRecursive(),
+                "SEQ:\n" +
+                "  type: DAG\n" +
+                "  data:\n" +
+                "    SEQ_BEGIN: [A]\n" +
+                "    A: [B, C]\n" +
+                "    B: [SEQ_END]\n" +
+                "    C: [SEQ_END]\n" +
+                "  nested:\n" +
+                "    A:\n" +
+                "      type: Analytical\n" +
+                "      data:\n" +
+                "        pdf: [0, 1] 1\n" +
+                "    B:\n" +
+                "      type: Numerical\n" +
+                "      data:\n" +
+                "        support: [0.0, 1.0]\n" +
+                "        pdf: 9 samples with step 0.1\n" +
+                "    C:\n" +
+                "      type: Numerical\n" +
+                "      data:\n" +
+                "        support: [0.0, 1.0]\n" +
+                "        pdf: 9 samples with step 0.1\n");
+        
+//        Numerical d = Numerical.uniform("D", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
+//        Repeat rep = new Repeat("REP", 0.3, seq);
+//        Xor xor = new Xor("XOR", List.of(d, rep), List.of(0.1, 0.9));
+//        System.out.println(xor.yamlRecursive());
 //        System.out.println(seq.end().preNestedLayers(true));
 //        System.out.println(seq.nested());
 //
@@ -59,9 +115,73 @@ class GraphTest {
         DAG seq2 = DAG.sequence("SEQ2", join);
         DAG seq = DAG.sequence("SEQ", seq1, seq2);
         
-        System.out.println(seq);
+        assertEquals(seq.yamlRecursive(),
+                "SEQ:\n" +
+                "  type: DAG\n" +
+                "  data:\n" +
+                "    SEQ_BEGIN: [SEQ1]\n" +
+                "    SEQ1: [SEQ2]\n" +
+                "    SEQ2: [SEQ_END]\n" +
+                "  nested:\n" +
+                "    SEQ1:\n" +
+                "      type: DAG\n" +
+                "      data:\n" +
+                "        SEQ1_BEGIN: [A]\n" +
+                "        A: [SEQ1_END]\n" +
+                "      nested:\n" +
+                "        A:\n" +
+                "          type: Numerical\n" +
+                "          data:\n" +
+                "            support: [0.0, 1.0]\n" +
+                "            pdf: 9 samples with step 0.1\n" +
+                "    SEQ2:\n" +
+                "      type: DAG\n" +
+                "      data:\n" +
+                "        SEQ2_BEGIN: [FJ]\n" +
+                "        FJ: [SEQ2_END]\n" +
+                "      nested:\n" +
+                "        FJ:\n" +
+                "          type: DAG\n" +
+                "          data:\n" +
+                "            FJ_BEGIN: [B, C]\n" +
+                "            B: [FJ_END]\n" +
+                "            C: [FJ_END]\n" +
+                "          nested:\n" +
+                "            B:\n" +
+                "              type: Numerical\n" +
+                "              data:\n" +
+                "                support: [0.0, 1.0]\n" +
+                "                pdf: 9 samples with step 0.1\n" +
+                "            C:\n" +
+                "              type: Numerical\n" +
+                "              data:\n" +
+                "                support: [0.0, 1.0]\n" +
+                "                pdf: 9 samples with step 0.1\n");
         seq.flatten();
-        System.out.println(seq);
+        assertEquals(seq.yamlRecursive(),
+                "SEQ:\n" +
+                "  type: DAG\n" +
+                "  data:\n" +
+                "    SEQ_BEGIN: [A]\n" +
+                "    A: [B, C]\n" +
+                "    B: [SEQ_END]\n" +
+                "    C: [SEQ_END]\n" +
+                "  nested:\n" +
+                "    A:\n" +
+                "      type: Numerical\n" +
+                "      data:\n" +
+                "        support: [0.0, 1.0]\n" +
+                "        pdf: 9 samples with step 0.1\n" +
+                "    B:\n" +
+                "      type: Numerical\n" +
+                "      data:\n" +
+                "        support: [0.0, 1.0]\n" +
+                "        pdf: 9 samples with step 0.1\n" +
+                "    C:\n" +
+                "      type: Numerical\n" +
+                "      data:\n" +
+                "        support: [0.0, 1.0]\n" +
+                "        pdf: 9 samples with step 0.1\n");
     }
     
     @Test

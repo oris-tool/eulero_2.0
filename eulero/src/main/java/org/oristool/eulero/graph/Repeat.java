@@ -17,7 +17,15 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.MarkingExpr;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
 
 /**
  * Repeat: A random choice at end of each iteration
@@ -51,5 +59,27 @@ public class Repeat extends Activity {
         b.append(String.format("  prob: %.3f\n", repeatProb));
         b.append(String.format("  body: %s\n", repeatBody.name()));
         return b.toString();
+    }
+    
+    @Override
+    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        
+        Transition repeat = pn.addTransition(name() + "_repeat");
+        repeat.addFeature(new Priority(prio++));
+        repeat.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(repeatProb)));
+        
+        Transition exit = pn.addTransition(name() + "_continue");
+        exit.addFeature(new Priority(prio++));
+        exit.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(1.0 - repeatProb)));
+        
+        Place choose = pn.addPlace("p" + name() + "_choose");
+        pn.addPrecondition(choose, repeat);
+        pn.addPrecondition(choose, exit);
+        pn.addPostcondition(repeat, in);
+        
+        prio = repeatBody.addPetriBlock(pn, in, choose, prio);
+        return prio;
     }
 }

@@ -17,6 +17,7 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -26,6 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.trans.RegTransient;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.petrinet.Marking;
+import org.oristool.petrinet.MarkingCondition;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
+
 /**
  * DAG: A graph of activities
  */
@@ -33,6 +45,13 @@ public class DAG extends Activity {
     private final Activity begin;
     private final Activity end;       
 
+    /**
+     * An empty DAG
+     */
+    public static DAG empty(String name) {
+        return new DAG(name);
+    }
+    
     /**
      * Builds a DAG with the given activities in sequence.
      */
@@ -75,8 +94,10 @@ public class DAG extends Activity {
 
     private DAG(String name) {  // force use of static methods
         super(name);
-        this.begin = new Activity(name + "_BEGIN") { };
-        this.end = new Activity(name + "_END") { };
+        this.begin = new Analytical(name + "_BEGIN", 
+                StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+        this.end = new Analytical(name + "_END",
+                StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
     }
 
     /**
@@ -117,6 +138,10 @@ public class DAG extends Activity {
             DAG next = nested.removeFirst();
             next.end().dfs(true, new DFSObserver() {
                 @Override public boolean onOpen(Activity opened, Activity from) {
+                    if (opened.equals(begin()) && from.equals(end())) {
+                        throw new IllegalStateException("Empty DAG");
+                    }
+                    
                     if (!activities.add(opened.toString())) {
                         repeated.add(opened.toString());
                     } else {
@@ -230,33 +255,140 @@ public class DAG extends Activity {
         }
         return b.toString();
     }
-//    /**
-//     * Returns the leaf activities that this activity transitively 
-//     * depends on, or this activity if it is a leaf.  
-//     */
-//    public List<Activity> findLeaves() {
-//        
-//        List<Activity> leaves = new ArrayList<>();
-//        this.dfs(new DFSObserver() {
-//            @Override public boolean onClose(Activity closed) {
-//                if (closed.pre().isEmpty())
-//                    leaves.add(closed);
-//                return true;
-//            }
-//        });
-//        
-//        return leaves;
-//    }
-//    
-//    /**
-//     * Returns the leaf activities in common with another activity.  
-//     */
-//    public List<Activity> findCommonLeaves(Activity other) {
-//        
-//        List<Activity> leaves = this.findLeaves();
-//        List<Activity> otherLeaves = other.findLeaves();
-//        leaves.retainAll(otherLeaves);
-//        
-//        return leaves;
-//    }
+    
+    @Override
+    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        Map<Activity, Place> actOut = new LinkedHashMap<>();
+        Map<Activity, Transition> actPost = new LinkedHashMap<>();
+        Map<Activity, Transition> actPre = new LinkedHashMap<>();
+        Map<Activity, Place> actIn = new LinkedHashMap<>();
+        List<Activity> act = new ArrayList<>();
+        int[] priority = new int[] { prio };  // to access in closure
+        
+        this.end().dfs(true, new DFSObserver() {
+            @Override public boolean onSkipped(Activity opened, Activity from) {
+                return onOpenOrSkipped(opened, from);
+            }
+            
+            @Override public boolean onOpen(Activity opened, Activity from) {
+                return onOpenOrSkipped(opened, from);
+            }
+            
+            private boolean onOpenOrSkipped(Activity opened, Activity from) {
+                if (opened.equals(begin()) && from.equals(end())) {
+                    throw new IllegalStateException("Empty DAG");
+                }
+
+                if (from == null) {
+                    return true;  // END was opened, continue
+                }
+                
+                if (!act.contains(opened)) {
+                    act.add(opened);  // will be in reversed order (END to BEGIN)
+                }
+                
+                if (!actPost.containsKey(opened) && !actPre.containsKey(from) &&
+                        opened.post().equals(List.of(from)) && from.pre().equals(List.of(opened))) {
+                    // sequence without branches in or out
+                    // [OPENED]   ->  (pOPENED_FROM)  -> [FROM]
+                    if (opened.equals(begin())) {
+                        // DAG always starts with "from", no need for BEGIN
+                        actIn.put(from, in);
+                    } else if (from.equals(end())) {
+                        // the DAG always ends with "opened", no need for END  
+                        actOut.put(opened, out);
+                    } else {
+                        Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                        actOut.put(opened, openedFrom);
+                        actIn.put(from, openedFrom);
+                    }
+
+                } else {
+                    // need openedPost/fromPre transitions
+                    // [OPENED]    ->  (pOPENED_out)  -> [OPENED_POST]
+                    //             ->  (pOPENED_FROM) ->
+                    // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
+                    if (!actPost.containsKey(opened)) {
+                        Place openedOut = pn.addPlace("p" + opened + "_out");
+                        Transition openedPost = pn.addTransition(opened + "_POST");
+                        openedPost.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+                        openedPost.addFeature(new Priority(priority[0]++));
+                        pn.addPrecondition(openedOut, openedPost);
+                        actOut.put(opened, openedOut);
+                        actPost.put(opened, openedPost);
+                    }
+                    
+                    if (!actPre.containsKey(from)) {
+                        Place fromIn = pn.addPlace("p" + from + "_in");
+                        Transition fromPre = pn.addTransition(from + "_PRE");
+                        fromPre.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+                        fromPre.addFeature(new Priority(priority[0]++));
+                        pn.addPostcondition(fromPre, fromIn);
+                        actPre.put(from, fromPre);
+                        actIn.put(from, fromIn);
+                    }
+                    
+                    Transition openedPost = actPost.get(opened);
+                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                    Transition fromPre = actPre.get(from);
+
+                    pn.addPostcondition(openedPost, openedFrom);
+                    pn.addPrecondition(openedFrom, fromPre);
+                }
+                
+                    
+                return true;  // continue
+            }
+        });
+        
+        // recursively add nested activities
+        for (int i = act.size() - 1; i >= 0; i--) {
+            Activity a = act.get(i);
+            
+            if (a.equals(begin())) {
+                if (actIn.containsKey(a)) {
+                    throw new IllegalStateException("BEGIN cannot have preconditions");
+                } else if (actOut.containsKey(a)) { 
+                    a.addPetriBlock(pn, in, actOut.get(a), priority[0]++);  // IMM
+                }
+
+            } else if (a.equals(end())) {
+                if (actOut.containsKey(a)) {
+                    throw new IllegalStateException("END cannot have postconditions");
+                } else if (actIn.containsKey(a)) {
+                    a.addPetriBlock(pn, actIn.get(a), out, priority[0]++);  // IMM
+                }
+            
+            } else {
+                a.addPetriBlock(pn, actIn.get(a), actOut.get(a), priority[0]++);
+            }
+        }
+        
+        return priority[0];
+    }
+    
+    public TransientSolution<DeterministicEnablingState, Marking> analyze(
+            String timeBound, String timeStep, String error) {
+        
+        
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addPetriBlock(pn, in, out, 1);
+        
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+        
+        RegTransient.Builder builder = RegTransient.builder();
+        builder.timeBound(new BigDecimal(timeBound));
+        builder.timeStep(new BigDecimal(timeStep));
+        builder.greedyPolicy(new BigDecimal(timeBound), new BigDecimal(error));
+        builder.markingFilter(MarkingCondition.fromString("pEND > 0"));
+
+        RegTransient analysis = builder.build();
+        TransientSolution<DeterministicEnablingState, Marking> result =
+                analysis.compute(pn, m);
+        
+        return result;
+    }
 }

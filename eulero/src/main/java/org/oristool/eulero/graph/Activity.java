@@ -25,6 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+
 /**
  * Represents a node in an activity DAG.
  */
@@ -69,17 +72,23 @@ public abstract class Activity {
     }
     
     /**
-     * Adds an activity as a direct dependency; also adds this 
-     * activity to the dependecy's depedencyOf.  
+     * Adds activities as a direct dependency; also adds this 
+     * activity to the dependencies' post().  
      */
-    public final void addPrecondition(Activity other) {
-        pre.add(other);
-        other.post.add(this);
+    public final void addPrecondition(Activity... others) {
+        for (Activity other : others) {
+            if (pre.contains(other))
+                throw new IllegalArgumentException(other + " already present in " + this);
+            if (other.post.contains(this))
+                throw new IllegalArgumentException(this + " already present in " + other);
+            pre.add(other);
+            other.post.add(this);
+        }
     }
-    
+       
     /**
      * Removes an activity as a direct dependency; also removes
-     * this activity from the dependecy's depedencyOf.  
+     * this activity from the dependency's post().  
      */
     public final void removePrecondition(Activity other) {
         if (!pre.remove(other))
@@ -272,4 +281,13 @@ public abstract class Activity {
         
         return b.toString();
     }
+    
+    /**
+     * Adds the activity as an STPN transition.
+     * 
+     * @param petriNet STPN where the activity is added
+     * @param priority initial priority of the transitions of this activity 
+     * @return next priority level for the rest of the network
+     */
+    public abstract int addPetriBlock(PetriNet pn, Place in, Place out, int prio);
 }

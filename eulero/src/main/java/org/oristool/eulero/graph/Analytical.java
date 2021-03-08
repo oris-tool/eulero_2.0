@@ -17,7 +17,17 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.oristool.math.domain.DBMZone;
+import org.oristool.math.expression.Expolynomial;
+import org.oristool.math.expression.Variable;
+import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
 
 /**
  * Activity with an analytical CDF.
@@ -36,5 +46,44 @@ public class Analytical extends Activity {
     
     public StochasticTransitionFeature getPDF() {
         return pdf;
+    }
+    
+    @Override
+    public String yamlData() {
+        StringBuilder b = new StringBuilder();
+        List<? extends DBMZone> domains = pdf.density().getDomains();
+        List<? extends Expolynomial> densities = pdf.density().getDensities();
+        for (int i = 0; i < domains.size(); i++) {
+            b.append(String.format("  pdf: [%s, %s] %s\n",
+                    domains.get(i).getBound(Variable.TSTAR, Variable.X).negate(),
+                    domains.get(i).getBound(Variable.X, Variable.TSTAR),
+                    densities.get(i).toString()));
+        }
+        return b.toString();
+    }
+    
+    public static Analytical uniform(String name, BigDecimal a, BigDecimal b) {
+        return new Analytical(name, 
+                StochasticTransitionFeature.newUniformInstance(a, b));
+    }
+
+    public static Analytical exp(String name, BigDecimal lambda) {
+        return new Analytical(name, 
+                StochasticTransitionFeature.newExponentialInstance(lambda));
+    }
+
+    public static Analytical erlang(String name, int k, BigDecimal lambda) {
+        return new Analytical(name, 
+                StochasticTransitionFeature.newErlangInstance(k, lambda));
+    }
+    
+    @Override
+    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        Transition t = pn.addTransition(this.name());
+        t.addFeature(new Priority(prio));
+        t.addFeature(pdf);
+        pn.addPrecondition(in, t);
+        pn.addPostcondition(t, out);
+        return prio + 1;
     }
 }
