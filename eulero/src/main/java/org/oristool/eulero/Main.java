@@ -125,8 +125,8 @@ public class Main {
         d.addPrecondition(main.begin());
         e.addPrecondition(a, b);
         f.addPrecondition(b);
-        g.addPrecondition(b, c);
-        h.addPrecondition(b, c);
+        g.addPrecondition(c);
+        h.addPrecondition(c);
         i.addPrecondition(e, f);
         j.addPrecondition(f, g, h);
         k.addPrecondition(h, d);
