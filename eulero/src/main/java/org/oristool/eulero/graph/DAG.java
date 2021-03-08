@@ -36,6 +36,8 @@ import org.oristool.petrinet.Marking;
 import org.oristool.petrinet.MarkingCondition;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Postcondition;
+import org.oristool.petrinet.Precondition;
 import org.oristool.petrinet.Transition;
 
 /**
@@ -375,7 +377,14 @@ public class DAG extends Activity {
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
         this.addPetriBlock(pn, in, out, 1);
-        System.out.println(pn);
+        
+        for (Transition t : pn.getTransitions()) {
+            for (Precondition p : pn.getPreconditions(t))
+                System.out.println(p.getPlace() + "\t" + p.getTransition());
+            for (Postcondition p : pn.getPostconditions(t))
+                System.out.println(p.getTransition() + "\t" + p.getPlace());
+        }
+        
         Marking m = new Marking();
         m.addTokens(in, 1);
         
@@ -388,7 +397,6 @@ public class DAG extends Activity {
         RegTransient analysis = builder.build();
         TransientSolution<DeterministicEnablingState, Marking> result =
                 analysis.compute(pn, m);
-        
         return result;
     }
 }

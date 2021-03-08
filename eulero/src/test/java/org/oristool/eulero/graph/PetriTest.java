@@ -17,13 +17,52 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+import org.oristool.models.stpn.TransientSolutionViewer;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 class PetriTest {
 
     @Test
-    void testEnrico() {
-        // TODO manually check STPN and analysis results
+    void testSTPN() {
+        StochasticTransitionFeature unif01 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+        
+        Analytical q = new Analytical("Q", unif01);
+        Analytical r = new Analytical("R", unif01);
+        Analytical s = new Analytical("S", unif01);
+        
+        DAG t = DAG.sequence("T", 
+                new Analytical("T1", unif01),
+                new Analytical("T2", unif01));
+        Analytical u = new Analytical("U", unif01);
+        DAG tu = DAG.forkJoin("TU", t, u);
+
+        DAG v = DAG.sequence("V", 
+                new Analytical("V1", unif01),
+                new Analytical("V2", unif01));
+        
+        Analytical w = new Analytical("W", unif01);
+        DAG x = DAG.sequence("X", 
+                new Analytical("X1", unif01),
+                new Analytical("X2", unif01));
+
+        DAG wx = DAG.forkJoin("WX", w, x);
+        
+        DAG p = DAG.empty("P");
+        q.addPrecondition(p.begin());
+        r.addPrecondition(p.begin());
+        s.addPrecondition(p.begin());
+        tu.addPrecondition(q, r);
+        v.addPrecondition(r);
+        wx.addPrecondition(r, s);
+        p.end().addPrecondition(tu, v, wx);
+        
+        System.out.println(p.yamlRecursive());
+        new TransientSolutionViewer(p.analyze("10", "0.1", "0.1"));
     }
 
 }
