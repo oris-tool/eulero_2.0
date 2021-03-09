@@ -94,4 +94,32 @@ class PetriTest {
         new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
         Thread.sleep(10000);
     }
+    
+    @Test
+    void testEnrico() throws InterruptedException {
+        StochasticTransitionFeature unif01 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+        
+        DAG t = DAG.forkJoin("MAIN",
+                    DAG.sequence("AB", 
+                            new Analytical("A", unif01), 
+                            new Analytical("B", unif01)),
+                    DAG.sequence("CRH", 
+                            new Analytical("C", unif01),
+                            new Repeat("R", 0.1, 
+                                    DAG.forkJoin("DEFG", 
+                                            DAG.sequence("DE", 
+                                                    new Analytical("D", unif01),
+                                                    new Analytical("E", unif01)),
+                                            DAG.sequence("FG", 
+                                                    new Analytical("F", unif01),
+                                                    new Analytical("G", unif01)))),
+                            new Analytical("H", unif01)));
+                    
+        System.out.println(t.yamlRecursive());
+        System.out.println(t.petriArcs());
+        
+        new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
+        Thread.sleep(20000);
+    }
 }
