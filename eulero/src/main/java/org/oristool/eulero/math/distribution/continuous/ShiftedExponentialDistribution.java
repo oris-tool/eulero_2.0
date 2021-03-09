@@ -26,4 +26,15 @@ public class ShiftedExponentialDistribution extends ContinuousDistribution{
 
         return BigDecimal.valueOf(lambda.doubleValue() * Math.exp(- lambda.doubleValue() * (t.doubleValue() - getLow().doubleValue())));
     }
+
+    @Override
+    public String getExpolynomialDensityString() {
+        double multiplicationCoefficient = (this.lambda.doubleValue() * Math.exp(this.lambda.doubleValue() * getLow().doubleValue()));
+        return multiplicationCoefficient + " * Exp[-" + this.lambda + " x]";
+    }
+
+    @Override
+    public BigDecimal getNormalizationFactor() {
+        return BigDecimal.valueOf(1);
+    }
 }

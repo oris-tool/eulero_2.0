@@ -54,4 +54,8 @@ public abstract class ContinuousDistribution extends Distribution {
     }
 
     public abstract BigDecimal probabilityDensityFunction(BigDecimal t);
+
+    public abstract String getExpolynomialDensityString();
+
+    public abstract BigDecimal getNormalizationFactor();
 }

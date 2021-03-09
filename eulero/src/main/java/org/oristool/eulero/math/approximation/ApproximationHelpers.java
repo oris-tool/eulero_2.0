@@ -7,8 +7,6 @@ import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiabl
 import org.apache.commons.math3.exception.DimensionMismatchException;
 
 public class ApproximationHelpers {
-    // TODO - TBD: is it ok to use such a class??
-
     public static class CumulativeTruncatedExp implements UnivariateDifferentiableFunction {
         private double delta;
         private double b;
@@ -26,10 +24,6 @@ public class ApproximationHelpers {
         public double value(double x) {
             // Here x is the lambda of the function
             return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
-        }
-
-        public UnivariateFunction derivative() {
-            return FunctionUtils.toDifferentiableUnivariateFunction(this).derivative();
         }
 
         public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {

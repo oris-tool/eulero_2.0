@@ -18,8 +18,13 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
+import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
+import org.oristool.eulero.math.approximation.HistogramApproximator;
+import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.models.stpn.TransientSolutionViewer;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -120,6 +125,101 @@ class PetriTest {
         System.out.println(t.petriArcs());
         
         new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void AnalyticalHistogramTest() throws InterruptedException {
+        BigDecimal low = new BigDecimal(1.95088);
+        BigDecimal upp = new BigDecimal(21.4594);
+        ArrayList<BigDecimal> histogramValues = new ArrayList<>(
+                Arrays.asList(BigDecimal.valueOf(0.00223337), BigDecimal.valueOf(0.0635344), BigDecimal.valueOf(0.194387),
+                        BigDecimal.valueOf(0.0706512), BigDecimal.valueOf(0.00253338), BigDecimal.valueOf(0.0000666678),
+                        BigDecimal.valueOf(0.00321672), BigDecimal.valueOf(0.0284505), BigDecimal.valueOf(0.0976016),
+                        BigDecimal.valueOf(0.127585), BigDecimal.valueOf(0.0700178), BigDecimal.valueOf(0.0256171),
+                        BigDecimal.valueOf(0.0267171), BigDecimal.valueOf(0.040584), BigDecimal.valueOf(0.0540176),
+                        BigDecimal.valueOf(0.059251), BigDecimal.valueOf(0.0528509), BigDecimal.valueOf(0.039234),
+                        BigDecimal.valueOf(0.0228504), BigDecimal.valueOf(0.0117002), BigDecimal.valueOf(0.00478341),
+                        BigDecimal.valueOf(0.00161669), BigDecimal.valueOf(0.000466674), BigDecimal.valueOf(0.0000333339)));
+        HistogramApproximator approximator = new EXPMixtureApproximation();
+        HistogramDistribution histogram = new HistogramDistribution("AHistogram", low, upp, histogramValues);
+
+
+        AnalyticalHistogram t = new AnalyticalHistogram("A", histogram, approximator);
+
+        t.petriArcs();
+        new TransientSolutionViewer(t.analyze("7", "0.1", "0.01"));
+        Thread.sleep(20000);
+    }
+
+
+    @Test
+    void testGraphWithHistograms() throws InterruptedException {
+        HistogramApproximator approximator = new EXPMixtureApproximation();
+
+        BigDecimal low0 = new BigDecimal(1.9452);
+        BigDecimal upp0 = new BigDecimal(12.2337);
+        ArrayList<BigDecimal> histogramValues0 = new ArrayList<>(
+                Arrays.asList(BigDecimal.valueOf(0.000175004), BigDecimal.valueOf(0.00427511), BigDecimal.valueOf(0.0273507),
+                        BigDecimal.valueOf(0.0938273), BigDecimal.valueOf(0.160504), BigDecimal.valueOf(0.138703),
+                        BigDecimal.valueOf(0.0599765), BigDecimal.valueOf(0.0137503), BigDecimal.valueOf(0.00140004),
+                        BigDecimal.valueOf(0.0000500013), BigDecimal.valueOf(0.000125003), BigDecimal.valueOf(0.000575014),
+                        BigDecimal.valueOf(0.00255006), BigDecimal.valueOf(0.0100003), BigDecimal.valueOf(0.0266507),
+                        BigDecimal.valueOf(0.0564264), BigDecimal.valueOf(0.0903273), BigDecimal.valueOf(0.105903),
+                        BigDecimal.valueOf(0.0940524), BigDecimal.valueOf(0.0641516), BigDecimal.valueOf(0.0325758),
+                        BigDecimal.valueOf(0.0122253), BigDecimal.valueOf(0.00362509), BigDecimal.valueOf(0.00080002)));
+
+        HistogramDistribution histogram0 = new HistogramDistribution("Histogram0", low0, upp0, histogramValues0);
+
+
+        BigDecimal low1 = new BigDecimal(1.95088);
+        BigDecimal upp1 = new BigDecimal(21.4594);
+        ArrayList<BigDecimal> histogramValues1 = new ArrayList<>(
+                Arrays.asList(BigDecimal.valueOf(0.00223337), BigDecimal.valueOf(0.0635344), BigDecimal.valueOf(0.194387),
+                        BigDecimal.valueOf(0.0706512), BigDecimal.valueOf(0.00253338), BigDecimal.valueOf(0.0000666678),
+                        BigDecimal.valueOf(0.00321672), BigDecimal.valueOf(0.0284505), BigDecimal.valueOf(0.0976016),
+                        BigDecimal.valueOf(0.127585), BigDecimal.valueOf(0.0700178), BigDecimal.valueOf(0.0256171),
+                        BigDecimal.valueOf(0.0267171), BigDecimal.valueOf(0.040584), BigDecimal.valueOf(0.0540176),
+                        BigDecimal.valueOf(0.059251), BigDecimal.valueOf(0.0528509), BigDecimal.valueOf(0.039234),
+                        BigDecimal.valueOf(0.0228504), BigDecimal.valueOf(0.0117002), BigDecimal.valueOf(0.00478341),
+                        BigDecimal.valueOf(0.00161669), BigDecimal.valueOf(0.000466674), BigDecimal.valueOf(0.0000333339)));
+        HistogramDistribution histogram1 = new HistogramDistribution("Histogram1", low1, upp1, histogramValues1);
+
+
+        BigDecimal low2 = new BigDecimal(0.414154);
+        BigDecimal upp2 = new BigDecimal(5.76728);
+        ArrayList<BigDecimal> histogramValues2 = new ArrayList<>(
+                Arrays.asList(BigDecimal.valueOf(0.000250394), BigDecimal.valueOf(0.000676065), BigDecimal.valueOf(0.00182788),
+                        BigDecimal.valueOf(0.00856349), BigDecimal.valueOf(0.415154), BigDecimal.valueOf(0.12079),
+                        BigDecimal.valueOf(0.0441946), BigDecimal.valueOf(0.0631745), BigDecimal.valueOf(0.0782232),
+                        BigDecimal.valueOf(0.0823797), BigDecimal.valueOf(0.0697098), BigDecimal.valueOf(0.0540852),
+                        BigDecimal.valueOf(0.0319002), BigDecimal.valueOf(0.0179783), BigDecimal.valueOf(0.00803766),
+                        BigDecimal.valueOf(0.00305481)));
+        HistogramDistribution histogram2 = new HistogramDistribution("Histogram2", low2, upp2, histogramValues2);
+
+        DAG t = DAG.sequence("MAIN",
+                    DAG.sequence("AB",
+                            new AnalyticalHistogram("A", histogram0, approximator),
+                            new AnalyticalHistogram("B", histogram1, approximator)),
+                    DAG.forkJoin("CRH",
+                            new AnalyticalHistogram("C", histogram2, approximator),
+                            new AnalyticalHistogram("R", histogram0, approximator)));
+
+        System.out.println(t.yamlRecursive());
+        System.out.println(t.petriArcs());
+
+        new TransientSolutionViewer(t.analyze("20", "0.1", "0.01"));
+
+        AnalyticalHistogram t0 = new AnalyticalHistogram("A", histogram0, approximator);
+        AnalyticalHistogram t1 = new AnalyticalHistogram("B", histogram1, approximator);
+        AnalyticalHistogram t2 = new AnalyticalHistogram("C", histogram2, approximator);
+        t0.petriArcs();
+        t1.petriArcs();
+        t2.petriArcs();
+        new TransientSolutionViewer(t0.analyze("13", "0.1", "0.01"));
+        new TransientSolutionViewer(t1.analyze("22", "0.1", "0.01"));
+        new TransientSolutionViewer(t2.analyze("7", "0.1", "0.01"));
+
         Thread.sleep(20000);
     }
 }
