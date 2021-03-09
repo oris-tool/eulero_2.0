@@ -133,6 +133,7 @@ public class Main {
         main.end().addPrecondition(i, j, k);
         
         System.out.println(main.yamlRecursive());
+        System.out.println(main.petriArcs());
         new TransientSolutionViewer(main.analyze("10", "0.1", "0.1"));
         
     }

@@ -18,7 +18,6 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.oristool.models.stpn.TransientSolutionViewer;
@@ -61,8 +60,38 @@ class PetriTest {
         wx.addPrecondition(r, s);
         p.end().addPrecondition(tu, v, wx);
         
-        System.out.println(p.yamlRecursive());
+        System.out.println(p.petriArcs());
         new TransientSolutionViewer(p.analyze("10", "0.1", "0.1"));
     }
 
+    @Test
+    void testSequence() throws InterruptedException {
+        StochasticTransitionFeature unif01 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+        
+        DAG t = DAG.sequence("T", 
+                new Analytical("T1", unif01),
+                new Analytical("T2", unif01));
+        
+        System.out.println(t.petriArcs());
+        
+        new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
+        Thread.sleep(10000);
+    }
+    
+    @Test
+    void testForkJoin() throws InterruptedException {
+        StochasticTransitionFeature unif01 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+        
+        DAG t = DAG.forkJoin("T", 
+                new Analytical("T1", unif01),
+                new Repeat("REP", 0.2, DAG.sequence("SEQ", new Analytical("T2", unif01))));
+        
+        System.out.println(t.yamlRecursive());
+        System.out.println(t.petriArcs());
+        
+        new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
+        Thread.sleep(10000);
+    }
 }

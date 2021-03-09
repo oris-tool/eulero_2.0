@@ -17,6 +17,7 @@
 
 package org.oristool.eulero.graph;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -25,8 +26,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.trans.RegTransient;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.petrinet.Marking;
+import org.oristool.petrinet.MarkingCondition;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Postcondition;
+import org.oristool.petrinet.Precondition;
+import org.oristool.petrinet.Transition;
 
 /**
  * Represents a node in an activity DAG.
@@ -138,7 +147,7 @@ public abstract class Activity {
                     openAdj.push(pre ? next.pre().iterator() : next.post().iterator());
                 } else {
                     // already opened, skip to break loops
-                    if (!observer.onSkipped(next, from))
+                    if (!observer.onSkip(next, from))
                         return false;
                 }
             } else {
@@ -175,8 +184,8 @@ public abstract class Activity {
                 return true;
             }
             
-            @Override public boolean onSkipped(Activity skipped, Activity from) {
-                return observer.onSkipped(skipped, from);
+            @Override public boolean onSkip(Activity skipped, Activity from) {
+                return observer.onSkip(skipped, from);
             }
             @Override public boolean onClose(Activity closed) {
                 return observer.onClose(closed);
@@ -216,8 +225,8 @@ public abstract class Activity {
                     return observer.onClose(closed);
                 }
                 
-                @Override public boolean onSkipped(Activity skipped, Activity from) {
-                    return observer.onSkipped(skipped, from);
+                @Override public boolean onSkip(Activity skipped, Activity from) {
+                    return observer.onSkip(skipped, from);
                 }
             });
             
@@ -290,4 +299,51 @@ public abstract class Activity {
      * @return next priority level for the rest of the network
      */
     public abstract int addPetriBlock(PetriNet pn, Place in, Place out, int prio);
+    
+    /**
+     * Returns a string representation of the preconditions and postconditions 
+     * for the STPN of this activity.
+     * 
+     * @return string representation of STPN edges 
+     */
+    public String petriArcs() {
+        
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addPetriBlock(pn, in, out, 1);
+        
+        StringBuilder b = new StringBuilder();
+        for (Transition t : pn.getTransitions()) {
+            for (Precondition p : pn.getPreconditions(t))
+                b.append(p.getPlace() + " " + p.getTransition() + "\n");
+            for (Postcondition p : pn.getPostconditions(t))
+                System.out.println(p.getTransition() + " " + p.getPlace());
+        }
+        
+        return b.toString();
+    }
+    
+    public TransientSolution<DeterministicEnablingState, Marking> analyze(
+            String timeBound, String timeStep, String error) {
+        
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addPetriBlock(pn, in, out, 1);
+        
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+        
+        RegTransient.Builder builder = RegTransient.builder();
+        builder.timeBound(new BigDecimal(timeBound));
+        builder.timeStep(new BigDecimal(timeStep));
+        builder.greedyPolicy(new BigDecimal(timeBound), new BigDecimal(error));
+        builder.markingFilter(MarkingCondition.fromString("pEND > 0"));
+
+        RegTransient analysis = builder.build();
+        TransientSolution<DeterministicEnablingState, Marking> result =
+                analysis.compute(pn, m);
+        return result;
+    }
 }

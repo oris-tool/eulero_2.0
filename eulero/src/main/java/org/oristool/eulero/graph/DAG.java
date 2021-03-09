@@ -28,16 +28,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.oristool.models.pn.Priority;
-import org.oristool.models.stpn.TransientSolution;
-import org.oristool.models.stpn.trans.RegTransient;
-import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
-import org.oristool.petrinet.Marking;
-import org.oristool.petrinet.MarkingCondition;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
-import org.oristool.petrinet.Postcondition;
-import org.oristool.petrinet.Precondition;
 import org.oristool.petrinet.Transition;
 
 /**
@@ -154,7 +147,7 @@ public class DAG extends Activity {
                     return true;  // continue
                 }
                 
-                @Override public boolean onSkipped(Activity skipped, Activity from) {
+                @Override public boolean onSkip(Activity skipped, Activity from) {
                     problems.add(String.format("%s: Cycle from %s to %s", nested, from, skipped));
                     return true;  // continue
                 }
@@ -245,7 +238,7 @@ public class DAG extends Activity {
             }
             
             @Override
-            public boolean onSkipped(Activity skipped, Activity from) {
+            public boolean onSkip(Activity skipped, Activity from) {
                 addEdge(from, skipped);
                 return true;
             }
@@ -267,77 +260,90 @@ public class DAG extends Activity {
         List<Activity> act = new ArrayList<>();
         int[] priority = new int[] { prio };  // to access in closure
         
+        boolean useBegin = begin().post().size() > 1;
+        boolean useEnd = end().pre().size() > 1;
+
         this.end().dfs(true, new DFSObserver() {
-            @Override public boolean onSkipped(Activity opened, Activity from) {
-                return onOpenOrSkipped(opened, from);
+            @Override public boolean onSkip(Activity opened, Activity from) {
+                return onOpenOrSkip(opened, from);
             }
             
             @Override public boolean onOpen(Activity opened, Activity from) {
-                return onOpenOrSkipped(opened, from);
+                return onOpenOrSkip(opened, from);
             }
             
-            private boolean onOpenOrSkipped(Activity opened, Activity from) {
+            private boolean onOpenOrSkip(Activity opened, Activity from) {
                 if (opened.equals(begin()) && from.equals(end())) {
                     throw new IllegalStateException("Empty DAG");
                 }
 
-                if (from == null) {
-                    return true;  // END was opened, continue
-                }
-                
                 if (!act.contains(opened)) {
-                    act.add(opened);  // will be in reversed order (END to BEGIN)
+                    // will be in visit order (END to BEGIN)
+                    act.add(opened);
+                }
+
+                if (from == null) {
+                    return true;  // END is not a real dependency, continue
                 }
                 
-                if (!actPost.containsKey(opened) && !actPre.containsKey(from) &&
-                        opened.post().equals(List.of(from)) && from.pre().equals(List.of(opened))) {
-                    // sequence without branches in or out
-                    // [OPENED]   ->  (pOPENED_FROM)  -> [FROM]
-                    if (opened.equals(begin())) {
-                        // DAG always starts with "from", no need for BEGIN
-                        actIn.put(from, in);
-                    } else if (from.equals(end())) {
-                        // the DAG always ends with "opened", no need for END  
-                        actOut.put(opened, out);
-                    } else {
-                        Place openedFrom = pn.addPlace("p" + opened + "_" + from);
-                        actOut.put(opened, openedFrom);
-                        actIn.put(from, openedFrom);
-                    }
+                // general structure:
+                
+                // [OPENED]    ->  (pOPENED_out)  -> [OPENED_POST]
+                //             ->  (pOPENED_FROM) ->
+                // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
 
-                } else {
-                    // need openedPost/fromPre transitions
-                    // [OPENED]    ->  (pOPENED_out)  -> [OPENED_POST]
-                    //             ->  (pOPENED_FROM) ->
-                    // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
-                    if (!actPost.containsKey(opened)) {
-                        Place openedOut = pn.addPlace("p" + opened + "_out");
+                if (!actOut.containsKey(opened)) {
+                    Place openedOut = opened.equals(begin()) && useBegin ? in :
+                        pn.addPlace("p" + opened + "_out");  // add pOPENED_out
+                    actOut.put(opened, openedOut);
+
+                    if (opened.post().size() > 1) {  // add pOPENED_out, OPENED_POST
                         Transition openedPost = pn.addTransition(opened + "_POST");
                         openedPost.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
                         openedPost.addFeature(new Priority(priority[0]++));
                         pn.addPrecondition(openedOut, openedPost);
-                        actOut.put(opened, openedOut);
                         actPost.put(opened, openedPost);
                     }
+                }
+                
+                if (!actIn.containsKey(from)) {
+                    Place fromIn = from.equals(end()) && useEnd ? out :
+                        pn.addPlace("p" + from + "_in");  // add pFROM_in
+                    actIn.put(from, fromIn);
                     
-                    if (!actPre.containsKey(from)) {
-                        Place fromIn = pn.addPlace("p" + from + "_in");
+                    if (from.pre().size() > 1) {  // add FROM_PRE, pFROM_in
                         Transition fromPre = pn.addTransition(from + "_PRE");
                         fromPre.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
                         fromPre.addFeature(new Priority(priority[0]++));
                         pn.addPostcondition(fromPre, fromIn);
                         actPre.put(from, fromPre);
-                        actIn.put(from, fromIn);
                     }
-                    
-                    Transition openedPost = actPost.get(opened);
-                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
-                    Transition fromPre = actPre.get(from);
-
-                    pn.addPostcondition(openedPost, openedFrom);
-                    pn.addPrecondition(openedFrom, fromPre);
                 }
                 
+                if (opened.post().size() > 1 && from.pre().size() > 1) {  // use intermediate pOPENED_FROM
+                    Transition openedPost = actPost.get(opened);
+                    Transition fromPre = actPre.get(from);
+                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                    pn.addPostcondition(openedPost, openedFrom);
+                    pn.addPrecondition(openedFrom, fromPre);
+
+                } else if (opened.post().size() > 1) {  // add token directly to fromIn
+                    Transition openedPost = actPost.get(opened);
+                    Place fromIn = actIn.get(from);
+                    pn.addPostcondition(openedPost, fromIn);
+                    
+                } else if (from.pre().size() > 1) {  // take token directly from openedOut
+                    Place openedOut = actOut.get(opened);
+                    Transition fromPre = actPre.get(from);
+                    pn.addPrecondition(openedOut, fromPre);
+                
+                } else {  // "opened" and "from" should share a place
+                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                    pn.removePlace(actOut.get(opened));
+                    actOut.put(opened, openedFrom);
+                    pn.removePlace(actIn.get(from));
+                    actIn.put(from, openedFrom);
+                }
                     
                 return true;  // continue
             }
@@ -348,55 +354,26 @@ public class DAG extends Activity {
             Activity a = act.get(i);
             
             if (a.equals(begin())) {
-                if (actIn.containsKey(a)) {
-                    throw new IllegalStateException("BEGIN cannot have preconditions");
-                } else if (actOut.containsKey(a)) { 
-                    a.addPetriBlock(pn, in, actOut.get(a), priority[0]++);  // IMM
+                if (useBegin) {
+                    pn.addPrecondition(in, actPost.get(a));
                 }
-
+                
             } else if (a.equals(end())) {
-                if (actOut.containsKey(a)) {
-                    throw new IllegalStateException("END cannot have postconditions");
-                } else if (actIn.containsKey(a)) {
-                    a.addPetriBlock(pn, actIn.get(a), out, priority[0]++);  // IMM
+                if (useEnd) {
+                    pn.addPostcondition(actPre.get(a), out);
                 }
-            
+                
             } else {
-                a.addPetriBlock(pn, actIn.get(a), actOut.get(a), priority[0]++);
+                Place aIn = actIn.get(a);
+                if (aIn.equals(actOut.get(begin())) && !useBegin)
+                    aIn = in;
+                Place aOut = actOut.get(a);
+                if (aOut.equals(actIn.get(end())) && !useEnd)
+                    aOut = out;
+                a.addPetriBlock(pn, aIn, aOut, priority[0]++);
             }
         }
         
         return priority[0];
-    }
-    
-    public TransientSolution<DeterministicEnablingState, Marking> analyze(
-            String timeBound, String timeStep, String error) {
-        
-        
-        PetriNet pn = new PetriNet();
-        Place in = pn.addPlace("pBEGIN");
-        Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
-        
-        for (Transition t : pn.getTransitions()) {
-            for (Precondition p : pn.getPreconditions(t))
-                System.out.println(p.getPlace() + "\t" + p.getTransition());
-            for (Postcondition p : pn.getPostconditions(t))
-                System.out.println(p.getTransition() + "\t" + p.getPlace());
-        }
-        
-        Marking m = new Marking();
-        m.addTokens(in, 1);
-        
-        RegTransient.Builder builder = RegTransient.builder();
-        builder.timeBound(new BigDecimal(timeBound));
-        builder.timeStep(new BigDecimal(timeStep));
-        builder.greedyPolicy(new BigDecimal(timeBound), new BigDecimal(error));
-        builder.markingFilter(MarkingCondition.fromString("pEND > 0"));
-
-        RegTransient analysis = builder.build();
-        TransientSolution<DeterministicEnablingState, Marking> result =
-                analysis.compute(pn, m);
-        return result;
     }
 }
