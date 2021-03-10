@@ -3,6 +3,7 @@ package org.oristool.eulero.math.distribution.discrete;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 /* Histogram must be already normalized */
@@ -17,7 +18,7 @@ public class HistogramDistribution extends DiscreteDistribution {
         super(name);
         this.low = low;
         this.upp = upp;
-        this.histogramValues = histogramValues;
+        this.histogramValues = roundingUpValues(histogramValues, 6);
         this.binsNumber = BigInteger.valueOf(histogramValues.size());
         computeXValues();
     }
@@ -94,5 +95,15 @@ public class HistogramDistribution extends DiscreteDistribution {
             double xValue = low.doubleValue() + i * (upp.doubleValue() - low.doubleValue()) / binsNumber.doubleValue();
             getXValues().add(BigDecimal.valueOf(xValue));
         }
+    }
+
+    public ArrayList<BigDecimal> roundingUpValues(ArrayList<BigDecimal> values, int roundingScale){
+        ArrayList<BigDecimal> roundedValues = new ArrayList<>();
+
+        for(BigDecimal value: values){
+            roundedValues.add(value.setScale(roundingScale, RoundingMode.HALF_UP));
+        }
+
+        return roundedValues;
     }
 }

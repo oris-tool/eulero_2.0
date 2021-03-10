@@ -152,7 +152,6 @@ class PetriTest {
         Thread.sleep(20000);
     }
 
-
     @Test
     void testGraphWithHistograms() throws InterruptedException {
         HistogramApproximator approximator = new EXPMixtureApproximation();
@@ -220,6 +219,24 @@ class PetriTest {
         new TransientSolutionViewer(t1.analyze("22", "0.1", "0.01"));
         new TransientSolutionViewer(t2.analyze("7", "0.1", "0.01"));
 
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void NumericalTest() throws InterruptedException {
+        Numerical a = Numerical.uniform("A", BigDecimal.valueOf(1), BigDecimal.valueOf(3), BigDecimal.valueOf(0.1));
+        Numerical b = Numerical.uniform("B", BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(0.1));
+        Numerical c = Numerical.uniform("C", BigDecimal.valueOf(5), BigDecimal.valueOf(6), BigDecimal.valueOf(0.1));
+        Numerical d = Numerical.uniform("D", BigDecimal.valueOf(5), BigDecimal.valueOf(8), BigDecimal.valueOf(0.1));
+        ArrayList<Numerical> activities = new ArrayList<>();
+        activities.add(a);
+        activities.add(b);
+        activities.add(c);
+        activities.add(d);
+
+        Numerical sequence = Numerical.seq(activities);
+        sequence.petriArcs();
+        new TransientSolutionViewer(sequence.analyze("30", "0.1", "0.01"));
         Thread.sleep(20000);
     }
 }

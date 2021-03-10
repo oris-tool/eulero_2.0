@@ -20,15 +20,18 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.GammaDistribution;
-import org.oristool.models.pn.Priority;
+import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
+import org.oristool.eulero.math.approximation.HistogramApproximator;
+import org.oristool.eulero.math.approximation.HistogramApproximator.ApproximationSupportSetup;
+import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
-import org.oristool.petrinet.Transition;
 
 /**
  * Activity with an empirical CDF.
@@ -38,13 +41,19 @@ public class Numerical extends Activity {
     private int min;
     private int max;
     private double[] cdf;
+    private HistogramApproximator approximator;
     
-    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf) {
+    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf, HistogramApproximator approximator) {
         super(name);
         this.step = step;
         this.min = min;
         this.max = max;
         this.cdf = cdf;
+        this.approximator = approximator;
+    }
+
+    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf){
+        this(name, step, min, max, cdf, new EXPMixtureApproximation());
     }
     
     public BigDecimal step() {
@@ -61,12 +70,22 @@ public class Numerical extends Activity {
 
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        Transition t = pn.addTransition(this.name());
-        t.addFeature(new Priority(prio));
-        // TODO: Add fitting
-        // t.addFeature(pdf);
-        pn.addPrecondition(in, t);
-        pn.addPostcondition(t, out);
+        /* Compute pdf from cdf */
+        ArrayList<BigDecimal> pdf = new ArrayList<>();
+        double timeTick = (max / step.doubleValue() - min / step.doubleValue()) / (cdf.length - 1);
+
+        for(int i = 0; i < cdf.length; i++){
+            double pdfValue = (i != 0 && i != cdf.length - 1) ? (cdf[i + 1] - cdf[i - 1]) / timeTick :
+                    (i == 0) ? (cdf[i + 1] - cdf[i]) / (2 * timeTick) : (cdf[i] - cdf[i - 1]) / timeTick;
+
+            pdf.add(BigDecimal.valueOf(pdfValue));
+        }
+
+        /* Generate Petri Net element as in AnalyticalHistogram.java */
+        HistogramDistribution histogram = new HistogramDistribution("name", BigDecimal.valueOf(min * step.doubleValue()), BigDecimal.valueOf(max * step.doubleValue()), pdf);
+        ArrayList<ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(histogram);
+        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
+
         return prio + 1;
     }
     
