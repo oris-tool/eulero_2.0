@@ -20,11 +20,13 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.HistogramApproximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
+import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.TransientSolutionViewer;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -80,8 +82,9 @@ class PetriTest {
         
         System.out.println(t.petriArcs());
         
-        new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
-        Thread.sleep(10000);
+        ActivityViewer.plot(List.of("Analysis", "Simulation"),
+                t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
+        Thread.sleep(30000);
     }
     
     @Test
@@ -97,6 +100,7 @@ class PetriTest {
         System.out.println(t.petriArcs());
         
         new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
+        
         Thread.sleep(10000);
     }
     
@@ -124,8 +128,9 @@ class PetriTest {
         System.out.println(t.yamlRecursive());
         System.out.println(t.petriArcs());
         
-        new TransientSolutionViewer(t.analyze("5", "0.1", "0.01"));
-        Thread.sleep(20000);
+        ActivityViewer.plot(List.of("Analysis", "Simulation"),
+                t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
+        Thread.sleep(30000);
     }
 
     @Test
