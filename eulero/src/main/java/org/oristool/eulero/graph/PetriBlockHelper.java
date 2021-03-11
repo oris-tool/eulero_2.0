@@ -30,6 +30,7 @@ public class PetriBlockHelper {
             pn.addPrecondition(in, t_imm);
             pn.addPostcondition(t_imm, p);
 
+            // Case for Truncated EXP
             if(setup.getParameters().containsKey("lambda") && setup.getSupport().get("end").doubleValue() < Double.MAX_VALUE){
                 Transition t = pn.addTransition(blockName + "_" + setups.indexOf(setup));
                 ShiftedTruncatedExponentialDistribution distribution = new ShiftedTruncatedExponentialDistribution(blockName, setup.getSupport().get("start"), setup.getSupport().get("end"), setup.getParameters().get("lambda"));
@@ -48,6 +49,7 @@ public class PetriBlockHelper {
                 pn.addPostcondition(t, out);
             }
 
+            // Case for ShiftedExp
             if(setup.getParameters().containsKey("lambda") && setup.getSupport().get("end").doubleValue() == Double.MAX_VALUE){
                 Transition tDet = pn.addTransition(blockName + "_" + setups.indexOf(setup) + "_DET");
                 tDet.addFeature(new Priority(prio));
