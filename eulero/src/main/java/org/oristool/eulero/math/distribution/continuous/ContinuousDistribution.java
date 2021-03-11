@@ -7,27 +7,15 @@ import org.oristool.eulero.math.distribution.Distribution;
 import java.math.BigDecimal;
 
 public abstract class ContinuousDistribution extends Distribution {
-    private BigDecimal low;
-    private BigDecimal upp;
     private final UnivariateIntegrator integrator;
 
     public ContinuousDistribution(String name, BigDecimal low, BigDecimal upp, UnivariateIntegrator integrator) {
-        super(name);
-        this.low = low;
-        this.upp = upp;
+        super(name, low, upp);
         this.integrator = integrator;
     }
 
     public ContinuousDistribution(String name, BigDecimal low, BigDecimal upp) {
         this(name, low, upp, new SimpsonIntegrator());
-    }
-
-    public BigDecimal getLow() {
-        return low;
-    }
-
-    public BigDecimal getUpp() {
-        return upp;
     }
 
     public BigDecimal getMean(){

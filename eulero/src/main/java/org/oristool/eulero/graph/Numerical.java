@@ -291,4 +291,18 @@ public class Numerical extends Activity {
 
         return new Numerical(name, step, min, max, cdf);
     }
+
+    public static Numerical fromHistogram(String name, HistogramDistribution histogram, BigDecimal step){
+        int min = histogram.getLow()
+                .divide(step, MathContext.DECIMAL128)
+                .setScale(0, RoundingMode.HALF_UP).intValue();
+
+        int max = histogram.getUpp()
+                .divide(step, MathContext.DECIMAL128)
+                .setScale(0, RoundingMode.HALF_UP).intValue();
+
+        double[] cdf = histogram.getCDFasArray(step);
+
+        return new Numerical(name, step, min, max, cdf);
+    }
 }

@@ -5,7 +5,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,17 +22,11 @@ public class MainHelper {
     *
     * */
     public static Map<String, HistogramDistribution> getHistogramsDistributionMap() {
-        // Carico i samples, e in base a come li estrai ne seleziono N a caso, senza ripetizione o volendo anche con.
-        // Poi per ogni gruppo, estraggo i campioni con Tukey e costruisco il diagramma vero e proprio.
-        // Poi costruisco i vari HistogramDistribution che sono put nella HashMap con il nome delle transizioni che mi servono nel main.
-        // Return a questo punto
-
         Map<String, HistogramDistribution> distributionsMap = new HashMap<>();
         ArrayList<Integer> drawnDistributions = new ArrayList<>();
 
         // carico roba dalla cartella
         System.out.println("Generating histograms");
-        File directory = new File(DATASET_PATH);
 
         FileReader reader = null;
         try {
