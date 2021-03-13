@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public abstract class DiscreteDistribution extends Distribution {
     private ArrayList<BigDecimal> xValues;
 
-    public DiscreteDistribution(String name) {
-        super(name);
+    public DiscreteDistribution(String name, BigDecimal low, BigDecimal upp) {
+        super(name, low, upp);
         xValues = new ArrayList<>();
     }
 

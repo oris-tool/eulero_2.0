@@ -3,21 +3,18 @@ package org.oristool.eulero.math.distribution.discrete;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 /* Histogram must be already normalized */
 public class HistogramDistribution extends DiscreteDistribution {
-    private BigDecimal low;
-    private BigDecimal upp;
     private ArrayList<BigDecimal> histogramValues;
     private BigInteger binsNumber;
 
 
     public HistogramDistribution(String name, BigDecimal low, BigDecimal upp, ArrayList<BigDecimal> histogramValues) {
-        super(name);
-        this.low = low;
-        this.upp = upp;
-        this.histogramValues = histogramValues;
+        super(name, low, upp);
+        this.histogramValues = roundingUpValues(histogramValues, 6);
         this.binsNumber = BigInteger.valueOf(histogramValues.size());
         computeXValues();
     }
@@ -25,7 +22,7 @@ public class HistogramDistribution extends DiscreteDistribution {
     public BigDecimal probabilityMassFunction(BigInteger n, DiscreteHelpers.HistogramType histogramType) {
         switch(histogramType){
             case PDF:
-                double pmfValue = histogramValues.get(n.intValue()).doubleValue() * binsNumber.doubleValue() / (upp.doubleValue() - low.doubleValue());
+                double pmfValue = histogramValues.get(n.intValue()).doubleValue() * binsNumber.doubleValue() / (getUpp().doubleValue() - getLow().doubleValue());
                 return  BigDecimal.valueOf(pmfValue);
 
             default:
@@ -47,7 +44,7 @@ public class HistogramDistribution extends DiscreteDistribution {
                 ArrayList<BigDecimal> PDFHistogramValues = new ArrayList<>();
 
                 for (BigDecimal value: histogramValues) {
-                    PDFHistogramValues.add(BigDecimal.valueOf(value.doubleValue() * binsNumber.doubleValue() / (upp.doubleValue() - low.doubleValue())));
+                    PDFHistogramValues.add(BigDecimal.valueOf(value.doubleValue() * binsNumber.doubleValue() / (getUpp().doubleValue() - getLow().doubleValue())));
                 }
                 return PDFHistogramValues;
 
@@ -81,18 +78,20 @@ public class HistogramDistribution extends DiscreteDistribution {
         return cdfHistogramValues;
     }
 
-    public BigDecimal getUpp() {
-        return upp;
-    }
-
-    public BigDecimal getLow() {
-        return low;
-    }
-
     public void computeXValues() {
         for (int i = 0; i < histogramValues.size(); i++) {
-            double xValue = low.doubleValue() + i * (upp.doubleValue() - low.doubleValue()) / binsNumber.doubleValue();
+            double xValue = getLow().doubleValue() + i * (getUpp().doubleValue() - getLow().doubleValue()) / binsNumber.doubleValue();
             getXValues().add(BigDecimal.valueOf(xValue));
         }
+    }
+
+    public ArrayList<BigDecimal> roundingUpValues(ArrayList<BigDecimal> values, int roundingScale){
+        ArrayList<BigDecimal> roundedValues = new ArrayList<>();
+
+        for(BigDecimal value: values){
+            roundedValues.add(value.setScale(roundingScale, RoundingMode.HALF_UP));
+        }
+
+        return roundedValues;
     }
 }
