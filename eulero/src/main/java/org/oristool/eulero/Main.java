@@ -24,7 +24,10 @@ import org.oristool.eulero.graph.Analytical;
 import org.oristool.eulero.graph.DAG;
 import org.oristool.eulero.graph.Repeat;
 import org.oristool.eulero.graph.Xor;
-import org.oristool.models.stpn.TransientSolutionViewer;
+import org.oristool.eulero.ui.ActivityViewer;
+import org.oristool.models.stpn.RewardRate;
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 public class Main {
@@ -132,9 +135,34 @@ public class Main {
         k.addPrecondition(h, d);
         main.end().addPrecondition(i, j, k);
         
-        System.out.println(main.yamlRecursive());
-        System.out.println(main.petriArcs());
-        new TransientSolutionViewer(main.analyze("10", "0.1", "0.1"));
+        
+        System.out.println(main.yamlRecursive());       
+        System.out.println("===");
+        
+        
+        TransientSolution<DeterministicEnablingState, RewardRate> before =
+                main.simulate("10", "0.1", 3000);           
+        
+        main.nest(i).replace(new Analytical("BAD", unif01));
+        
+        TransientSolution<DeterministicEnablingState, RewardRate> after =
+                main.simulate("10", "0.1", 3000);
+
+        ActivityViewer.plot(List.of("Before", "After"), before, after);
+
+//        System.out.println(main.yamlRecursive());
+
+//        DAG uptoI = main.copyRecursive(main.begin(), i, "");        
+//        System.out.println(CostEstimator.edgeCount(uptoI.classGraph()));
+//
+//        DAG uptoJ = main.copyRecursive(main.begin(), j, "");        
+//        System.out.println(CostEstimator.edgeCount(uptoJ.classGraph()));
+//
+//        DAG uptoK = main.copyRecursive(main.begin(), k, "");        
+//        System.out.println(CostEstimator.edgeCount(uptoK.classGraph()));
+
+        
+        // new TransientSolutionViewer(main.analyze("10", "0.1", "0.1"));
         
     }
 }

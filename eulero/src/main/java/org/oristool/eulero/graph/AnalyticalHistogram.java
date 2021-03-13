@@ -31,6 +31,12 @@ public class AnalyticalHistogram extends Activity{
         this.approximator = approximator;
     }
 
+    @Override
+    public AnalyticalHistogram copyRecursive(String suffix) {
+        return new AnalyticalHistogram(this.name() + suffix, 
+                this.getHistogram(), this.getApproximator());
+    }
+    
     public HistogramDistribution getHistogram() {
         return histogram;
     }

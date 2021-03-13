@@ -21,11 +21,13 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -93,6 +95,10 @@ public class DAG extends Activity {
                 StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
         this.end = new Analytical(name + "_END",
                 StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+    }
+    
+    @Override public DAG copyRecursive(String suffix) {
+        return copyRecursive(begin(), end(), suffix);
     }
 
     /**
@@ -375,5 +381,170 @@ public class DAG extends Activity {
         }
         
         return priority[0];
+    }
+    
+    /**
+     * Returns the activities between {@code begin} and
+     * {@code end} (inclusive)
+     * 
+     * @param begin  initial activity
+     * @param end    final activity 
+     * @return       activities in-between (including BEGIN, END)
+     */
+    public Set<Activity> activitiesBetween(Activity begin, Activity end) {
+        
+        Set<Activity> activitiesBetween = new HashSet<>();
+        Set<Activity> nodesOpen = new HashSet<>();
+        activitiesBetween.add(begin);
+        
+        end.dfs(true, new DFSObserver() {
+            @Override public boolean onOpen(Activity opened, Activity from) {
+                nodesOpen.add(opened);
+                if (activitiesBetween.contains(opened)) {
+                    // all open nodes are between "begin" and "end"
+                    activitiesBetween.addAll(nodesOpen);
+                }
+                
+                return true;  // continue
+            }
+            
+            @Override public boolean onSkip(Activity skipped, Activity from) {
+                if (activitiesBetween.contains(skipped)) {
+                    // all open nodes are between "begin" and "end"
+                    activitiesBetween.addAll(nodesOpen);
+                }
+                
+                return true;
+            }
+            
+            @Override public boolean onClose(Activity closed) {
+                nodesOpen.remove(closed);
+                if (closed.equals(end))
+                    return false;  // stop
+                else
+                    return true;  // continue
+            }            
+        });
+        
+      return activitiesBetween;
+    }
+
+    /**
+     * Creates a DAG with a copy of the activities between {@code begin} and
+     * {@code end} (inclusive). If nested activities are found, they are
+     * duplicated too, recursively.
+     * 
+     * @param begin  initial activity (replaced with BEGIN in the copy)
+     * @param end    final activity (replaced with END in the copy)
+     * @param suffix suffix to be added to the duplicated activities and DAGs
+     * @return       a DAG with duplicated activities between "from" and "to"
+     */
+    public DAG copyRecursive(Activity begin, Activity end, String suffix) {
+        
+
+        DAG copy = new DAG(this.name() + suffix);       
+        Map<Activity, Activity> nodeCopies = new HashMap<>();
+
+        if (begin().equals(begin)) {
+            nodeCopies.put(begin, copy.begin());
+        } else {
+            Activity ax = begin.copyRecursive(suffix);
+            nodeCopies.put(begin, ax);
+            ax.addPrecondition(copy.begin());
+        }
+        
+        if (end().equals(end)) {
+            nodeCopies.put(end, copy.end());
+        } else {
+            Activity ax = end.copyRecursive(suffix);
+            nodeCopies.put(end, ax);
+            copy.end().addPrecondition(ax);
+        }
+
+        Set<Activity> activitiesBetween = activitiesBetween(begin, end);
+        for (Activity a : activitiesBetween) {
+            Activity ax = nodeCopies.computeIfAbsent(a, k -> k.copyRecursive(suffix));               
+            if (!a.equals(begin)) {
+                List<Activity> aprex = a.pre().stream()
+                        .filter(p -> activitiesBetween.contains(p))
+                        .map(p -> nodeCopies.computeIfAbsent(p, k -> k.copyRecursive(suffix)))
+                        .collect(Collectors.toCollection(ArrayList::new));
+                ax.setPre(aprex);
+            }
+            
+            if (!a.equals(end)) {
+                List<Activity> apostx = a.post().stream()
+                        .filter(p -> activitiesBetween.contains(p))
+                        .map(p -> nodeCopies.computeIfAbsent(p, k -> k.copyRecursive(suffix)))
+                        .collect(Collectors.toCollection(ArrayList::new));
+                ax.setPost(apostx);
+            }
+        }
+        
+        return copy;
+    }
+    
+    /**
+     * Removes all activities between {@code begin} and {@code end} if they are
+     * not pre/post of other activities.
+     * 
+     * @param begin          initial activity 
+     * @param end            final activity
+     * @param removedShared  whether to remove nodes also reachable without end
+     */
+    public void removeBetween(Activity begin, Activity end, boolean removeShared) {
+        
+        Set<Activity> activitiesBetween = this.activitiesBetween(begin, end);
+
+        if (!removeShared) {
+            for (Activity p : new ArrayList<>(end.post())) {
+                p.removePrecondition(end);
+            }
+
+            activitiesBetween.removeAll(activitiesBetween(begin(), end()));
+        }
+
+        List<Activity> all = this.nested();
+        all.add(this.begin());
+        all.add(this.end());
+        
+        for (Activity a : all) {
+            List<Activity> pre = a.pre().stream()
+                    .filter(x -> !activitiesBetween.contains(a) &&
+                                 !activitiesBetween.contains(x))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            a.setPre(pre);
+            
+            List<Activity> post = a.post().stream()
+                    .filter(x -> !activitiesBetween.contains(a) &&
+                                 !activitiesBetween.contains(x))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            a.setPost(post);
+        }
+        
+    }
+    
+    /**
+     * Moves all predecessors of the given activity into a nested DAG.
+     * 
+     * This operation is supported only for preconditions of {@code this.end()}.
+     * Predecessors are duplicated with the "_N" suffix and removed from this DAG 
+     * if not used by other activities.
+     * 
+     * @param endPre activity to nest            
+     * @return the nested DAG with endPre and its predecessors
+     */
+    public DAG nest(Activity endPre) {
+        
+        if (!end().pre().contains(endPre)) {
+            throw new IllegalArgumentException(
+                    endPre + " is not a precondition of " + end());
+        }
+        
+        DAG copy = this.copyRecursive(this.begin(), endPre, "_N");
+        this.removeBetween(this.begin(), endPre, false);
+        copy.addPrecondition(this.begin());
+        this.end().addPrecondition(copy);
+        return copy;
     }
 }

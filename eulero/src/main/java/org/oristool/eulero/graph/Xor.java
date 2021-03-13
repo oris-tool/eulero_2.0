@@ -44,6 +44,15 @@ public class Xor extends Activity {
         this.alternatives = alternatives;
     }
 
+    @Override
+    public Xor copyRecursive(String suffix) {
+        List<Activity> alternativesCopy = alternatives.stream()
+                .map(a -> a.copyRecursive(suffix))
+                .collect(Collectors.toList());
+        
+        return new Xor(this.name() + suffix, alternativesCopy, new ArrayList<>(probs));
+    }
+    
     public List<Double> probs() {
         return probs;
     }

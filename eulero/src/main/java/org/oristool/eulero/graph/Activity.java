@@ -26,11 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.tpn.TimedAnalysis;
+import org.oristool.models.tpn.TimedAnalysis.Builder;
 import org.oristool.petrinet.Marking;
 import org.oristool.petrinet.MarkingCondition;
 import org.oristool.petrinet.PetriNet;
@@ -44,6 +47,7 @@ import org.oristool.simulator.rewards.ContinuousRewardTime;
 import org.oristool.simulator.rewards.RewardEvaluator;
 import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
+import org.oristool.util.Pair;
 
 /**
  * Represents a node in an activity DAG.
@@ -68,6 +72,20 @@ public abstract class Activity {
     }
 
     /**
+     * @param pre the preconditions to set
+     */
+    public void setPre(List<Activity> pre) {
+        this.pre = pre;
+    }
+    
+    /**
+     * @param post the postconditions to set
+     */
+    public void setPost(List<Activity> post) {
+        this.post = post;
+    }
+    
+    /**
      * The name of this activity.
      */
     public final String name() {
@@ -82,6 +100,8 @@ public abstract class Activity {
     public Activity(String name) {
         this.name = name;
     }
+    
+    public abstract Activity copyRecursive(String suffix);
     
     @Override
     public final String toString() {
@@ -115,13 +135,18 @@ public abstract class Activity {
     }
     
     /**
-     * Replaces the i-th dependency of this activity.
-     * The current i-th activity is also updated.  
+     * Replaces this activity with another in all pre/post.  
      */
-    public final void replacePrecondition(int index, Activity other) {
-        pre.get(index).pre.remove(this);
-        pre.set(index, other);
-        other.post.add(this);
+    public final void replace(Activity withOther) {
+        for (Activity p : new ArrayList<>(pre)) {
+            this.removePrecondition(p);
+            withOther.addPrecondition(p);
+        }
+
+        for (Activity p : new ArrayList<>(post)) {
+            p.removePrecondition(this);
+            p.addPrecondition(withOther);
+        }
     }
 
     /**
@@ -367,6 +392,32 @@ public abstract class Activity {
         // evaluate reward
         return TransientSolution.computeRewards(false, probs, 
                 RewardRate.fromString(cond));
+    }
+    
+    public Pair<SuccessionGraph, PetriNet> classGraph() {
+        
+        // input data
+        String cond = "pEND > 0";
+
+        // build STPN
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addPetriBlock(pn, in, out, 1);
+        
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+        
+        // analyze
+        Builder builder = TimedAnalysis.builder()
+                .excludeZeroProb(true)
+                .markRegenerations(true)
+                .stopOn(MarkingCondition.fromString(cond));
+               
+        TimedAnalysis analysis = builder.build();
+        SuccessionGraph graph = analysis.compute(pn, m);
+        
+        return Pair.of(graph, pn);
     }
     
     public TransientSolution<DeterministicEnablingState, RewardRate> 
