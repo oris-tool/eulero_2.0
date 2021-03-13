@@ -40,6 +40,12 @@ public class Repeat extends Activity {
         this.repeatBody = repeatBody;
     }
 
+    @Override
+    public Repeat copyRecursive(String suffix) {
+        Activity bodyCopy = repeatBody.copyRecursive(suffix);
+        return new Repeat(this.name() + suffix, this.repeatProb, bodyCopy);
+    }
+    
     public Activity repeatBody() {
         return repeatBody;
     }

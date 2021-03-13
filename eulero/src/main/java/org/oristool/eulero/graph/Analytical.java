@@ -44,7 +44,12 @@ public class Analytical extends Activity {
         this.pdf = pdf;
     }
     
-    public StochasticTransitionFeature getPDF() {
+    @Override
+    public Analytical copyRecursive(String suffix) {
+        return new Analytical(this.name() + suffix, this.pdf());
+    }
+    
+    public StochasticTransitionFeature pdf() {
         return pdf;
     }
     

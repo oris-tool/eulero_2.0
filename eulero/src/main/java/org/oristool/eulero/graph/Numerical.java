@@ -56,6 +56,13 @@ public class Numerical extends Activity {
         this(name, step, min, max, cdf, new EXPMixtureApproximation());
     }
     
+    @Override
+    public Numerical copyRecursive(String suffix) {
+        double[] cdf = this.cdf.clone();
+        return new Numerical(this.name() + suffix, 
+                this.step, this.min, this.max, cdf);
+    }
+    
     public BigDecimal step() {
         return step;
     }

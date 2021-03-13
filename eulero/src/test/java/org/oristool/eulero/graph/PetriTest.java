@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.HistogramApproximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
+import org.oristool.eulero.solver.CostEstimator;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.TransientSolutionViewer;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -127,9 +128,11 @@ class PetriTest {
                     
         System.out.println(t.yamlRecursive());
         System.out.println(t.petriArcs());
+        System.out.println(CostEstimator.edgeCount(t.classGraph()));
         
         ActivityViewer.plot(List.of("Analysis", "Simulation"),
                 t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
+        
         Thread.sleep(30000);
     }
 
