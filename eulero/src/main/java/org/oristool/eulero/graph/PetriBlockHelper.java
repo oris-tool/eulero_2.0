@@ -74,6 +74,7 @@ public class PetriBlockHelper {
     public static void petriBlockWithHistogramFeatureFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, HistogramDistribution histogram) {
         Transition t = pn.addTransition(blockName);
         t.addFeature(EmpiricalTransitionFeature.newInstance(histogram.getCDFHistogramValues(), histogram.getLow(), histogram.getUpp()));
+        t.addFeature(StochasticTransitionFeature.newUniformInstance(histogram.getLow(), histogram.getUpp()));
         pn.addPrecondition(in, t);
         pn.addPostcondition(t, out);
     }

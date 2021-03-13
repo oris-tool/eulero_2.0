@@ -119,77 +119,77 @@ public class MainHelper {
     }
 
     public static DAG simulationSetup(Map<String, HistogramDistribution> histograms, HistogramApproximator approximator){
-        AnalyticalHistogram a = new AnalyticalHistogram("A", histograms.get("A"), approximator);
-        AnalyticalHistogram b = new AnalyticalHistogram("B", histograms.get("B"), approximator);
-        AnalyticalHistogram c = new AnalyticalHistogram("C", histograms.get("C"), approximator);
-        AnalyticalHistogram d = new AnalyticalHistogram("D", histograms.get("D"), approximator);
-        AnalyticalHistogram f = new AnalyticalHistogram("F", histograms.get("F"), approximator);
+        SimulationActivity a = new SimulationActivity("A", histograms.get("A"), approximator);
+        SimulationActivity b = new SimulationActivity("B", histograms.get("B"), approximator);
+        SimulationActivity c = new SimulationActivity("C", histograms.get("C"), approximator);
+        SimulationActivity d = new SimulationActivity("D", histograms.get("D"), approximator);
+        SimulationActivity f = new SimulationActivity("F", histograms.get("F"), approximator);
 
         DAG g = DAG.sequence("G",
-                new AnalyticalHistogram("G1", histograms.get("G1"), approximator),
-                new AnalyticalHistogram("G2", histograms.get("G2"), approximator));
+                new SimulationActivity("G1", histograms.get("G1"), approximator),
+                new SimulationActivity("G2", histograms.get("G2"), approximator));
 
         DAG h = DAG.sequence("H",
-                new AnalyticalHistogram("H1", histograms.get("H1"), approximator),
-                new AnalyticalHistogram("H2", histograms.get("H2"), approximator));
+                new SimulationActivity("H1", histograms.get("H1"), approximator),
+                new SimulationActivity("H2", histograms.get("H2"), approximator));
 
         Xor i = new Xor("I",
-                List.of(new AnalyticalHistogram("IA", histograms.get("IA"), approximator),
-                        new AnalyticalHistogram("IB", histograms.get("IB"), approximator)),
+                List.of(new SimulationActivity("IA", histograms.get("IA"), approximator),
+                        new SimulationActivity("IB", histograms.get("IB"), approximator)),
                 List.of(0.3, 0.7));
 
         DAG j = DAG.sequence("J",
-                new AnalyticalHistogram("J1", histograms.get("J1"), approximator),
-                new AnalyticalHistogram("J2", histograms.get("J2"), approximator),
-                new AnalyticalHistogram("J3", histograms.get("J3"), approximator));
+                new SimulationActivity("J1", histograms.get("J1"), approximator),
+                new SimulationActivity("J2", histograms.get("J2"), approximator),
+                new SimulationActivity("J3", histograms.get("J3"), approximator));
 
         Xor k = new Xor("K", List.of(
                 DAG.sequence("KA",
-                        new AnalyticalHistogram("KA1", histograms.get("KA1"), approximator),
-                        new AnalyticalHistogram("KA2", histograms.get("KA1"), approximator)),
+                        new SimulationActivity("KA1", histograms.get("KA1"), approximator),
+                        new SimulationActivity("KA2", histograms.get("KA1"), approximator)),
                 DAG.sequence("KB",
-                        new AnalyticalHistogram("KB1", histograms.get("KB1"), approximator),
-                        new AnalyticalHistogram("KB2", histograms.get("KB2"), approximator))),
+                        new SimulationActivity("KB1", histograms.get("KB1"), approximator),
+                        new SimulationActivity("KB2", histograms.get("KB2"), approximator))),
                 List.of(0.4, 0.6));
 
-        AnalyticalHistogram n = new AnalyticalHistogram("N", histograms.get("N"), approximator);
+        SimulationActivity n = new SimulationActivity("N", histograms.get("N"), approximator);
 
         DAG o = DAG.forkJoin("O",
                 DAG.sequence("YAPBP",
-                        new AnalyticalHistogram("Y", histograms.get("Y"), approximator),
+                        new SimulationActivity("Y", histograms.get("Y"), approximator),
                         DAG.forkJoin("APBP",
-                                new AnalyticalHistogram("AP", histograms.get("AP"), approximator),
-                                new AnalyticalHistogram("BP", histograms.get("BP"), approximator))),
+                                new SimulationActivity("AP", histograms.get("AP"), approximator),
+                                new SimulationActivity("BP", histograms.get("BP"), approximator))),
                 DAG.sequence("ZCPDP",
-                        new AnalyticalHistogram("Z", histograms.get("Z"), approximator),
+                        new SimulationActivity("Z", histograms.get("Z"), approximator),
                         DAG.forkJoin("CPDP",
                                 DAG.sequence("CP",
-                                        new AnalyticalHistogram("CP1", histograms.get("CP1"), approximator),
-                                        new AnalyticalHistogram("CP2", histograms.get("CP2"), approximator)),
+                                        new SimulationActivity("CP1", histograms.get("CP1"), approximator),
+                                        new SimulationActivity("CP2", histograms.get("CP2"), approximator)),
                                 DAG.sequence("DP",
-                                        new AnalyticalHistogram("DP1", histograms.get("DP1"), approximator),
-                                        new AnalyticalHistogram("DP2", histograms.get("DP2"), approximator)))));
+                                        new SimulationActivity("DP1", histograms.get("DP1"), approximator),
+                                        new SimulationActivity("DP2", histograms.get("DP2"), approximator)))));
 
         o.flatten();  // to remove DAG nesting
 
-        AnalyticalHistogram q = new AnalyticalHistogram("Q", histograms.get("Q"), approximator);
-        AnalyticalHistogram r = new AnalyticalHistogram("R", histograms.get("R"), approximator);
-        AnalyticalHistogram s = new AnalyticalHistogram("S", histograms.get("S"), approximator);
+        SimulationActivity q = new SimulationActivity("Q", histograms.get("Q"), approximator);
+        SimulationActivity r = new SimulationActivity("R", histograms.get("R"), approximator);
+        SimulationActivity s = new SimulationActivity("S", histograms.get("S"), approximator);
 
         DAG t = DAG.sequence("T",
-                new AnalyticalHistogram("T1", histograms.get("T1"), approximator),
-                new AnalyticalHistogram("T2", histograms.get("T2"), approximator));
-        AnalyticalHistogram u = new AnalyticalHistogram("U", histograms.get("U"), approximator);
+                new SimulationActivity("T1", histograms.get("T1"), approximator),
+                new SimulationActivity("T2", histograms.get("T2"), approximator));
+        SimulationActivity u = new SimulationActivity("U", histograms.get("U"), approximator);
         DAG tu = DAG.forkJoin("TU", t, u);
 
         DAG v = DAG.sequence("V",
-                new AnalyticalHistogram("V1", histograms.get("V1"), approximator),
-                new AnalyticalHistogram("V2", histograms.get("V2"), approximator));
+                new SimulationActivity("V1", histograms.get("V1"), approximator),
+                new SimulationActivity("V2", histograms.get("V2"), approximator));
 
-        AnalyticalHistogram w = new AnalyticalHistogram("W", histograms.get("W"), approximator);
+        SimulationActivity w = new SimulationActivity("W", histograms.get("W"), approximator);
         DAG x = DAG.sequence("X",
-                new AnalyticalHistogram("X1", histograms.get("X1"), approximator),
-                new AnalyticalHistogram("X2", histograms.get("X2"), approximator));
+                new SimulationActivity("X1", histograms.get("X1"), approximator),
+                new SimulationActivity("X2", histograms.get("X2"), approximator));
 
         DAG wx = DAG.forkJoin("WX", w, x);
 
