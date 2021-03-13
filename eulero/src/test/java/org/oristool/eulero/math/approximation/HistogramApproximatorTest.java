@@ -27,10 +27,10 @@ public class HistogramApproximatorTest {
         HistogramDistribution histogram = new HistogramDistribution("TestHistogram", low, upp, histogramValues);
         HistogramApproximator analyzer = new EXPMixtureApproximation();
 
-        Assertions.assertEquals(0.000249, analyzer.getMinima(histogram).get(1).doubleValue(), 0.0001);
-        Assertions.assertEquals(0.036215, analyzer.getMinima(histogram).get(2).doubleValue(), 0.0001);
-        Assertions.assertEquals(3, analyzer.getMinimaIndices(histogram).get(1).intValue());
-        Assertions.assertEquals(8, analyzer.getMinimaIndices(histogram).get(2).intValue());
+        Assertions.assertEquals(0.000249, analyzer.getMinima(histogram, analyzer.getMaximaIndices(histogram)).get(1).doubleValue(), 0.0001);
+        Assertions.assertEquals(0.036215, analyzer.getMinima(histogram, analyzer.getMaximaIndices(histogram)).get(2).doubleValue(), 0.0001);
+        Assertions.assertEquals(3, analyzer.getMinimaIndices(histogram, analyzer.getMaximaIndices(histogram)).get(1).intValue());
+        Assertions.assertEquals(8, analyzer.getMinimaIndices(histogram, analyzer.getMaximaIndices(histogram)).get(2).intValue());
     }
 
     @Test

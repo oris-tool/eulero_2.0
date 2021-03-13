@@ -26,6 +26,10 @@ public class ShiftedTruncatedExponentialDistribution extends ContinuousDistribut
                 / (1 - Math.exp(-lambda.doubleValue() * (getUpp().doubleValue() - getLow().doubleValue()))));
     }
 
+    public BigDecimal getLambda() {
+        return lambda;
+    }
+
     @Override
     public String getExpolynomialDensityString() {
         double multiplicationCoefficient = (this.lambda.doubleValue() * Math.exp(this.lambda.doubleValue() * getLow().doubleValue()))

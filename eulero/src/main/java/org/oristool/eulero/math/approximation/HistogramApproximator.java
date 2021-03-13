@@ -66,50 +66,46 @@ public abstract class HistogramApproximator {
         return maxima;
     }
 
-    public ArrayList<BigInteger> getMinimaIndices(HistogramDistribution histogram){
+    public ArrayList<BigInteger> getMinimaIndices(HistogramDistribution histogram, ArrayList<BigInteger> maximaIndices){
         // Note that this is a naive solution
-        ArrayList<BigInteger> minimaIndex = new ArrayList<>();
+        ArrayList<BigInteger> minimaIndices = new ArrayList<>();
         ArrayList<BigDecimal> histogramValues =  histogram.getHistogramValues(DiscreteHelpers.HistogramType.PDF);
 
-        for (BigDecimal element: histogramValues) {
-            boolean acceptValue = true;
-            int startingComparisonIndex = histogramValues.indexOf(element) - neighbourhoodHalfSize.intValue();
-            int endingComparisonIndex = histogramValues.indexOf(element) + neighbourhoodHalfSize.intValue();
+        for(int i = 0; i < maximaIndices.size(); i++){
+            int minimumIndex = maximaIndices.get(i).intValue();
+            for(int j = (i > 0) ? maximaIndices.get(i - 1).intValue() : 0;
+                j < ((i > 0) ? maximaIndices.get(i).intValue() : maximaIndices.get(0).intValue()); j++) {
 
-            for(int i = Math.max(0, startingComparisonIndex); i < Math.min(histogramValues.size(), endingComparisonIndex); i++) {
-                if(element.compareTo(histogramValues.get(i)) == 1){
-                    acceptValue = false;
+                if(histogramValues.get(minimumIndex).compareTo(histogramValues.get(j)) == 1){
+                    minimumIndex = j;
                 }
             }
 
-            if (acceptValue){
-                minimaIndex.add(BigInteger.valueOf(histogramValues.indexOf(element)));
-            }
+            minimaIndices.add(BigInteger.valueOf(minimumIndex));
         }
-        return minimaIndex;
+
+        return minimaIndices;
     }
 
-    public ArrayList<BigDecimal> getMinima(HistogramDistribution histogram){
+    public ArrayList<BigDecimal> getMinima(HistogramDistribution histogram, ArrayList<BigInteger> maximaIndices){
         // Note that this is a naive solution
         // TODO TBD - should we drop the first/last values? since they are at the end of the support
         ArrayList<BigDecimal> minima = new ArrayList<>();
         ArrayList<BigDecimal> histogramValues =  histogram.getHistogramValues(DiscreteHelpers.HistogramType.PDF);
 
-        for (BigDecimal element: histogramValues) {
-            boolean acceptValue = true;
-            int startingComparisonIndex = histogramValues.indexOf(element) - neighbourhoodHalfSize.intValue();
-            int endingComparisonIndex = histogramValues.indexOf(element) + neighbourhoodHalfSize.intValue();
+        for(int i = 0; i < maximaIndices.size(); i++){
+            int minimumIndex = maximaIndices.get(i).intValue();
+            for(int j = (i > 0) ? maximaIndices.get(i - 1).intValue() : 0;
+                j < ((i > 0) ? maximaIndices.get(i).intValue() : maximaIndices.get(0).intValue()); j++) {
 
-            for(int i = Math.max(0, startingComparisonIndex); i < Math.min(histogramValues.size(), endingComparisonIndex); i++) {
-                if(element.compareTo(histogramValues.get(i)) == 1){
-                    acceptValue = false;
+                if(histogramValues.get(minimumIndex).compareTo(histogramValues.get(j)) == 1){
+                    minimumIndex = j;
                 }
             }
 
-            if (acceptValue){
-                minima.add(element);
-            }
+            minima.add(histogramValues.get(minimumIndex));
         }
+
         return minima;
     }
 
@@ -130,7 +126,7 @@ public abstract class HistogramApproximator {
             histogramMaximaCDF.add(histogram.cumulativeDensityFunction(histogram.getXValues().get(index.intValue())));
         }
 
-        ArrayList<BigInteger> histogramMinimaIndices = this.getMinimaIndices(histogram);
+        ArrayList<BigInteger> histogramMinimaIndices = this.getMinimaIndices(histogram, histogramMaximaIndices);
 
         ArrayList<BigDecimal> histogramMinimaCDF = new ArrayList<>();
         for(BigInteger index: histogramMinimaIndices){

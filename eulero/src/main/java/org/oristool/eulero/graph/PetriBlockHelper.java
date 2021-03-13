@@ -2,6 +2,7 @@ package org.oristool.eulero.graph;
 
 import org.oristool.eulero.math.approximation.HistogramApproximator.ApproximationSupportSetup;
 import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
+import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
@@ -9,6 +10,7 @@ import org.oristool.math.expression.Variable;
 import org.oristool.math.function.GEN;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
+import org.oristool.models.stpn.trees.EmpiricalTransitionFeature;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -67,5 +69,12 @@ public class PetriBlockHelper {
                 pn.addPostcondition(t, out);
             }
         }
+    }
+
+    public static void petriBlockWithHistogramFeatureFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, HistogramDistribution histogram) {
+        Transition t = pn.addTransition(blockName);
+        t.addFeature(EmpiricalTransitionFeature.newInstance(histogram.getCDFHistogramValues(), histogram.getLow(), histogram.getUpp()));
+        pn.addPrecondition(in, t);
+        pn.addPostcondition(t, out);
     }
 }

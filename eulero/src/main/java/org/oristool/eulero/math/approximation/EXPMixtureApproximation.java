@@ -17,7 +17,7 @@ public class EXPMixtureApproximation extends HistogramApproximator{
     }
 
     public EXPMixtureApproximation(){
-        this(BigInteger.valueOf(7));
+        this(BigInteger.valueOf(19));
     }
 
     public ArrayList<Map<String, BigDecimal>> getApproximationParameters(HistogramDistribution histogram, ArrayList<Map<String, BigDecimal>> approximationSupports){
@@ -41,7 +41,9 @@ public class EXPMixtureApproximation extends HistogramApproximator{
             double computedLambda = Double.MAX_VALUE;
 
             for(int j = supportsIndices.get(i).get("start").intValue(); j <= supportsIndices.get(i).get("end").intValue(); j++){
-                double cdfValue = (histogram.getCDFHistogramValues().get(j - 1).doubleValue() - subtractionFactor) / normalizationFactor;
+
+                double cdfValue = ((j != 0 ? histogram.getCDFHistogramValues().get(j - 1).doubleValue()
+                        : histogram.getCDFHistogramValues().get(j).doubleValue() ) - subtractionFactor) / normalizationFactor;
                 double xValue = histogram.getXValues().get(j).doubleValue();
 
                 if(i != approximationSupports.size() - 1){

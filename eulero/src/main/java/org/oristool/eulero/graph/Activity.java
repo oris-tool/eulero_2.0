@@ -382,12 +382,14 @@ public abstract class Activity {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
+        //this.addPetriBlock(pn, in, out, 1);
+        this.addPetriBlockWithHistorgramFeature(pn, in, out, 1);
         
         Marking m = new Marking();
         m.addTokens(in, 1);
         
         // simulate
+        System.out.println("Entro in simulazione");
         Sequencer s = new Sequencer(pn, m, 
                 new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
         TransientMarkingConditionProbability reward = 

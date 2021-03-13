@@ -26,6 +26,7 @@ import org.oristool.eulero.math.approximation.HistogramApproximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.TransientSolutionViewer;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 
 public class Main {
@@ -37,9 +38,8 @@ public class Main {
         DAG mainAnalysis1 = MainHelper.analysisSetup1(histograms, approximator, timeTick);
         DAG mainForSimulation = MainHelper.simulationSetup(histograms, approximator);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> prova =  mainForSimulation.simulate("20", "0.1", 1000);
+        TransientSolution<DeterministicEnablingState, RewardRate> prova =  mainForSimulation.simulate("20", "0.1", 10000);
 
-        int i = 0;
-        
+        new TransientSolutionViewer(prova);
     }
 }

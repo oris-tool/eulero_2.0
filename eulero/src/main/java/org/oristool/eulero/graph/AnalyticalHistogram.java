@@ -37,5 +37,10 @@ public class AnalyticalHistogram extends Activity{
         return prio + 1;
     }
 
+    public int addPetriBlockWithHistogramFeature(PetriNet pn, Place in, Place out, int prio) {
+        PetriBlockHelper.petriBlockWithHistogramFeatureFromSetups(this.name(), pn, in, out, prio, histogram);
+        return prio + 1;
+    }
+
     // TODO yamlData()
 }
