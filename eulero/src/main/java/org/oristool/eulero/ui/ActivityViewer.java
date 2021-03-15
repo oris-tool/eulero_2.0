@@ -35,6 +35,7 @@
 package org.oristool.eulero.ui;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -131,22 +132,15 @@ public class ActivityViewer extends JFrame {
         
         @SuppressWarnings("unchecked")
         TransientSolution<R, S>[] derivatives = new TransientSolution[transientSolutions.length];
+        List<String> labels = new ArrayList<>();
         for (int i = 0; i < derivatives.length; i++) {
-            derivatives[i] = new TransientSolution<>(
-                    transientSolutions[i].getTimeLimit(),
-                    transientSolutions[i].getStep(), 
-                    transientSolutions[i].getRegenerations(),
-                    transientSolutions[i].getColumnStates(), 
-                    transientSolutions[i].getInitialRegeneration());
-            for (int t = 1; t < derivatives[i].getSolution().length; t++) {
-                derivatives[i].getSolution()[t][0][0] = 
-                        transientSolutions[i].getSolution()[t][0][0] - 
-                        transientSolutions[i].getSolution()[t-1][0][0];
-            }
+            derivatives[i] = transientSolutions[i].computeDerivativeSolution();
+            labels.add(stringList.get(i) + String.format(" (JS %.3f)", 
+                    derivatives[i].jsDistance(derivatives[0], 0, 0, 0, 0)));
         }
         
-        ChartPanel cdf = solutionChart("CDF", stringList, transientSolutions);
-        ChartPanel pdf = solutionChart("PDF", stringList, derivatives);
+        ChartPanel cdf = solutionChart("CDF", labels, transientSolutions);
+        ChartPanel pdf = solutionChart("PDF", labels, derivatives);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.add("CDF", cdf);

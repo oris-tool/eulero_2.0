@@ -133,7 +133,7 @@ class PetriTest {
         ActivityViewer.plot(List.of("Analysis", "Simulation"),
                 t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
         
-        Thread.sleep(30000);
+        Thread.sleep(130000);
     }
 
     @Test

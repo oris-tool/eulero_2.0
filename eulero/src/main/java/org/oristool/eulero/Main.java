@@ -144,6 +144,7 @@ public class Main {
                 main.simulate("10", "0.1", 3000);           
         
         main.nest(i).replace(new Analytical("BAD", unif01));
+        System.out.println(main.yamlRecursive());
         
         TransientSolution<DeterministicEnablingState, RewardRate> after =
                 main.simulate("10", "0.1", 3000);

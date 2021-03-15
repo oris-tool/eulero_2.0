@@ -521,7 +521,6 @@ public class DAG extends Activity {
                     .collect(Collectors.toCollection(ArrayList::new));
             a.setPost(post);
         }
-        
     }
     
     /**
@@ -531,20 +530,21 @@ public class DAG extends Activity {
      * Predecessors are duplicated with the "_N" suffix and removed from this DAG 
      * if not used by other activities.
      * 
-     * @param endPre activity to nest            
+     * @param end activity to nest
      * @return the nested DAG with endPre and its predecessors
      */
-    public DAG nest(Activity endPre) {
+    public DAG nest(Activity end) {
         
-        if (!end().pre().contains(endPre)) {
-            throw new IllegalArgumentException(
-                    endPre + " is not a precondition of " + end());
-        }
+        DAG copy = this.copyRecursive(this.begin(), end, "_N");
         
-        DAG copy = this.copyRecursive(this.begin(), endPre, "_N");
-        this.removeBetween(this.begin(), endPre, false);
+        List<Activity> endPost = new ArrayList<>(end.post());
+        this.removeBetween(this.begin(), end, false);
+        
         copy.addPrecondition(this.begin());
-        this.end().addPrecondition(copy);
+        for (Activity p : endPost) {
+            p.addPrecondition(copy);
+        }
+
         return copy;
     }
 }
