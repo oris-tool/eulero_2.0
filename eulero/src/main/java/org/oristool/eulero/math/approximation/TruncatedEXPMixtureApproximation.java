@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EXPMixtureApproximation extends HistogramApproximator{
-
-    public EXPMixtureApproximation(BigInteger neighbourhoodHalfSize){
+public class TruncatedEXPMixtureApproximation extends HistogramApproximator{
+    public TruncatedEXPMixtureApproximation(BigInteger neighbourhoodHalfSize){
         super(neighbourhoodHalfSize);
     }
 
-    public EXPMixtureApproximation(){
-        this(BigInteger.valueOf(21));
+    public TruncatedEXPMixtureApproximation(){
+        this(BigInteger.valueOf(19));
     }
 
     public ArrayList<Map<String, BigDecimal>> getApproximationParameters(HistogramDistribution histogram, ArrayList<Map<String, BigDecimal>> approximationSupports){
@@ -46,13 +45,9 @@ public class EXPMixtureApproximation extends HistogramApproximator{
                         : histogram.getCDFHistogramValues().get(j).doubleValue() ) - subtractionFactor) / normalizationFactor;
                 double xValue = histogram.getXValues().get(j).doubleValue();
 
-                if(i != approximationSupports.size() - 1){
-                    UnivariateDifferentiableFunction function = new ApproximationHelpers.CumulativeTruncatedExp(start, end, xValue, cdfValue);
-                    computedLambda = Math.min(computedLambda, zeroSolver.solve(10000, function, 0.0001));
-                } else {
-                    // handling last support with Exponential
-                    computedLambda = Math.min(computedLambda, -Math.log(1 - cdfValue) / (xValue - start));
-                }
+                UnivariateDifferentiableFunction function = new ApproximationHelpers.CumulativeTruncatedExp(start, end, xValue, cdfValue);
+                computedLambda = Math.min(computedLambda, zeroSolver.solve(10000, function, 0.0001));
+
             }
 
             Map<String, BigDecimal> parameterMap = new HashMap<>();

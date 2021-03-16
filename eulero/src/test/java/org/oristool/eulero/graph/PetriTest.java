@@ -21,14 +21,21 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
+import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.HistogramApproximator;
+import org.oristool.eulero.math.approximation.TruncatedEXPMixtureApproximation;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.eulero.solver.CostEstimator;
 import org.oristool.eulero.ui.ActivityViewer;
+import org.oristool.models.stpn.RewardRate;
+import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.TransientSolutionViewer;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 class PetriTest {
@@ -154,9 +161,12 @@ class PetriTest {
 
 
         AnalyticalHistogram t = new AnalyticalHistogram("A", histogram, approximator);
+        SimulationActivity tS = new SimulationActivity("A", histogram, approximator);
 
-        t.petriArcs();
-        new TransientSolutionViewer(t.analyze("7", "0.1", "0.01"));
+        /*t.petriArcs();
+        new TransientSolutionViewer(t.analyze("7", "0.1", "0.01"));*/
+
+        ActivityViewer.plot(List.of("Simulation", "Analysis"), tS.simulate("30", "0.01", 100000), t.analyze("30", "0.01", "0.001"));
         Thread.sleep(20000);
     }
 
@@ -245,6 +255,36 @@ class PetriTest {
         Numerical sequence = Numerical.seq(activities);
         sequence.petriArcs();
         new TransientSolutionViewer(sequence.analyze("30", "0.1", "0.01"));
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestIntermediateApproximation() throws InterruptedException {
+        HistogramApproximator approximator = new EXPMixtureApproximation();
+        StochasticTransitionFeature unif01 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+
+        DAG t = DAG.sequence("SEQ",
+                        new Analytical("A", unif01),
+                        new Analytical("B", unif01),
+                        new Analytical("C", unif01),
+                        new Analytical("D", unif01));
+
+        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis = t.analyze("10", "0.01","0.001");
+
+        double[] cdfT = new double[tAnalysis.getSolution().length];
+        for(int count = 0; count < tAnalysis.getSolution().length; count++){
+            cdfT[count] = tAnalysis.getSolution()[count][0][0];
+        }
+
+        int minP = IntStream.range(0, cdfT.length).filter(index -> cdfT[index] < 0.005).max().orElse(0);
+        int maxP = IntStream.range(0, cdfT.length).filter(index -> cdfT[index] > 0.995).min().orElse(cdfT.length - 1);
+        double[] newCdfP = Arrays.stream(cdfT).filter(x -> x >= 0.005 && x <= 0.995).toArray();
+        // Get cdf from iBlockAnalysis, and support as int
+        Numerical tApproximation = new Numerical("Approximation", BigDecimal.valueOf(0.01), minP, maxP, newCdfP, approximator);
+        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis2 = tApproximation.analyze("10", "0.01","0.001");
+
+        ActivityViewer.plot(List.of("Simulation", "Analysis"), tAnalysis, tAnalysis2);
         Thread.sleep(20000);
     }
 }

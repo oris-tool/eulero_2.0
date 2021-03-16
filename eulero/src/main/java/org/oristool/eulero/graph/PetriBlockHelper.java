@@ -23,7 +23,7 @@ public class PetriBlockHelper {
 
     public static void petriBlockFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, ArrayList<ApproximationSupportSetup> setups){
         for (ApproximationSupportSetup setup: setups) {
-            Place p = pn.addPlace("p" + blockName);
+            Place p = pn.addPlace("p" + blockName + "_switch" + setups.indexOf(setup));
 
             Transition t_imm = pn.addTransition(blockName + "_switch" + setups.indexOf(setup) );
             t_imm.addFeature(new Priority(prio));

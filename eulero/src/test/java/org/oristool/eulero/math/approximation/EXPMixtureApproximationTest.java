@@ -99,9 +99,6 @@ public class EXPMixtureApproximationTest {
         }
 
         for (double val: domain) {
-            double provalo = w0.doubleValue() * exp0.cumulativeDensityFunction(BigDecimal.valueOf(val)).doubleValue() +
-                    w1.doubleValue() * exp1.cumulativeDensityFunction(BigDecimal.valueOf(val)).doubleValue() +
-                    w2.doubleValue() * exp2.cumulativeDensityFunction(BigDecimal.valueOf(val)).doubleValue();
 
             Assertions.assertTrue(w0.doubleValue() * exp0.cumulativeDensityFunction(BigDecimal.valueOf(val)).doubleValue() +
                     w1.doubleValue() * exp1.cumulativeDensityFunction(BigDecimal.valueOf(val)).doubleValue() +

@@ -46,7 +46,7 @@ public abstract class HistogramApproximator {
     public ArrayList<BigDecimal> getMaxima(HistogramDistribution histogram){
         // Note that this is a naive solution
         ArrayList<BigDecimal> maxima = new ArrayList<>();
-        ArrayList<BigDecimal> histogramValues =  histogram.getHistogramValues(DiscreteHelpers.HistogramType.PDF);
+        ArrayList<BigDecimal> histogramValues = histogram.getHistogramValues(DiscreteHelpers.HistogramType.PDF);
 
         for (BigDecimal element: histogramValues) {
             boolean acceptValue = true;
@@ -149,6 +149,14 @@ public abstract class HistogramApproximator {
                                     histogramMaximaCDF.get(i + 1).doubleValue() + histogramMinimaCDF.get(i).doubleValue()
                     ) / histogramMaxima.get(i + 1).doubleValue());
 
+            /*BigDecimal end = i == histogramMaxima.size() - 1 ? histogram.getUpp():
+                    BigDecimal.valueOf(
+                    (
+                            histogramMaxima.get(i + 1).doubleValue() * histogramMaximaAbscissa.get(i + 1).doubleValue()
+                                    -
+                                    histogramMaximaCDF.get(i + 1).doubleValue() + histogramMinimaCDF.get(i).doubleValue()
+                    ) / histogramMaxima.get(i + 1).doubleValue());*/
+
             Map<String, BigDecimal> supportValues = new HashMap<>();
             supportValues.put("start", start);
             supportValues.put("end", end);
@@ -169,6 +177,8 @@ public abstract class HistogramApproximator {
         supportValues.put("start", start);
         supportValues.put("end", new BigDecimal(Double.MAX_VALUE));
         approximationSupports.add(supportValues);
+
+        approximationSupports.removeIf(support -> support.get("end").compareTo(support.get("start")) == 0);
 
         //Checking consistency between i-th b value and (i+1)-th value
         for(int i = 0; i < approximationSupports.size() - 1; i++){

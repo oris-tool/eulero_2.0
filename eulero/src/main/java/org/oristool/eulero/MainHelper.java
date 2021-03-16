@@ -6,16 +6,21 @@ import org.json.simple.parser.ParseException;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.HistogramApproximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
+import org.oristool.models.stpn.RewardRate;
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.TransientSolutionViewer;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class MainHelper {
     private final static String DATASET_PATH = System.getProperty("user.dir")  + "/target/resources/samples.json";
-    private final static int BINS_NUMBER = 64;
+    private final static int BINS_NUMBER = 32;
     private final static String[] HISTOGRAM_NAMES = { "A", "B", "C", "D", "F", "G1", "G2", "H1", "H2", "IA", "IB", "J1",
             "J2", "J3", "KA1", "KA2", "KB1", "KB2", "N", "Y", "AP", "BP", "Z", "CP1", "CP2", "DP1", "DP2", "Q", "R", "S",
             "T1", "T2", "U", "V1", "V2", "W", "X1", "X2" };
@@ -226,6 +231,8 @@ public class MainHelper {
     }
 
     public static DAG analysisSetup1(Map<String, HistogramDistribution> histograms, HistogramApproximator approximator, BigDecimal timeTick){
+        BigDecimal timeBound = BigDecimal.valueOf(45);
+        BigDecimal error = BigDecimal.valueOf(0.001);
         // Events handled as AnalyticalHistogram
         AnalyticalHistogram a = new AnalyticalHistogram("A", histograms.get("A"), approximator);
         AnalyticalHistogram b = new AnalyticalHistogram("B", histograms.get("B"), approximator);
@@ -361,6 +368,20 @@ public class MainHelper {
         wx.addPrecondition(r, s);
         p.end().addPrecondition(tu, v, wx);
 
+        TransientSolution<DeterministicEnablingState, RewardRate> pAnalysis = p.analyze(timeBound.toString(), timeTick.toString(), error.toString());
+        pAnalysis.getSolution();
+        double[] cdfP = new double[pAnalysis.getSolution().length];
+        for(int count = 0; count < pAnalysis.getSolution().length; count++){
+            cdfP[count] = pAnalysis.getSolution()[count][0][0];
+        }
+        int minP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] < 0.005).max().orElse(0);
+        int maxP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] > 0.995).min().orElse(cdfP.length - 1);
+        double[] newCdfP = Arrays.stream(cdfP).filter(x -> x >= 0.005 && x <= 0.995).toArray();
+        System.out.println("Finita l'analisi del miniblocco P");
+        // Get cdf from iBlockAnalysis, and support as int
+        Numerical pApproximation = new Numerical("I_APPROXIMATION", timeTick, minP, maxP, newCdfP, approximator);
+        p.replace(pApproximation); // sostituisce il sottodag con l'approssimante
+
         Repeat e = new Repeat("E", 0.1,
                 DAG.sequence("L", new Repeat("M", 0.2, p), n, o));
 
@@ -378,9 +399,47 @@ public class MainHelper {
         k.addPrecondition(h, d);
         main.end().addPrecondition(i, j, k);
 
+        // Nesting node i
+        DAG iBlock = main.nest(i);
+        // Get time bound from histogram supports.
+        TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze(timeBound.toString(), timeTick.toString(), error.toString());
+        iBlockAnalysis.getSolution();
+        double[] cdfI = new double[iBlockAnalysis.getSolution().length];
+        for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
+            cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
+        }
+        int minI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] < 0.005).max().orElse(0);
+        int maxI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] > 0.995).min().orElse(cdfI.length - 1);
+        double[] newCdfI = Arrays.stream(cdfI).filter(x -> x >= 0.005 && x <= 0.995).toArray();
+        System.out.println("Finita l'analisi del miniblocco I");
+        // Get cdf from iBlockAnalysis, and support as int
+        Numerical iApproximation = new Numerical("I_APPROXIMATION", timeTick, minI, maxI, newCdfI, approximator);
+        iBlock.replace(iApproximation); // sostituisce il sottodag con l'approssimante
+
+        // Nesting node j
+        DAG jBlock = main.nest(j);
+        // Get time bound from histogram supports.
+        TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze(timeBound.toString(), timeTick.toString(), error.toString());
+        jBlockAnalysis.getSolution();
+        double[] cdfJ = new double[jBlockAnalysis.getSolution().length];
+        for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
+            cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
+        }
+        int minJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] < 0.005).max().orElse(0);
+        int maxJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] > 0.995).min().orElse(cdfJ.length - 1);
+        double[] newCdfJ = Arrays.stream(cdfJ).filter(x -> x >= 0.005 && x <= 0.995).toArray();
+        System.out.println("Finita l'analisi del miniblocco J");
+        // Get cdf from iBlockAnalysis, and support as int
+        Numerical jApproximation = new Numerical("J_APPROXIMATION", timeTick, minJ, maxJ, newCdfJ, approximator);
+        jBlock.replace(jApproximation);
+
+        // Analyzing subnets and recombining them
+
         // System.out.println(main.yamlRecursive());
         // System.out.println(main.petriArcs());
         // new TransientSolutionViewer(main.analyze("10", "0.1", "0.1"));
         return main;
     }
+
+
 }
