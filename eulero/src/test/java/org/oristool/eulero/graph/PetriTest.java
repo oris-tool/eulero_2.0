@@ -145,20 +145,20 @@ class PetriTest {
 
     @Test
     void AnalyticalHistogramTest() throws InterruptedException {
-        BigDecimal low = new BigDecimal(1.95088);
-        BigDecimal upp = new BigDecimal(21.4594);
+        BigDecimal low = new BigDecimal(0.161886);
+        BigDecimal upp = new BigDecimal(21.9972);
         ArrayList<BigDecimal> histogramValues = new ArrayList<>(
-                Arrays.asList(BigDecimal.valueOf(0.00223337), BigDecimal.valueOf(0.0635344), BigDecimal.valueOf(0.194387),
-                        BigDecimal.valueOf(0.0706512), BigDecimal.valueOf(0.00253338), BigDecimal.valueOf(0.0000666678),
-                        BigDecimal.valueOf(0.00321672), BigDecimal.valueOf(0.0284505), BigDecimal.valueOf(0.0976016),
-                        BigDecimal.valueOf(0.127585), BigDecimal.valueOf(0.0700178), BigDecimal.valueOf(0.0256171),
-                        BigDecimal.valueOf(0.0267171), BigDecimal.valueOf(0.040584), BigDecimal.valueOf(0.0540176),
-                        BigDecimal.valueOf(0.059251), BigDecimal.valueOf(0.0528509), BigDecimal.valueOf(0.039234),
-                        BigDecimal.valueOf(0.0228504), BigDecimal.valueOf(0.0117002), BigDecimal.valueOf(0.00478341),
-                        BigDecimal.valueOf(0.00161669), BigDecimal.valueOf(0.000466674), BigDecimal.valueOf(0.0000333339)));
+                Arrays.asList(BigDecimal.valueOf(0.00261671), BigDecimal.valueOf(0.0311672), BigDecimal.valueOf(0.114885),
+                        BigDecimal.valueOf(0.132469), BigDecimal.valueOf(0.0468174), BigDecimal.valueOf(0.00535009),
+                        BigDecimal.valueOf(0.000483341), BigDecimal.valueOf(0.0057501), BigDecimal.valueOf(0.0349839),
+                        BigDecimal.valueOf(0.0962849), BigDecimal.valueOf(0.117102), BigDecimal.valueOf(0.0729179),
+                        BigDecimal.valueOf(0.0389506), BigDecimal.valueOf(0.037284), BigDecimal.valueOf(0.0481675),
+                        BigDecimal.valueOf(0.0595177), BigDecimal.valueOf(0.0587843), BigDecimal.valueOf(0.0452674),
+                        BigDecimal.valueOf(0.0272005), BigDecimal.valueOf(0.0148169), BigDecimal.valueOf(0.00646677),
+                        BigDecimal.valueOf(0.0020667), BigDecimal.valueOf(0.000583343), BigDecimal.valueOf(0.0000666678)));
+
         HistogramApproximator approximator = new EXPMixtureApproximation();
         HistogramDistribution histogram = new HistogramDistribution("AHistogram", low, upp, histogramValues);
-
 
         AnalyticalHistogram t = new AnalyticalHistogram("A", histogram, approximator);
         SimulationActivity tS = new SimulationActivity("A", histogram, approximator);
@@ -166,7 +166,7 @@ class PetriTest {
         /*t.petriArcs();
         new TransientSolutionViewer(t.analyze("7", "0.1", "0.01"));*/
 
-        ActivityViewer.plot(List.of("Simulation", "Analysis"), tS.simulate("30", "0.01", 100000), t.analyze("30", "0.01", "0.001"));
+        ActivityViewer.plot(List.of("Simulation", "Analysis"), tS.simulate("22", "0.01", 50000), t.analyze("22", "0.01", "0.001"));
         Thread.sleep(20000);
     }
 
@@ -262,7 +262,7 @@ class PetriTest {
     void TestIntermediateApproximation() throws InterruptedException {
         HistogramApproximator approximator = new EXPMixtureApproximation();
         StochasticTransitionFeature unif01 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
 
         DAG t = DAG.sequence("SEQ",
                         new Analytical("A", unif01),
@@ -270,7 +270,7 @@ class PetriTest {
                         new Analytical("C", unif01),
                         new Analytical("D", unif01));
 
-        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis = t.analyze("10", "0.01","0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis = t.analyze("15", "0.01","0.001");
 
         double[] cdfT = new double[tAnalysis.getSolution().length];
         for(int count = 0; count < tAnalysis.getSolution().length; count++){
@@ -282,7 +282,7 @@ class PetriTest {
         double[] newCdfP = Arrays.stream(cdfT).filter(x -> x >= 0.005 && x <= 0.995).toArray();
         // Get cdf from iBlockAnalysis, and support as int
         Numerical tApproximation = new Numerical("Approximation", BigDecimal.valueOf(0.01), minP, maxP, newCdfP, approximator);
-        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis2 = tApproximation.analyze("10", "0.01","0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis2 = tApproximation.analyze("15", "0.01","0.001");
 
         ActivityViewer.plot(List.of("Simulation", "Analysis"), tAnalysis, tAnalysis2);
         Thread.sleep(20000);

@@ -18,7 +18,7 @@ public class MainRiccardo {
         Map<String, HistogramDistribution> histograms = MainHelper.getHistogramsDistributionMap();
         HistogramApproximator approximator = new EXPMixtureApproximation();
         BigDecimal timeBound = BigDecimal.valueOf(45);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
+        BigDecimal timeTick = BigDecimal.valueOf(0.01);
         BigDecimal error = BigDecimal.valueOf(0.001);
         int runs = 10000;
 

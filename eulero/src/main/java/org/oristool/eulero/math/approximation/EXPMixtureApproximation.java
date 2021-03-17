@@ -17,7 +17,7 @@ public class EXPMixtureApproximation extends HistogramApproximator{
     }
 
     public EXPMixtureApproximation(){
-        this(BigInteger.valueOf(21));
+        this(BigInteger.valueOf(20));
     }
 
     public ArrayList<Map<String, BigDecimal>> getApproximationParameters(HistogramDistribution histogram, ArrayList<Map<String, BigDecimal>> approximationSupports){
