@@ -2,29 +2,100 @@ package org.oristool.eulero.math.approximation;
 
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
-import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EXPMixtureApproximation extends HistogramApproximator{
-
-    public EXPMixtureApproximation(BigInteger neighbourhoodHalfSize){
-        super(neighbourhoodHalfSize);
-    }
+public class EXPMixtureApproximation extends Approximator {
 
     public EXPMixtureApproximation(){
-        this(BigInteger.valueOf(20));
     }
 
-    public ArrayList<Map<String, BigDecimal>> getApproximationParameters(HistogramDistribution histogram, ArrayList<Map<String, BigDecimal>> approximationSupports){
+    @Override
+    public Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp) {
+        Map<String, Map<String, BigInteger>> supportIndices = getApproximationSupportIndices(cdf, low, upp);
+        Map<String, Map<String, BigDecimal>> supportValues = getApproximationSupports(cdf, low, upp);
+        Map<String, BigDecimal> supportWeight = getApproximationSupportsWeight(cdf, low, upp);
+        NewtonRaphsonSolver zeroSolver = new NewtonRaphsonSolver();
+
+        double timeTick = (upp - low) / cdf.length;
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < x.length; i++){
+            x[i] = low + i * timeTick;
+        }
+
+        // Handling Body
+        Map<String, BigDecimal> bodyParameters = new HashMap<>();
+
+        double bodyLambda = Double.MAX_VALUE;
+
+        for(int i = supportIndices.get("body").get("start").intValue() + 1; i < supportIndices.get("body").get("end").intValue(); i++){
+            //Serve davvero i != 0???
+            double cdfValue = ((i != 0 ? cdf[i - 1] : cdf[i])) / supportWeight.get("body").doubleValue();
+
+            UnivariateDifferentiableFunction function =
+                    new ApproximationHelpers.CumulativeTruncatedExp(supportValues.get("body").get("start").doubleValue(), supportValues.get("body").get("end").doubleValue(), x[i], cdfValue);
+
+            bodyLambda = Math.min(
+                    bodyLambda,
+                    zeroSolver.solve(10000, function, 0.0001)
+            );
+        }
+
+        bodyParameters.put("lambda", BigDecimal.valueOf(bodyLambda));
+        bodyParameters.put("delta", supportValues.get("body").get("start"));
+
+
+        // Handling Tail
+        Map<String, BigDecimal> tailParameters = new HashMap<>();
+        double tailLambda = Double.MAX_VALUE;
+
+        for(int i = supportIndices.get("tail").get("start").intValue() + 1; i < supportIndices.get("tail").get("end").intValue(); i++){
+            //Serve davvero i != 0???
+            double cdfValue = ((i != 0 ? cdf[i - 1] : cdf[i]) - (1 - supportWeight.get("tail").doubleValue())) / supportWeight.get("tail").doubleValue();
+
+            tailLambda = Math.min(
+                    tailLambda,
+                    -Math.log(1 - cdfValue) / (x[i] - supportValues.get("tail").get("start").doubleValue())
+                );
+        }
+
+        tailParameters.put("lambda", BigDecimal.valueOf(tailLambda));
+
+        return Map.ofEntries(
+                Map.entry("body", bodyParameters),
+                Map.entry("tail", tailParameters)
+        );
+    }
+
+    /*public Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp){
         ArrayList<Map<String, BigDecimal>> lambdas = new ArrayList<>();
         NewtonRaphsonSolver zeroSolver = new NewtonRaphsonSolver();
 
-        ArrayList<Map<String, BigInteger>> supportsIndices = getApproximationSupportsBoundingIndices(histogram, approximationSupports);
+        Map<String, Map<String, BigDecimal>> supports = getApproximationSupports(cdf, low, upp);
+
+                ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("low");
+
+        // Body
+        double bodyStart = supports.get("body").get("start").doubleValue();
+        double bodyEnd = supports.get("body").get("end").doubleValue();
+
+        // Tail
+        double tailStart = supports.get("tail").get("start").doubleValue();
+        double tailEnd = supports.get("tail").get("end").doubleValue();
+        double tailLambda = Double.MAX_VALUE;
+
+        for(int j = supportsIndices.get(i).get("start").intValue(); j <= end.; j++){
+
+            double cdfValue = ((j != 0 ? histogram.getCDFHistogramValues().get(j - 1).doubleValue()
+                    : histogram.getCDFHistogramValues().get(j).doubleValue() ) - subtractionFactor) / normalizationFactor;
+            double xValue = histogram.getXValues().get(j).doubleValue();
+
+            // handling last support with Exponential
+            tailLambda = Math.min(tailLambda, -Math.log(1 - cdfValue) / (xValue - start));
+        }
 
         for (int i = 0; i < approximationSupports.size(); i++) {
             double start = approximationSupports.get(i).get("start").doubleValue();
@@ -60,6 +131,9 @@ public class EXPMixtureApproximation extends HistogramApproximator{
             lambdas.add(parameterMap);
         }
 
-        return lambdas;
-    }
+        return Map.ofEntries(
+                Map.entry("body", ),
+                Map.entry("tail", ),
+        );
+    }*/
 }

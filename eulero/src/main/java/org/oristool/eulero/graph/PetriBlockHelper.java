@@ -1,6 +1,6 @@
 package org.oristool.eulero.graph;
 
-import org.oristool.eulero.math.approximation.HistogramApproximator.ApproximationSupportSetup;
+import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
 import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.math.OmegaBigDecimal;
@@ -17,58 +17,65 @@ import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Map;
 
 public class PetriBlockHelper {
 
-    public static void petriBlockFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, ArrayList<ApproximationSupportSetup> setups){
-        for (ApproximationSupportSetup setup: setups) {
-            Place p = pn.addPlace("p" + blockName + "_switch" + setups.indexOf(setup));
+    public static void petriBlockFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, Map<String, ApproximationSupportSetup> setups){
+        // handling body
+        ApproximationSupportSetup bodySetup = setups.get("body");
+        Place pBody = pn.addPlace("p" + blockName + "_body_switch");
 
-            Transition t_imm = pn.addTransition(blockName + "_switch" + setups.indexOf(setup) );
-            t_imm.addFeature(new Priority(prio));
-            t_imm.addFeature(StochasticTransitionFeature
-                    .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(setup.getWeight().doubleValue())));
-            pn.addPrecondition(in, t_imm);
-            pn.addPostcondition(t_imm, p);
+        Transition tImmBody = pn.addTransition(blockName + "_body_switch");
+        tImmBody.addFeature(new Priority(prio));
+        tImmBody.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(bodySetup.getWeight().doubleValue())));
+        pn.addPrecondition(in, tImmBody);
+        pn.addPostcondition(tImmBody, pBody);
 
-            // Case for Truncated EXP
-            if(setup.getParameters().containsKey("lambda") && setup.getSupport().get("end").doubleValue() < Double.MAX_VALUE){
-                Transition t = pn.addTransition(blockName + "_" + setups.indexOf(setup));
-                ShiftedTruncatedExponentialDistribution distribution = new ShiftedTruncatedExponentialDistribution(blockName, setup.getSupport().get("start"), setup.getSupport().get("end"), setup.getParameters().get("lambda"));
+        Transition tBody = pn.addTransition(blockName + "_body");
+        ShiftedTruncatedExponentialDistribution bodyDistribution = new ShiftedTruncatedExponentialDistribution(blockName,
+                bodySetup.getSupport().get("start"), bodySetup.getSupport().get("end"), bodySetup.getParameters().get("lambda"));
 
-                t.addFeature(new Priority(prio));
+        tBody.addFeature(new Priority(prio));
 
-                DBMZone transition_d_0 = new DBMZone(Variable.X);
-                Expolynomial transition_e_0 = Expolynomial.fromString(distribution.getExpolynomialDensityString());
-                transition_e_0.multiply(distribution.getNormalizationFactor());
-                transition_d_0.setCoefficient(Variable.X, Variable.TSTAR, new OmegaBigDecimal(String.valueOf(distribution.getUpp().doubleValue())));
-                transition_d_0.setCoefficient(Variable.TSTAR, Variable.X, new OmegaBigDecimal(String.valueOf(-distribution.getLow().doubleValue())));
-                GEN transition_gen_0 = new GEN(transition_d_0, transition_e_0);
-                t.addFeature(StochasticTransitionFeature.of(transition_gen_0));
+        DBMZone transition_d_0 = new DBMZone(Variable.X);
+        Expolynomial transition_e_0 = Expolynomial.fromString(bodyDistribution.getExpolynomialDensityString());
+        transition_e_0.multiply(bodyDistribution.getNormalizationFactor());
+        transition_d_0.setCoefficient(Variable.X, Variable.TSTAR, new OmegaBigDecimal(String.valueOf(bodyDistribution.getUpp().doubleValue())));
+        transition_d_0.setCoefficient(Variable.TSTAR, Variable.X, new OmegaBigDecimal(String.valueOf(-bodyDistribution.getLow().doubleValue())));
+        GEN transition_gen_0 = new GEN(transition_d_0, transition_e_0);
+        tBody.addFeature(StochasticTransitionFeature.of(transition_gen_0));
 
-                pn.addPrecondition(p, t);
-                pn.addPostcondition(t, out);
-            }
+        pn.addPrecondition(pBody, tBody);
+        pn.addPostcondition(tBody, out);
 
-            // Case for ShiftedExp
-            if(setup.getParameters().containsKey("lambda") && setup.getSupport().get("end").doubleValue() == Double.MAX_VALUE){
-                Transition tDet = pn.addTransition(blockName + "_" + setups.indexOf(setup) + "_DET");
-                tDet.addFeature(new Priority(prio));
-                tDet.addFeature(StochasticTransitionFeature.newDeterministicInstance(setup.getSupport().get("start")));
 
-                Place pDet = pn.addPlace("p" + blockName + "_post_DET");
+        // handling tail
+        ApproximationSupportSetup tailSetup = setups.get("tail");
+        Place pTail = pn.addPlace("p" + blockName + "_tail_switch");
 
-                Transition t = pn.addTransition(blockName + "_" + setups.indexOf(setup));
-                t.addFeature(new Priority(prio));
-                t.addFeature(StochasticTransitionFeature.newExponentialInstance(setup.getParameters().get("lambda")));
+        Transition tImmTail = pn.addTransition(blockName + "_tail_switch");
+        tImmTail.addFeature(new Priority(prio));
+        tImmTail.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(tailSetup.getWeight().doubleValue())));
+        pn.addPrecondition(in, tImmTail);
+        pn.addPostcondition(tImmTail, pTail);
 
-                pn.addPrecondition(p, tDet);
-                pn.addPostcondition(tDet, pDet);
-                pn.addPrecondition(pDet, t);
-                pn.addPostcondition(t, out);
-            }
-        }
+        Transition tDet = pn.addTransition(blockName + "_tail_DET");
+        tDet.addFeature(new Priority(prio));
+        tDet.addFeature(StochasticTransitionFeature.newDeterministicInstance(tailSetup.getSupport().get("start")));
+
+        Place pDet = pn.addPlace("p" + blockName + "_tail_post_DET");
+
+        Transition tTail = pn.addTransition(blockName + "_tail");
+        tTail.addFeature(new Priority(prio));
+        tTail.addFeature(StochasticTransitionFeature.newExponentialInstance(tailSetup.getParameters().get("lambda")));
+
+        pn.addPrecondition(pTail, tDet);
+        pn.addPostcondition(tDet, pDet);
+        pn.addPrecondition(pDet, tTail);
+        pn.addPostcondition(tTail, out);
     }
 
     public static void petriBlockWithHistogramFeatureFromSetups(String blockName, PetriNet pn, Place in, Place out, int prio, HistogramDistribution histogram) {

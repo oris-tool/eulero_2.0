@@ -1,42 +1,56 @@
 package org.oristool.eulero.graph;
 
-import org.oristool.eulero.math.approximation.HistogramApproximator;
-import org.oristool.eulero.math.approximation.HistogramApproximator.ApproximationSupportSetup;
+import org.oristool.eulero.math.approximation.Approximator;
+import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class AnalyticalHistogram extends Activity{
+    // TODO anche questo è deprecated, perchè non si parte più dagli istogrammi
 
-    private HistogramDistribution histogram;
-    private HistogramApproximator approximator;
+    private double[] cdf;
+    private double upp;
+    private double low;
+    private Approximator approximator;
 
 
-    public AnalyticalHistogram(String name, HistogramDistribution histogram, HistogramApproximator approximator) {
+    public AnalyticalHistogram(String name, double[] cdf, double low, double upp, Approximator approximator) {
         super(name);
-        this.histogram = histogram;
+        this.cdf = cdf;
+        this.low = low;
+        this.upp = upp;
         this.approximator = approximator;
     }
 
-    public HistogramDistribution getHistogram() {
-        return histogram;
+    public double[] getCdf() {
+        return cdf;
     }
 
-    public HistogramApproximator getApproximator() {
+    public double getLow() {
+        return low;
+    }
+
+    public double getUpp() {
+        return upp;
+    }
+
+    public Approximator getApproximator() {
         return approximator;
     }
 
     @Override
     public AnalyticalHistogram copyRecursive(String suffix) {
         return new AnalyticalHistogram(this.name() + suffix, 
-                this.getHistogram(), this.getApproximator());
+                this.getCdf(), this.getLow(), this.getUpp(), this.getApproximator());
     }
 
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        ArrayList<ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(histogram);
+        Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp);
 
         PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 

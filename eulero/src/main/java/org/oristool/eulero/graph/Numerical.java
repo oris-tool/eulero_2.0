@@ -22,13 +22,14 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.GammaDistribution;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.approximation.HistogramApproximator;
-import org.oristool.eulero.math.approximation.HistogramApproximator.ApproximationSupportSetup;
+import org.oristool.eulero.math.approximation.Approximator;
+import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -41,9 +42,9 @@ public class Numerical extends Activity {
     private int min;
     private int max;
     private double[] cdf;
-    private HistogramApproximator approximator;
+    private Approximator approximator;
     
-    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf, HistogramApproximator approximator) {
+    public Numerical(String name, BigDecimal step, int min, int max, double[] cdf, Approximator approximator) {
         super(name);
         this.step = step;
         this.min = min;
@@ -77,20 +78,8 @@ public class Numerical extends Activity {
 
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        /* Compute pdf from cdf */
-        ArrayList<BigDecimal> pdf = new ArrayList<>();
-        double timeTick = (max / step.doubleValue() - min / step.doubleValue()) / (cdf.length - 1);
-
-        for(int i = 0; i < cdf.length; i++){
-            double pdfValue = (i != 0 && i != cdf.length - 1) ? (cdf[i + 1] - cdf[i - 1]) / timeTick :
-                    (i == 0) ? (cdf[i + 1] - cdf[i]) / (2 * timeTick) : (cdf[i] - cdf[i - 1]) / timeTick;
-
-            pdf.add(BigDecimal.valueOf(pdfValue));
-        }
-
         /* Generate Petri Net element as in AnalyticalHistogram.java */
-        HistogramDistribution histogram = new HistogramDistribution("name", BigDecimal.valueOf(min * step.doubleValue()), BigDecimal.valueOf(max * step.doubleValue()), pdf);
-        ArrayList<ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(histogram);
+        Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue());
         PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 
         return prio + 1;

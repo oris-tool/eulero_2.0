@@ -1,10 +1,14 @@
 package org.oristool.eulero.math.approximation;
 
-import org.apache.commons.math3.analysis.FunctionUtils;
-import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 public class ApproximationHelpers {
     public static class CumulativeTruncatedExp implements UnivariateDifferentiableFunction {
@@ -33,5 +37,71 @@ public class ApproximationHelpers {
 
             return p.divide(q).subtract(histogram);
         }
+    }
+
+    public static Map<String, BigDecimal> getTukeysBounds(double[] cdf, double low, double upp){
+        double timeTick = (upp - low) / (cdf.length - 1);
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < x.length; i++){
+            x[i] = low + i * timeTick;
+        }
+
+        double Q1 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.25)
+                .findFirst().orElse(0);
+
+        double Q3 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.75)
+                .findFirst().orElse(cdf.length - 1);
+
+        double IQR = Q3 - Q1;
+
+        double lowerBound = Arrays.stream(x)
+                .filter(val -> val <= 1.5 * IQR - Q1)
+                .max()
+                .orElse(0);
+
+        double upperBound = Arrays.stream(x)
+                .filter(val -> val >= 1.5 * IQR + Q3)
+                .min()
+                .orElse(cdf[cdf.length - 1]);
+
+        return Map.ofEntries(
+                    Map.entry("low", BigDecimal.valueOf(lowerBound)),
+                    Map.entry("upp", BigDecimal.valueOf(upperBound))
+            );
+    }
+
+    public static Map<String, BigInteger> getTukeysBoundsIndices(double[] cdf, double low, double upp){
+        double timeTick = (upp - low) / (cdf.length - 1);
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < x.length; i++){
+            x[i] = low + i * timeTick;
+        }
+
+        double Q1 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.25)
+                .findFirst().orElse(0);
+
+        double Q3 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.75)
+                .findFirst().orElse(cdf.length - 1);
+
+        double IQR = Q3 - Q1;
+
+        int lowerBoundIndex = IntStream.range(0, cdf.length)
+                .filter(i -> x[i] <= 1.5 * IQR - Q1)
+                .max()
+                .orElse(0);
+
+        int upperBoundIndex = IntStream.range(0, cdf.length)
+                .filter(i -> x[i] >= 1.5 * IQR + Q3)
+                .min()
+                .orElse(cdf.length - 1);
+
+        return Map.ofEntries(
+                Map.entry("low", BigInteger.valueOf(lowerBoundIndex)),
+                Map.entry("upp", BigInteger.valueOf(upperBoundIndex))
+        );
     }
 }

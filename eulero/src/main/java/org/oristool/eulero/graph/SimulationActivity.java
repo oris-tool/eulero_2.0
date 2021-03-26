@@ -1,16 +1,17 @@
 package org.oristool.eulero.graph;
 
-import org.oristool.eulero.math.approximation.HistogramApproximator;
+import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
 public class SimulationActivity extends Activity{
+    // TODO questa va cancellata, visto che non si parte più da istogrammi
 
     private HistogramDistribution histogram;
-    private HistogramApproximator approximator;
+    private Approximator approximator;
 
-    public SimulationActivity(String name, HistogramDistribution histogram, HistogramApproximator approximator) {
+    public SimulationActivity(String name, HistogramDistribution histogram, Approximator approximator) {
         super(name);
         this.histogram = histogram;
         this.approximator = approximator;
@@ -20,7 +21,7 @@ public class SimulationActivity extends Activity{
         return histogram;
     }
 
-    public HistogramApproximator getApproximator() {
+    public Approximator getApproximator() {
         return approximator;
     }
 

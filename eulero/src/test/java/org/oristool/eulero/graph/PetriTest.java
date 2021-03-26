@@ -21,14 +21,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
-import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.approximation.HistogramApproximator;
-import org.oristool.eulero.math.approximation.TruncatedEXPMixtureApproximation;
+import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.eulero.solver.CostEstimator;
 import org.oristool.eulero.ui.ActivityViewer;
@@ -144,147 +141,55 @@ class PetriTest {
     }
 
     @Test
-    void AnalyticalHistogramTest() throws InterruptedException {
-        BigDecimal low = new BigDecimal(0.161886);
-        BigDecimal upp = new BigDecimal(21.9972);
-        ArrayList<BigDecimal> histogramValues = new ArrayList<>(
-                Arrays.asList(BigDecimal.valueOf(0.00261671), BigDecimal.valueOf(0.0311672), BigDecimal.valueOf(0.114885),
-                        BigDecimal.valueOf(0.132469), BigDecimal.valueOf(0.0468174), BigDecimal.valueOf(0.00535009),
-                        BigDecimal.valueOf(0.000483341), BigDecimal.valueOf(0.0057501), BigDecimal.valueOf(0.0349839),
-                        BigDecimal.valueOf(0.0962849), BigDecimal.valueOf(0.117102), BigDecimal.valueOf(0.0729179),
-                        BigDecimal.valueOf(0.0389506), BigDecimal.valueOf(0.037284), BigDecimal.valueOf(0.0481675),
-                        BigDecimal.valueOf(0.0595177), BigDecimal.valueOf(0.0587843), BigDecimal.valueOf(0.0452674),
-                        BigDecimal.valueOf(0.0272005), BigDecimal.valueOf(0.0148169), BigDecimal.valueOf(0.00646677),
-                        BigDecimal.valueOf(0.0020667), BigDecimal.valueOf(0.000583343), BigDecimal.valueOf(0.0000666678)));
-
-        HistogramApproximator approximator = new EXPMixtureApproximation();
-        HistogramDistribution histogram = new HistogramDistribution("AHistogram", low, upp, histogramValues);
-
-        AnalyticalHistogram t = new AnalyticalHistogram("A", histogram, approximator);
-        SimulationActivity tS = new SimulationActivity("A", histogram, approximator);
-
-        /*t.petriArcs();
-        new TransientSolutionViewer(t.analyze("7", "0.1", "0.01"));*/
-
-        ActivityViewer.plot(List.of("Simulation", "Analysis"), tS.simulate("22", "0.01", 50000), t.analyze("22", "0.01", "0.001"));
-        Thread.sleep(20000);
-    }
-
-    @Test
-    void testGraphWithHistograms() throws InterruptedException {
-        HistogramApproximator approximator = new EXPMixtureApproximation();
-
-        BigDecimal low0 = new BigDecimal(1.9452);
-        BigDecimal upp0 = new BigDecimal(12.2337);
-        ArrayList<BigDecimal> histogramValues0 = new ArrayList<>(
-                Arrays.asList(BigDecimal.valueOf(0.000175004), BigDecimal.valueOf(0.00427511), BigDecimal.valueOf(0.0273507),
-                        BigDecimal.valueOf(0.0938273), BigDecimal.valueOf(0.160504), BigDecimal.valueOf(0.138703),
-                        BigDecimal.valueOf(0.0599765), BigDecimal.valueOf(0.0137503), BigDecimal.valueOf(0.00140004),
-                        BigDecimal.valueOf(0.0000500013), BigDecimal.valueOf(0.000125003), BigDecimal.valueOf(0.000575014),
-                        BigDecimal.valueOf(0.00255006), BigDecimal.valueOf(0.0100003), BigDecimal.valueOf(0.0266507),
-                        BigDecimal.valueOf(0.0564264), BigDecimal.valueOf(0.0903273), BigDecimal.valueOf(0.105903),
-                        BigDecimal.valueOf(0.0940524), BigDecimal.valueOf(0.0641516), BigDecimal.valueOf(0.0325758),
-                        BigDecimal.valueOf(0.0122253), BigDecimal.valueOf(0.00362509), BigDecimal.valueOf(0.00080002)));
-
-        HistogramDistribution histogram0 = new HistogramDistribution("Histogram0", low0, upp0, histogramValues0);
-
-
-        BigDecimal low1 = new BigDecimal(1.95088);
-        BigDecimal upp1 = new BigDecimal(21.4594);
-        ArrayList<BigDecimal> histogramValues1 = new ArrayList<>(
-                Arrays.asList(BigDecimal.valueOf(0.00223337), BigDecimal.valueOf(0.0635344), BigDecimal.valueOf(0.194387),
-                        BigDecimal.valueOf(0.0706512), BigDecimal.valueOf(0.00253338), BigDecimal.valueOf(0.0000666678),
-                        BigDecimal.valueOf(0.00321672), BigDecimal.valueOf(0.0284505), BigDecimal.valueOf(0.0976016),
-                        BigDecimal.valueOf(0.127585), BigDecimal.valueOf(0.0700178), BigDecimal.valueOf(0.0256171),
-                        BigDecimal.valueOf(0.0267171), BigDecimal.valueOf(0.040584), BigDecimal.valueOf(0.0540176),
-                        BigDecimal.valueOf(0.059251), BigDecimal.valueOf(0.0528509), BigDecimal.valueOf(0.039234),
-                        BigDecimal.valueOf(0.0228504), BigDecimal.valueOf(0.0117002), BigDecimal.valueOf(0.00478341),
-                        BigDecimal.valueOf(0.00161669), BigDecimal.valueOf(0.000466674), BigDecimal.valueOf(0.0000333339)));
-        HistogramDistribution histogram1 = new HistogramDistribution("Histogram1", low1, upp1, histogramValues1);
-
-
-        BigDecimal low2 = new BigDecimal(0.414154);
-        BigDecimal upp2 = new BigDecimal(5.76728);
-        ArrayList<BigDecimal> histogramValues2 = new ArrayList<>(
-                Arrays.asList(BigDecimal.valueOf(0.000250394), BigDecimal.valueOf(0.000676065), BigDecimal.valueOf(0.00182788),
-                        BigDecimal.valueOf(0.00856349), BigDecimal.valueOf(0.415154), BigDecimal.valueOf(0.12079),
-                        BigDecimal.valueOf(0.0441946), BigDecimal.valueOf(0.0631745), BigDecimal.valueOf(0.0782232),
-                        BigDecimal.valueOf(0.0823797), BigDecimal.valueOf(0.0697098), BigDecimal.valueOf(0.0540852),
-                        BigDecimal.valueOf(0.0319002), BigDecimal.valueOf(0.0179783), BigDecimal.valueOf(0.00803766),
-                        BigDecimal.valueOf(0.00305481)));
-        HistogramDistribution histogram2 = new HistogramDistribution("Histogram2", low2, upp2, histogramValues2);
-
-        DAG t = DAG.sequence("MAIN",
-                    DAG.sequence("AB",
-                            new AnalyticalHistogram("A", histogram0, approximator),
-                            new AnalyticalHistogram("B", histogram1, approximator)),
-                    DAG.forkJoin("CRH",
-                            new AnalyticalHistogram("C", histogram2, approximator),
-                            new AnalyticalHistogram("R", histogram0, approximator)));
-
-        System.out.println(t.yamlRecursive());
-        System.out.println(t.petriArcs());
-
-        new TransientSolutionViewer(t.analyze("20", "0.1", "0.01"));
-
-        AnalyticalHistogram t0 = new AnalyticalHistogram("A", histogram0, approximator);
-        AnalyticalHistogram t1 = new AnalyticalHistogram("B", histogram1, approximator);
-        AnalyticalHistogram t2 = new AnalyticalHistogram("C", histogram2, approximator);
-        t0.petriArcs();
-        t1.petriArcs();
-        t2.petriArcs();
-        new TransientSolutionViewer(t0.analyze("13", "0.1", "0.01"));
-        new TransientSolutionViewer(t1.analyze("22", "0.1", "0.01"));
-        new TransientSolutionViewer(t2.analyze("7", "0.1", "0.01"));
-
-        Thread.sleep(20000);
-    }
-
-    @Test
-    void NumericalTest() throws InterruptedException {
-        Numerical a = Numerical.uniform("A", BigDecimal.valueOf(1), BigDecimal.valueOf(3), BigDecimal.valueOf(0.1));
-        Numerical b = Numerical.uniform("B", BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(0.1));
-        Numerical c = Numerical.uniform("C", BigDecimal.valueOf(5), BigDecimal.valueOf(6), BigDecimal.valueOf(0.1));
-        Numerical d = Numerical.uniform("D", BigDecimal.valueOf(5), BigDecimal.valueOf(8), BigDecimal.valueOf(0.1));
-        ArrayList<Numerical> activities = new ArrayList<>();
-        activities.add(a);
-        activities.add(b);
-        activities.add(c);
-        activities.add(d);
-
-        Numerical sequence = Numerical.seq(activities);
-        sequence.petriArcs();
-        new TransientSolutionViewer(sequence.analyze("30", "0.1", "0.01"));
-        Thread.sleep(20000);
-    }
-
-    @Test
-    void TestIntermediateApproximation() throws InterruptedException {
-        HistogramApproximator approximator = new EXPMixtureApproximation();
-        StochasticTransitionFeature unif01 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
-
-        DAG t = DAG.sequence("SEQ",
-                        new Analytical("A", unif01),
-                        new Analytical("B", unif01),
-                        new Analytical("C", unif01),
-                        new Analytical("D", unif01));
-
-        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis = t.analyze("15", "0.01","0.001");
-
-        double[] cdfT = new double[tAnalysis.getSolution().length];
-        for(int count = 0; count < tAnalysis.getSolution().length; count++){
-            cdfT[count] = tAnalysis.getSolution()[count][0][0];
+    void AnalyticalTest() throws InterruptedException {
+        Analytical activity = Analytical.erlang("Test", 2, BigDecimal.valueOf(0.2));
+        TransientSolution<DeterministicEnablingState, RewardRate> solution = activity.analyze("50", "0.01", "0.001");
+        double[] cdf = new double[solution.getSolution().length];
+        for(int i = 0; i < cdf.length; i++){
+            cdf[i] = solution.getSolution()[i][0][0];
         }
 
-        int minP = IntStream.range(0, cdfT.length).filter(index -> cdfT[index] < 0.005).max().orElse(0);
-        int maxP = IntStream.range(0, cdfT.length).filter(index -> cdfT[index] > 0.995).min().orElse(cdfT.length - 1);
-        double[] newCdfP = Arrays.stream(cdfT).filter(x -> x >= 0.005 && x <= 0.995).toArray();
-        // Get cdf from iBlockAnalysis, and support as int
-        Numerical tApproximation = new Numerical("Approximation", BigDecimal.valueOf(0.01), minP, maxP, newCdfP, approximator);
-        TransientSolution<DeterministicEnablingState, RewardRate> tAnalysis2 = tApproximation.analyze("15", "0.01","0.001");
+        int min = IntStream.range(0, cdf.length).filter(index -> cdf[index] < 0.001).max().orElse(0);
+        int max = IntStream.range(0, cdf.length).filter(index -> cdf[index] > 0.999).min().orElse(cdf.length - 1);
+        double[] cutCdf = Arrays.stream(cdf).filter(x -> x >= 0.001 && x <= 0.999).toArray();
 
-        ActivityViewer.plot(List.of("Simulation", "Analysis"), tAnalysis, tAnalysis2);
+        Numerical activityApproximated = new Numerical("Appr", BigDecimal.valueOf(0.01), min, max, cutCdf);
+        TransientSolution<DeterministicEnablingState, RewardRate> approximationSolution = activityApproximated.analyze("50", "0.01", "0.001");
+        ActivityViewer.plot(List.of("Original", "Approximation"), solution, approximationSolution);
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestRepetitionApproximation() throws InterruptedException {
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(10));
+
+        StochasticTransitionFeature erl =
+                StochasticTransitionFeature.newErlangInstance(2, BigDecimal.valueOf(0.2));
+
+        DAG dag = DAG.sequence("DAG",
+                new Analytical("U1", unif0_10),
+                DAG.forkJoin("F",
+                    new Analytical("U2", unif0_10),
+                    new Analytical("U3", unif0_10)
+                ),
+                new Analytical("E1", erl)
+        );
+        Repeat e = new Repeat("REP", 0.2, dag);
+
+        TransientSolution<DeterministicEnablingState, RewardRate> solution = e.analyze("50", "0.01", "0.001");
+        double[] cdf = new double[solution.getSolution().length];
+        for(int i = 0; i < cdf.length; i++){
+            cdf[i] = solution.getSolution()[i][0][0];
+        }
+
+        int min = IntStream.range(0, cdf.length).filter(index -> cdf[index] < 0.001).max().orElse(0);
+        int max = IntStream.range(0, cdf.length).filter(index -> cdf[index] > 0.999).min().orElse(cdf.length - 1);
+        double[] cutCdf = Arrays.stream(cdf).filter(x -> x >= 0.001 && x <= 0.999).toArray();
+
+        Numerical activityApproximated = new Numerical("Appr", BigDecimal.valueOf(0.01), min, max, cutCdf);
+        TransientSolution<DeterministicEnablingState, RewardRate> approximationSolution = activityApproximated.analyze("50", "0.01", "0.001");
+        ActivityViewer.plot(List.of("Original", "Approximation"), solution, approximationSolution);
         Thread.sleep(20000);
     }
 }
