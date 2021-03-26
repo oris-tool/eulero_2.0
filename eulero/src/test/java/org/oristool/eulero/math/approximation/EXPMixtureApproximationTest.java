@@ -29,7 +29,7 @@ public class EXPMixtureApproximationTest {
         Map<String, Map<String, BigDecimal>> approximationParameters = approximator.getApproximationParameters(cdf, low, upp);
 
         double prova = 0;
-        // timeTick is multiplied by a factor 3 in the allowed error, due to the two ways discretization step in computin Tukeys Bounds
+        // timeTick is multiplied by a factor 3 in the allowed error, due to the two ways discretization step in computing Tukeys Bounds
         Assertions.assertEquals(0.1054, approximationParameters.get("body").get("lambda").doubleValue(), 0.05);
         Assertions.assertEquals(1.20229, approximationParameters.get("tail").get("lambda").doubleValue(), 0.1);
 

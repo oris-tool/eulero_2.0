@@ -338,18 +338,55 @@ public class MainHelper {
        wx.addPrecondition(r, s);
        p.end().addPrecondition(tu, v, wx);
 
+
+       System.out.println("Comincia l'analisi del miniblocco WX");
+       DAG wxBlock = p.nest(wx);
        // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> pBlockAnalysis = p.analyze("120", timeTick.toString(), "0.001");
+       TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze("120", timeTick.toString(), "0.001");
+       wxBlockAnalysis.getSolution();
+       double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
+       for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
+           cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
+       }
+       int minWX = IntStream.range(0, cdfWX.length).filter(index -> cdfWX[index] < 0.005).max().orElse(0);
+       int maxWX = IntStream.range(0, cdfWX.length).filter(index -> cdfWX[index] > 0.995).min().orElse(cdfWX.length - 1);
+       double[] newCdfWX = Arrays.stream(cdfWX).filter(value -> value >= 0.005 && value <= 0.99).toArray();
+       System.out.println("Finita l'analisi del miniblocco WX");
+       // Get cdf from iBlockAnalysis, and support as int
+       Numerical wxApproximation = new Numerical("wx_APPROXIMATION", timeTick, minWX, maxWX, newCdfWX, approximator);
+       wxBlock.replace(wxApproximation); // sostituisce il sottodag con l'approssimante
+
+       System.out.println("Comincia l'analisi del miniblocco UT");
+       DAG tuBlock = p.nest(tu);
+       // Get time bound from histogram supports.
+       TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze("120", timeTick.toString(), "0.001");
+       tuBlockAnalysis.getSolution();
+       double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
+       for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
+           cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
+       }
+       int minTU = IntStream.range(0, cdfTU.length).filter(index -> cdfTU[index] < 0.005).max().orElse(0);
+       int maxTU = IntStream.range(0, cdfTU.length).filter(index -> cdfTU[index] > 0.995).min().orElse(cdfTU.length - 1);
+       double[] newCdfTU = Arrays.stream(cdfTU).filter(value -> value >= 0.005 && value <= 0.995).toArray();
+       System.out.println("Finita l'analisi del miniblocco UT");
+       // Get cdf from iBlockAnalysis, and support as int
+       Numerical tuApproximation = new Numerical("tu_APPROXIMATION", timeTick, minTU, maxTU, newCdfTU, approximator);
+       tuBlock.replace(tuApproximation); // sostituisce il sottodag con l'approssimante
+
+
+       System.out.println("Cominicia l'analisi del miniblocco P");
+       // Get time bound from histogram supports.
+       TransientSolution<DeterministicEnablingState, RewardRate> pBlockAnalysis = p.analyze("120", timeTick.toString(), "0.0001");
        double[] cdfP = new double[pBlockAnalysis.getSolution().length];
        for(int count = 0; count < pBlockAnalysis.getSolution().length; count++){
            cdfP[count] = pBlockAnalysis.getSolution()[count][0][0];
        }
-       int minP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] < 0.001).max().orElse(0);
-       int maxP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] > 0.999).min().orElse(cdfP.length - 1);
-       double[] newCdfP = Arrays.stream(cdfP).filter(value -> value >= 0.001 && value <= 0.999).toArray();
+       int minP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] < 0.005).max().orElse(0);
+       int maxP = IntStream.range(0, cdfP.length).filter(index -> cdfP[index] > 0.99).min().orElse(cdfP.length - 1);
+       double[] newCdfP = Arrays.stream(cdfP).filter(value -> value >= 0.005 && value <= 0.99).toArray();
        System.out.println("Finita l'analisi del miniblocco P");
        // Get cdf from iBlockAnalysis, and support as int
-       Numerical pApproximation = new Numerical("I_APPROXIMATION", timeTick, minP, maxP, newCdfP, approximator);
+       Numerical pApproximation = new Numerical("P_APPROXIMATION", timeTick, minP, maxP, newCdfP, approximator);
 
        Repeat e = new Repeat("E", 0.1,
                DAG.sequence("L", new Repeat("M", 0.2, pApproximation  ), n, o));
@@ -369,23 +406,25 @@ public class MainHelper {
        main.end().addPrecondition(i, j, k);
 
 
+       System.out.println("Comincia l'analisi del miniblocco I");
        DAG iBlock = main.nest(i);
        // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze("120", timeTick.toString(), "0.001");
+       TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze("120", timeTick.toString(), "0.0001");
        iBlockAnalysis.getSolution();
        double[] cdfI = new double[iBlockAnalysis.getSolution().length];
        for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
            cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
        }
-       int minI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] < 0.001).max().orElse(0);
-       int maxI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] > 0.999).min().orElse(cdfI.length - 1);
-       double[] newCdfI = Arrays.stream(cdfI).filter(value -> value >= 0.001 && value <= 0.999).toArray();
+       int minI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] < 0.005).max().orElse(0);
+       int maxI = IntStream.range(0, cdfI.length).filter(index -> cdfI[index] > 0.995).min().orElse(cdfI.length - 1);
+       double[] newCdfI = Arrays.stream(cdfI).filter(value -> value >= 0.005 && value <= 0.995).toArray();
        System.out.println("Finita l'analisi del miniblocco I");
         // Get cdf from iBlockAnalysis, and support as int
        Numerical iApproximation = new Numerical("I_APPROXIMATION", timeTick, minI, maxI, newCdfI, approximator);
        iBlock.replace(iApproximation); // sostituisce il sottodag con l'approssimante
 
-        // Nesting node j
+       System.out.println("Comincia l'analisi del miniblocco J");
+       // Nesting node j
        DAG jBlock = main.nest(j);
        // Get time bound from histogram supports.
        TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze("120", timeTick.toString(), "0.001");
@@ -394,13 +433,31 @@ public class MainHelper {
        for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
            cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
        }
-       int minJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] < 0.001).max().orElse(0);
-       int maxJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] > 0.999).min().orElse(cdfJ.length - 1);
-       double[] newCdfJ = Arrays.stream(cdfJ).filter(value -> value >= 0.001 && value <= 0.999).toArray();
+       int minJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] < 0.005).max().orElse(0);
+       int maxJ = IntStream.range(0, cdfJ.length).filter(index -> cdfJ[index] > 0.995).min().orElse(cdfJ.length - 1);
+       double[] newCdfJ = Arrays.stream(cdfJ).filter(value -> value >= 0.005 && value <= 0.995).toArray();
        System.out.println("Finita l'analisi del miniblocco J");
        // Get cdf from iBlockAnalysis, and support as int
        Numerical jApproximation = new Numerical("J_APPROXIMATION", timeTick, minJ, maxJ, newCdfJ, approximator);
        jBlock.replace(jApproximation);
+
+       System.out.println("Comincia l'analisi del miniblocco K");
+       // Nesting node j
+       DAG kBlock = main.nest(k);
+       // Get time bound from histogram supports.
+       TransientSolution<DeterministicEnablingState, RewardRate> kBlockAnalysis = kBlock.analyze("120", timeTick.toString(), "0.001");
+       kBlockAnalysis.getSolution();
+       double[] cdfK = new double[kBlockAnalysis.getSolution().length];
+       for(int count = 0; count < kBlockAnalysis.getSolution().length; count++){
+           cdfK[count] = kBlockAnalysis.getSolution()[count][0][0];
+       }
+       int minK = IntStream.range(0, cdfK.length).filter(index -> cdfK[index] < 0.005).max().orElse(0);
+       int maxK = IntStream.range(0, cdfK.length).filter(index -> cdfK[index] > 0.995).min().orElse(cdfK.length - 1);
+       double[] newCdfK = Arrays.stream(cdfK).filter(value -> value >= 0.005 && value <= 0.995).toArray();
+       System.out.println("Finita l'analisi del miniblocco K");
+       // Get cdf from iBlockAnalysis, and support as int
+       Numerical kApproximation = new Numerical("K_APPROXIMATION", timeTick, minK, maxK, newCdfK, approximator);
+       kBlock.replace(kApproximation);
 
        return main;
    }

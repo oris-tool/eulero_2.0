@@ -59,12 +59,12 @@ public class ApproximationHelpers {
         double lowerBound = Arrays.stream(x)
                 .filter(val -> val <= 1.5 * IQR - Q1)
                 .max()
-                .orElse(0);
+                .orElse(x[0]);
 
         double upperBound = Arrays.stream(x)
                 .filter(val -> val >= 1.5 * IQR + Q3)
                 .min()
-                .orElse(cdf[cdf.length - 1]);
+                .orElse(x[x.length - 1]);
 
         return Map.ofEntries(
                     Map.entry("low", BigDecimal.valueOf(lowerBound)),

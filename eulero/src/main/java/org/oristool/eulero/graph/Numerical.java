@@ -78,7 +78,6 @@ public class Numerical extends Activity {
 
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        /* Generate Petri Net element as in AnalyticalHistogram.java */
         Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue());
         PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 
