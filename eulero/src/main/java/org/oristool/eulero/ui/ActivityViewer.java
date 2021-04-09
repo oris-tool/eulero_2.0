@@ -49,6 +49,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.oristool.eulero.MainHelper;
 import org.oristool.models.stpn.TransientSolution;
 
 /**
@@ -153,5 +154,86 @@ public class ActivityViewer extends JFrame {
         v.setLocationRelativeTo(null);
         v.setVisible(true);
     }
+
+    private static ChartPanel solutionChart(
+            String title, List<String> stringList, double step, double upper, double[]... graphs) {
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+
+        for (int i = 0; i < graphs.length; i++) {
+            double[] graph = graphs[i];
+            XYSeries series = new XYSeries(stringList.get(i));
+
+            for (int j = 0; j < graph.length; j++)
+                series.add(j * step, graph[j]);
+
+            dataset.addSeries(series);
+        }
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                title, "Time", "Probability", dataset,
+                PlotOrientation.VERTICAL, true, true, false);
+
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+
+        plot.setDomainGridlinesVisible(true);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+        NumberAxis domain = (NumberAxis) plot.getDomainAxis();
+        domain.setRange(0.00, upper);
+        // domain.setTickUnit(new NumberTickUnit(0.1));
+        domain.setVerticalTickLabels(true);
+
+        NumberAxis range = (NumberAxis) plot.getRangeAxis();
+        range.setAutoRangeMinimumSize(1.01);
+        // range.setTickUnit(new NumberTickUnit(0.1));
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        // chartPanel.setMouseZoomable(true, false);
+
+        return chartPanel;
+    }
+
+    @SafeVarargs
+    public static void CompareResults(String title, List<String> stringList, MainHelper.ResultWrapper... results) {
+        // TODO check dimension of step and upper
+
+        ActivityViewer v = new ActivityViewer();
+
+        double[][] cdfs = new double[results.length][];
+        double[][] pdfs = new double[results.length][];
+        double step = results[0].getStep();
+        double upper = results[0].getMax() * step;
+
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < results.length; i++) {
+            cdfs[i] = results[i].getCdf();
+            pdfs[i] = results[i].getPdf();
+
+            // JS divergence
+            labels.add(stringList.get(i) + String.format(" (JS %.6f)",
+                    results[i].jsDistance(pdfs[0])));
+        }
+
+        ChartPanel cdf = solutionChart("CDF - " + title, labels, step, upper, cdfs);
+        ChartPanel pdf = solutionChart("PDF - " + title, labels, step, upper, pdfs);
+
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.add("CDF", cdf);
+        tabs.add("PDF", pdf);
+
+        v.setTitle("Activity Viewer");
+        v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        v.add(tabs);
+        v.pack();
+        v.setLocationRelativeTo(null);
+        v.setVisible(true);
+    }
+
+
 }
 

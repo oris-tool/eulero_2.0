@@ -57,12 +57,12 @@ public class ApproximationHelpers {
         double IQR = Q3 - Q1;
 
         double lowerBound = Arrays.stream(x)
-                .filter(val -> val <= 1.5 * IQR - Q1)
+                .filter(val -> val <= Q1 - 1.5 * IQR)
                 .max()
                 .orElse(x[0]);
 
         double upperBound = Arrays.stream(x)
-                .filter(val -> val >= 1.5 * IQR + Q3)
+                .filter(val -> val >=  Q3 + 1.5 * IQR)
                 .min()
                 .orElse(x[x.length - 1]);
 
@@ -90,18 +90,70 @@ public class ApproximationHelpers {
         double IQR = Q3 - Q1;
 
         int lowerBoundIndex = IntStream.range(0, cdf.length)
-                .filter(i -> x[i] <= 1.5 * IQR - Q1)
+                .filter(i -> x[i] <= Q1 - 1.5 * IQR )
                 .max()
                 .orElse(0);
 
         int upperBoundIndex = IntStream.range(0, cdf.length)
-                .filter(i -> x[i] >= 1.5 * IQR + Q3)
+                .filter(i -> x[i] >= Q3 + 1.5 * IQR)
                 .min()
                 .orElse(cdf.length - 1);
 
         return Map.ofEntries(
                 Map.entry("low", BigInteger.valueOf(lowerBoundIndex)),
                 Map.entry("upp", BigInteger.valueOf(upperBoundIndex))
+        );
+    }
+
+    public static Map<String, BigDecimal> getQuartileBounds(double[] cdf, double low, double upp){
+        double timeTick = (upp - low) / (cdf.length - 1);
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < x.length; i++){
+            x[i] = low + i * timeTick;
+        }
+
+        double Q1 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.25)
+                .findFirst().orElse(0);
+
+        double Q3 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.75)
+                .findFirst().orElse(cdf.length - 1);
+
+        return Map.ofEntries(
+                Map.entry("low", BigDecimal.valueOf(Q1)),
+                Map.entry("upp", BigDecimal.valueOf(Q3))
+        );
+    }
+
+    public static Map<String, BigInteger> getQuartileBoundsIndices(double[] cdf, double low, double upp){
+        double timeTick = (upp - low) / (cdf.length - 1);
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < x.length; i++){
+            x[i] = low + i * timeTick;
+        }
+
+        double Q1 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.25)
+                .findFirst().orElse(0);
+
+        double Q3 = low + timeTick * IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.75)
+                .findFirst().orElse(cdf.length - 1);
+
+        int Q1Index = IntStream.range(0, cdf.length)
+                .filter(i -> x[i] <= Q1)
+                .max()
+                .orElse(0);
+
+        int Q3Index = IntStream.range(0, cdf.length)
+                .filter(i -> x[i] >= Q3)
+                .min()
+                .orElse(cdf.length - 1);
+
+        return Map.ofEntries(
+                Map.entry("low", BigInteger.valueOf(Q1Index)),
+                Map.entry("upp", BigInteger.valueOf(Q3Index))
         );
     }
 }

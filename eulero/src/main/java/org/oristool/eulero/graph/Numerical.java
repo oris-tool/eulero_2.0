@@ -76,8 +76,13 @@ public class Numerical extends Activity {
         return max;
     }
 
+    public double[] getCdf() {
+        return cdf;
+    }
+
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        System.out.println("Approximation performed on " + name());
         Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue());
         PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 
@@ -187,7 +192,7 @@ public class Numerical extends Activity {
         BigDecimal step = activities.get(0).step();
         int min = activities.stream().mapToInt(s -> s.min()).max().getAsInt(); // max of mins
         int max = activities.stream().mapToInt(s -> s.max()).max().getAsInt(); // max of maxs
-        String name = "min(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
+        String name = "max(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
         double[] cdf = new double[max-min-1]; 
         for (int x = 0; x < cdf.length; x++) {
             // CDF of max is F(x)*G(x)
@@ -207,7 +212,7 @@ public class Numerical extends Activity {
         BigDecimal step = activities.get(0).step();
         int min = activities.stream().mapToInt(s -> s.min()).min().getAsInt(); // min of mins
         int max = activities.stream().mapToInt(s -> s.max()).min().getAsInt(); // min of maxs
-        String name = "max(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
+        String name = "min(" + activities.stream().map(Activity::name).collect(Collectors.joining(",")) + ")";
         
         double[] cdf = new double[max-min-1]; 
         for (int x = 0; x < cdf.length; x++) {

@@ -12,7 +12,8 @@ public abstract class Approximator {
     public Approximator(){ };
 
     public Map<String, Map<String, BigDecimal>> getApproximationSupports(double[] cdf, double low, double upp) {
-        BigDecimal tukeysUpperBound = ApproximationHelpers.getTukeysBounds(cdf, low, upp).get("upp");
+        //BigDecimal tukeysUpperBound = ApproximationHelpers.getTukeysBounds(cdf, low, upp).get("upp");
+        BigDecimal tukeysUpperBound = ApproximationHelpers.getQuartileBounds(cdf, low, upp).get("upp");
         int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
         double timeTick = (upp - low) / (cdf.length - 1);
 
@@ -48,7 +49,8 @@ public abstract class Approximator {
     }
 
     public Map<String, Map<String, BigInteger>> getApproximationSupportIndices(double[] cdf, double low, double upp) {
-        int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
+        //int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
+        int tukeysUpperBoundIndex = ApproximationHelpers.getQuartileBoundsIndices(cdf, low, upp).get("upp").intValue();
         double timeTick = (upp - low) / (cdf.length - 1);
 
         double[] pdf = new double[tukeysUpperBoundIndex];
@@ -85,7 +87,8 @@ public abstract class Approximator {
     }
 
     public Map<String, BigDecimal> getApproximationSupportsWeight(double[] cdf, double low, double upp){
-        int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
+        //int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
+        int tukeysUpperBoundIndex = ApproximationHelpers.getQuartileBoundsIndices(cdf, low, upp).get("upp").intValue();
 
         return Map.ofEntries(
                 Map.entry("body", BigDecimal.valueOf(cdf[tukeysUpperBoundIndex - 1])),

@@ -5,7 +5,7 @@ import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +56,8 @@ public class EXPMixtureApproximation extends Approximator {
         for(int i = supportIndices.get("tail").get("start").intValue() + 1; i < supportIndices.get("tail").get("end").intValue(); i++){
             //Serve davvero i != 0???
             double cdfValue = ((i != 0 ? cdf[i - 1] : cdf[i]) - (1 - supportWeight.get("tail").doubleValue())) / supportWeight.get("tail").doubleValue();
+            cdfValue = BigDecimal.valueOf(cdfValue).setScale(3, RoundingMode.HALF_DOWN).doubleValue();
+
 
             tailLambda = Math.min(
                     tailLambda,
