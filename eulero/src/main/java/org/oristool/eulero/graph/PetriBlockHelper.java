@@ -27,7 +27,12 @@ public class PetriBlockHelper {
         Place pBody = pn.addPlace("p" + blockName + "_body_switch");
 
         Transition tImmBody = pn.addTransition(blockName + "_body_switch");
-        tImmBody.addFeature(new Priority(prio));
+        try{
+            tImmBody.addFeature(new Priority(prio));
+        } catch (Exception e){
+
+        }
+
         tImmBody.addFeature(StochasticTransitionFeature
                 .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(bodySetup.getWeight().doubleValue())));
         pn.addPrecondition(in, tImmBody);

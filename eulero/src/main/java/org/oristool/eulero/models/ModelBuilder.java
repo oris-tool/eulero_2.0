@@ -25,5 +25,6 @@ public abstract class ModelBuilder {
 
     public abstract Activity buildModelForAnalysis_Heuristic1(BigDecimal timeBound, BigDecimal timeTick);
     public abstract Activity buildModelForAnalysis_Heuristic2(BigDecimal timeBound, BigDecimal timeTick);
+    public abstract Activity buildModelForAnalysis_Heuristic3(BigDecimal timeBound, BigDecimal timeTick);
     public abstract Activity buildModelForSimulation();
 }

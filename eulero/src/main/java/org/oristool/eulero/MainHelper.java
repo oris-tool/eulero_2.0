@@ -11,14 +11,13 @@ import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
 public class MainHelper {
+    private final static String SAVE_PATH = System.getProperty("user.dir") + "/results";
     private final static String DATASET_PATH = System.getProperty("user.dir")  + "/target/resources/samples.json";
     private final static int BINS_NUMBER = 32;
     private final static String[] HISTOGRAM_NAMES = { "A", "B", "C", "D", "F", "G1", "G2", "H1", "H2", "IA", "IB", "J1",
@@ -126,6 +125,7 @@ public class MainHelper {
         return histogramAsList;
     }
 
+    // Deprecated?
     public static ResultWrapper simulate(Activity activity, BigDecimal timeLimit, BigDecimal timeTick, int runs){
         //Simulation
         TransientSolution<DeterministicEnablingState, RewardRate> simulation = activity
@@ -139,10 +139,12 @@ public class MainHelper {
         return new ResultWrapper(simulationCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
     }
 
+    // Deprecated?
     public static ResultWrapper analyze(Numerical activity, BigDecimal timeTick){
         return new ResultWrapper(activity.getCdf(), activity.min(), activity.max(), timeTick.doubleValue());
     }
 
+    // Deprecated?
     public static ResultWrapper analyze(DAG activity, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error){
         TransientSolution<DeterministicEnablingState, RewardRate> analysis = activity
                 .analyze(timeLimit.toString(), timeTick.toString(), error.toString());
@@ -155,1281 +157,8 @@ public class MainHelper {
         return new ResultWrapper(analysisCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
     }
 
-    /*public static DAG simulationModelSetup1(){
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif2_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif1_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ONE, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        Analytical a = new Analytical("A", unif0_2);
-        Analytical b = new Analytical("B", unif2_6);
-        Analytical c = new Analytical("C", unif1_3);
-        Analytical d = new Analytical("D", unif0_1);
-        Analytical f = new Analytical("F", unif0_2);
-
-        DAG g = DAG.sequence("G",
-                new Analytical("G1", unif2_6),
-                new Analytical("G2", unif1_3));
-
-        DAG h = DAG.sequence("H",
-                new Analytical("H1", unif0_1),
-                new Analytical("H2", unif0_2));
-
-        Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif2_6),
-                        new Analytical("IB", unif1_3)),
-                List.of(0.3, 0.7));
-
-        DAG j = DAG.sequence("J",
-                new Analytical("J1", unif0_1),
-                new Analytical("J2", unif0_2),
-                new Analytical("J3", unif2_6));
-
-        Xor k = new Xor("K", List.of(
-                DAG.sequence("KA",
-                        new Analytical("KA1", unif1_3),
-                        new Analytical("KA2", unif0_1)),
-                DAG.sequence("KB",
-                        new Analytical("KB1", unif0_2),
-                        new Analytical("KB2", unif2_6))),
-                List.of(0.4, 0.6));
-
-        Analytical n = new Analytical("N", unif1_3);
-
-        DAG o = DAG.forkJoin("O",
-                DAG.sequence("YAPBP",
-                        new Analytical("Y", unif0_1),
-                        DAG.forkJoin("APBP",
-                                new Analytical("AP", unif0_2),
-                                new Analytical("BP", unif2_6))),
-                DAG.sequence("ZCPDP",
-                        new Analytical("Z", unif1_3),
-                        DAG.forkJoin("CPDP",
-                                DAG.sequence("CP",
-                                        new Analytical("CP1", unif0_1),
-                                        new Analytical("CP2", unif0_2)),
-                                DAG.sequence("DP",
-                                        new Analytical("DP1", unif2_6),
-                                        new Analytical("DP2", unif1_3)))));
-
-        o.flatten();  // to remove DAG nesting
-
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif2_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif1_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif2_6),
-                new Analytical("V2", unif1_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif2_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-        Repeat e = new Repeat("E", 0.1,
-                DAG.sequence("L", new Repeat("M", 0.2, p), n, o));
-
-        DAG main = DAG.empty("MAIN");
-        a.addPrecondition(main.begin());
-        b.addPrecondition(main.begin());
-        c.addPrecondition(main.begin());
-        d.addPrecondition(main.begin());
-        e.addPrecondition(a, b);
-        f.addPrecondition(b);
-        g.addPrecondition(c);
-        h.addPrecondition(c);
-        i.addPrecondition(e, f);
-        j.addPrecondition(f, g, h);
-        k.addPrecondition(h, d);
-        main.end().addPrecondition(i, j, k);
-
-        return main;
-    }
-
-    public static DAG modelSetup1(Approximator approximator, BigDecimal timeTick, BigDecimal timeLimit) {
-       StochasticTransitionFeature unif0_2 =
-               StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-       StochasticTransitionFeature unif2_6 =
-               StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(6));
-
-       StochasticTransitionFeature unif1_3 =
-               StochasticTransitionFeature.newUniformInstance(BigDecimal.ONE, BigDecimal.valueOf(3));
-
-       StochasticTransitionFeature unif0_1 =
-               StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-       Analytical a = new Analytical("A", unif0_2);
-       Analytical b = new Analytical("B", unif2_6);
-       Analytical c = new Analytical("C", unif1_3);
-       Analytical d = new Analytical("D", unif0_1);
-       Analytical f = new Analytical("F", unif0_2);
-
-       DAG g = DAG.sequence("G",
-               new Analytical("G1", unif2_6),
-               new Analytical("G2", unif1_3));
-
-       DAG h = DAG.sequence("H",
-               new Analytical("H1", unif0_1),
-               new Analytical("H2", unif0_2));
-
-       Xor i = new Xor("I",
-               List.of(new Analytical("IA", unif2_6),
-                       new Analytical("IB", unif1_3)),
-               List.of(0.3, 0.7));
-
-       DAG j = DAG.sequence("J",
-               new Analytical("J1", unif0_1),
-               new Analytical("J2", unif0_2),
-               new Analytical("J3", unif2_6));
-
-       Xor k = new Xor("K", List.of(
-               DAG.sequence("KA",
-                       new Analytical("KA1", unif1_3),
-                       new Analytical("KA2", unif0_1)),
-               DAG.sequence("KB",
-                       new Analytical("KB1", unif0_2),
-                       new Analytical("KB2", unif2_6))),
-               List.of(0.4, 0.6));
-
-       Analytical n = new Analytical("N", unif1_3);
-
-       DAG o = DAG.forkJoin("O",
-               DAG.sequence("YAPBP",
-                       new Analytical("Y", unif0_1),
-                       DAG.forkJoin("APBP",
-                               new Analytical("AP", unif0_2),
-                               new Analytical("BP", unif2_6))),
-               DAG.sequence("ZCPDP",
-                       new Analytical("Z", unif1_3),
-                       DAG.forkJoin("CPDP",
-                               DAG.sequence("CP",
-                                       new Analytical("CP1", unif0_1),
-                                       new Analytical("CP2", unif0_2)),
-                               DAG.sequence("DP",
-                                       new Analytical("DP1", unif2_6),
-                                       new Analytical("DP2", unif1_3)))));
-
-       o.flatten();  // to remove DAG nesting
-
-       Analytical q = new Analytical("Q", unif0_1);
-       Analytical r = new Analytical("R", unif0_2);
-       Analytical s = new Analytical("S", unif2_6);
-
-       DAG t = DAG.sequence("T",
-               new Analytical("T1", unif1_3),
-               new Analytical("T2", unif0_1));
-       Analytical u = new Analytical("U", unif0_2);
-       DAG tu = DAG.forkJoin("TU", t, u);
-
-       DAG v = DAG.sequence("V",
-               new Analytical("V1", unif2_6),
-               new Analytical("V2", unif1_3));
-
-       Analytical w = new Analytical("W", unif0_1);
-       DAG x = DAG.sequence("X",
-               new Analytical("X1", unif0_2),
-               new Analytical("X2", unif2_6));
-
-       DAG wx = DAG.forkJoin("WX", w, x);
-
-       DAG p = DAG.empty("P");
-       q.addPrecondition(p.begin());
-       r.addPrecondition(p.begin());
-       s.addPrecondition(p.begin());
-       tu.addPrecondition(q, r);
-       v.addPrecondition(r);
-       wx.addPrecondition(r, s);
-       p.end().addPrecondition(tu, v, wx);
-
-
-       System.out.println("Comincia l'analisi del miniblocco WX");
-       DAG wxBlock = p.nest(wx);
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-       wxBlockAnalysis.getSolution();
-       double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
-       for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
-           cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco WX");
-       Numerical wxApproximation = new Numerical("wx_APPROXIMATION", timeTick, 0, cdfWX.length + 1, cdfWX, approximator);
-       wxBlock.replace(wxApproximation); // sostituisce il sottodag con l'approssimante
-
-       System.out.println("Comincia l'analisi del miniblocco UT");
-       DAG tuBlock = p.nest(tu);
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-       tuBlockAnalysis.getSolution();
-       double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
-       for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
-           cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco UT");
-       Numerical tuApproximation = new Numerical("tu_APPROXIMATION", timeTick, 0, cdfTU.length + 1, cdfTU, approximator);
-       tuBlock.replace(tuApproximation); // sostituisce il sottodag con l'approssimante
-
-
-       System.out.println("Cominicia l'analisi del miniblocco P");
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> pBlockAnalysis = p.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-       double[] cdfP = new double[pBlockAnalysis.getSolution().length];
-       for(int count = 0; count < pBlockAnalysis.getSolution().length; count++){
-           cdfP[count] = pBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco P");
-       Numerical pApproximation = new Numerical("P_APPROXIMATION", timeTick, 0, cdfP.length + 1, cdfP, approximator);
-
-       Repeat e = new Repeat("E", 0.1,
-               DAG.sequence("L", new Repeat("M", 0.2, pApproximation  ), n, o));
-
-       DAG main = DAG.empty("MAIN");
-       a.addPrecondition(main.begin());
-       b.addPrecondition(main.begin());
-       c.addPrecondition(main.begin());
-       d.addPrecondition(main.begin());
-       e.addPrecondition(a, b);
-       f.addPrecondition(b);
-       g.addPrecondition(c);
-       h.addPrecondition(c);
-       i.addPrecondition(e, f);
-       j.addPrecondition(f, g, h);
-       k.addPrecondition(h, d);
-       main.end().addPrecondition(i, j, k);
-
-
-       System.out.println("Comincia l'analisi del miniblocco I");
-       DAG iBlock = main.nest(i);
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.0001");
-       iBlockAnalysis.getSolution();
-       double[] cdfI = new double[iBlockAnalysis.getSolution().length];
-       for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
-           cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco I");
-       Numerical iApproximation = new Numerical("I_APPROXIMATION", timeTick, 0, cdfI.length + 1, cdfI, approximator);
-       iBlock.replace(iApproximation); // sostituisce il sottodag con l'approssimante
-
-       System.out.println("Comincia l'analisi del miniblocco J");
-       // Nesting node j
-       DAG jBlock = main.nest(j);
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-       jBlockAnalysis.getSolution();
-       double[] cdfJ = new double[jBlockAnalysis.getSolution().length];
-       for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
-           cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco J");
-       Numerical jApproximation = new Numerical("J_APPROXIMATION", timeTick, 0, cdfJ.length + 1, cdfJ, approximator);
-       jBlock.replace(jApproximation);
-
-       System.out.println("Comincia l'analisi del miniblocco K");
-       // Nesting node j
-       DAG kBlock = main.nest(k);
-       // Get time bound from histogram supports.
-       TransientSolution<DeterministicEnablingState, RewardRate> kBlockAnalysis = kBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-       kBlockAnalysis.getSolution();
-       double[] cdfK = new double[kBlockAnalysis.getSolution().length];
-       for(int count = 0; count < kBlockAnalysis.getSolution().length; count++){
-           cdfK[count] = kBlockAnalysis.getSolution()[count][0][0];
-       }
-       System.out.println("Finita l'analisi del miniblocco K");
-       Numerical kApproximation = new Numerical("K_APPROXIMATION", timeTick, 0, cdfK.length + 1, cdfK, approximator);
-       kBlock.replace(kApproximation);
-
-       return main;
-   }
-
-    public static Numerical modelNumericalSetup1(Approximator approximator, BigDecimal timeTick, BigDecimal timeLimit) {
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif2_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif1_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ONE, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        Analytical a = new Analytical("A", unif0_2);
-        Analytical b = new Analytical("B", unif2_6);
-        Analytical c = new Analytical("C", unif1_3);
-        Analytical d = new Analytical("D", unif0_1);
-        Analytical f = new Analytical("F", unif0_2);
-
-        DAG g = DAG.sequence("G",
-                new Analytical("G1", unif2_6),
-                new Analytical("G2", unif1_3));
-
-        DAG h = DAG.sequence("H",
-                new Analytical("H1", unif0_1),
-                new Analytical("H2", unif0_2));
-
-        Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif2_6),
-                        new Analytical("IB", unif1_3)),
-                List.of(0.3, 0.7));
-
-        DAG j = DAG.sequence("J",
-                new Analytical("J1", unif0_1),
-                new Analytical("J2", unif0_2),
-                new Analytical("J3", unif2_6));
-
-        Xor k = new Xor("K", List.of(
-                DAG.sequence("KA",
-                        new Analytical("KA1", unif1_3),
-                        new Analytical("KA2", unif0_1)),
-                DAG.sequence("KB",
-                        new Analytical("KB1", unif0_2),
-                        new Analytical("KB2", unif2_6))),
-                List.of(0.4, 0.6));
-
-        Analytical n = new Analytical("N", unif1_3);
-
-        Numerical o = Numerical.and(List.of(
-                Numerical.seq(List.of(
-                        Numerical.uniform("Y", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                        Numerical.and(List.of(
-                                Numerical.uniform("AP", BigDecimal.ZERO, BigDecimal.valueOf(2), timeTick),
-                                Numerical.uniform("BP", BigDecimal.valueOf(2), BigDecimal.valueOf(6), timeTick)
-                        ))
-                )),
-                Numerical.seq(List.of(
-                        Numerical.uniform("X", BigDecimal.ONE, BigDecimal.valueOf(3), timeTick),
-                        Numerical.and(List.of(
-                                Numerical.seq(List.of(
-                                        Numerical.uniform("CP1", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                                        Numerical.uniform("CP2", BigDecimal.ZERO, BigDecimal.valueOf(2), timeTick)
-                                )),
-                                Numerical.seq(List.of(
-                                        Numerical.uniform("DP1", BigDecimal.valueOf(2), BigDecimal.valueOf(6), timeTick),
-                                        Numerical.uniform("DP2", BigDecimal.valueOf(1), BigDecimal.valueOf(3), timeTick)
-                                ))
-
-                        ))
-                ))
-        ));
-
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif2_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif1_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif2_6),
-                new Analytical("V2", unif1_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif2_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-
-        System.out.println("Comincia l'analisi del miniblocco WX");
-        DAG wxBlock = p.nest(wx);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        wxBlockAnalysis.getSolution();
-        double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
-        for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
-            cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco WX");
-
-
-        System.out.println("Comincia l'analisi del miniblocco UT");
-        DAG tuBlock = p.nest(tu);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        tuBlockAnalysis.getSolution();
-        double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
-        for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
-            cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco UT");
-
-
-        System.out.println("Comincia l'analisi del miniblocco V");
-        DAG vBlock = p.nest(v);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> vBlockAnalysis = vBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        vBlockAnalysis.getSolution();
-        double[] cdfV = new double[vBlockAnalysis.getSolution().length];
-        for(int count = 0; count < vBlockAnalysis.getSolution().length; count++){
-            cdfV[count] = vBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco V");
-
-
-        Numerical pApproximation = Numerical.and(List.of(
-                new Numerical("wx_APPROXIMATION", timeTick, 0, cdfWX.length + 1, cdfWX, approximator),
-                new Numerical("v_APPROXIMATION", timeTick, 0, cdfV.length + 1, cdfV, approximator),
-                new Numerical("tu_APPROXIMATION", timeTick, 0, cdfTU.length + 1, cdfTU, approximator)
-        ));
-
-        Repeat e = new Repeat("E", 0.1,
-                DAG.sequence("L", new Repeat("M", 0.2, pApproximation  ), n, o));
-
-        DAG main = DAG.empty("MAIN");
-        a.addPrecondition(main.begin());
-        b.addPrecondition(main.begin());
-        c.addPrecondition(main.begin());
-        d.addPrecondition(main.begin());
-        e.addPrecondition(a, b);
-        f.addPrecondition(b);
-        g.addPrecondition(c);
-        h.addPrecondition(c);
-        i.addPrecondition(e, f);
-        j.addPrecondition(f, g, h);
-        k.addPrecondition(h, d);
-        main.end().addPrecondition(i, j, k);
-
-
-        System.out.println("Comincia l'analisi del miniblocco I");
-        DAG iBlock = main.nest(i);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        iBlockAnalysis.getSolution();
-        double[] cdfI = new double[iBlockAnalysis.getSolution().length];
-        for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
-            cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco I");
-
-        System.out.println("Comincia l'analisi del miniblocco J");
-        // Nesting node j
-        DAG jBlock = main.nest(j);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        jBlockAnalysis.getSolution();
-        double[] cdfJ = new double[jBlockAnalysis.getSolution().length];
-        for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
-            cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco J");
-
-        System.out.println("Comincia l'analisi del miniblocco K");
-        // Nesting node j
-        DAG kBlock = main.nest(k);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> kBlockAnalysis = kBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        kBlockAnalysis.getSolution();
-        double[] cdfK = new double[kBlockAnalysis.getSolution().length];
-        for(int count = 0; count < kBlockAnalysis.getSolution().length; count++){
-            cdfK[count] = kBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco K");
-
-        return Numerical.and(List.of(
-                new Numerical("K_APPROXIMATION", timeTick, 0, cdfK.length + 1, cdfK, approximator),
-                new Numerical("J_APPROXIMATION", timeTick, 0, cdfJ.length + 1, cdfJ, approximator),
-                new Numerical("I_APPROXIMATION", timeTick, 0, cdfI.length + 1, cdfI, approximator)
-        ));
-    }
-
-    public static void test1(){
-        BigDecimal timeLimit = BigDecimal.valueOf(40);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
-        BigDecimal error = BigDecimal.valueOf(0.001);
-
-        int runs = 20000;
-
-        //Simulation
-        TransientSolution<DeterministicEnablingState, RewardRate> simulation = MainHelper.simulationModelSetup1()
-                .simulate(timeLimit.toString(), timeTick.toString(), runs);
-
-        System.out.println("Comincia l'analisi del main");
-        DAG analysisModel = MainHelper.modelSetup1(new EXPMixtureApproximation(), timeTick, timeLimit);
-        TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel
-                .analyze(timeLimit.toString(), timeTick.toString(), error.toString());
-        System.out.println("Finita l'analisi del main");
-
-        ActivityViewer.plot(List.of("Simulation", "Analysis"), simulation, analysis);
-    }
-
-    public static void testNumerical1() {
-        BigDecimal timeLimit = BigDecimal.valueOf(40);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
-
-        int runs = 20000;
-
-
-
-        System.out.println("Comincia l'analisi del main");
-        Numerical main = MainHelper.modelNumericalSetup1(new EXPMixtureApproximation(), timeTick, timeLimit);
-        System.out.println("Finita l'analisi del main");
-
-        // MainHelper.ResultWrapper analysisResult =
-
-        //ActivityViewer.CompareResults(List.of("Simulation", "Analysis"), simulationResult, analysisResult);
-    }
-
-    public static void checkIntermediate1() {
-        Approximator approximator = new EXPMixtureApproximation();
-
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif2_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif1_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ONE, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        BigDecimal timeLimit = BigDecimal.valueOf(20);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
-        int runs = 20000;
-
-        // Model
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif2_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif1_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif2_6),
-                new Analytical("V2", unif1_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif2_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-        //Simulation
-        TransientSolution<DeterministicEnablingState, RewardRate> simulation = p.simulate(timeLimit.toString(), timeTick.toString(), runs);
-        double[] simulationCDF = new double[simulation.getSolution().length];
-        for(int i = 0; i < simulationCDF.length; i++){
-            simulationCDF[i] = simulation.getSolution()[i][0][0];
-        }
-        ResultWrapper simulationWrapper = new ResultWrapper(simulationCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-
-
-        // Numerical
-        DAG wxBlock = p.nest(wx);
-        TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        wxBlockAnalysis.getSolution();
-        double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
-        for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
-            cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
-        }
-
-        DAG tuBlock = p.nest(tu);
-        TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        tuBlockAnalysis.getSolution();
-        double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
-        for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
-            cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
-        }
-
-        DAG vBlock = p.nest(v);
-        TransientSolution<DeterministicEnablingState, RewardRate> vBlockAnalysis = vBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        vBlockAnalysis.getSolution();
-        double[] cdfV = new double[vBlockAnalysis.getSolution().length];
-        for(int count = 0; count < vBlockAnalysis.getSolution().length; count++){
-            cdfV[count] = vBlockAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical wxApproximation = new Numerical("wx_APPROXIMATION", timeTick, 0, cdfWX.length + 1, cdfWX, approximator);
-        Numerical vApproximation = new Numerical("v_APPROXIMATION", timeTick, 0, cdfV.length + 1, cdfV, approximator);
-        Numerical tuApproximation = new Numerical("tu_APPROXIMATION", timeTick, 0, cdfTU.length + 1, cdfTU, approximator);
-
-
-        Numerical numerical = Numerical.and(List.of(
-                wxApproximation,
-                vApproximation,
-                tuApproximation
-        ));
-
-        ResultWrapper numericalWrapper = new ResultWrapper(numerical.getCdf(), 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-
-        // Analysis of Approximations
-        wxBlock.replace(wxApproximation);
-        vBlock.replace(vApproximation);
-        tuBlock.replace(tuApproximation);
-
-        TransientSolution<DeterministicEnablingState, RewardRate> pAnalysis = p.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        pAnalysis.getSolution();
-        double[] cdfP = new double[pAnalysis.getSolution().length];
-        for(int count = 0; count < pAnalysis.getSolution().length; count++){
-            cdfP[count] = pAnalysis.getSolution()[count][0][0];
-        }
-        ResultWrapper approximationWrapper = new ResultWrapper(cdfP, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-
-        // Approximation of Numerical
-        TransientSolution<DeterministicEnablingState, RewardRate> finalNumericalAnalysis = numerical.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        finalNumericalAnalysis.getSolution();
-        double[] finalNumericalCDF = new double[finalNumericalAnalysis.getSolution().length];
-        for(int count = 0; count < finalNumericalAnalysis.getSolution().length; count++){
-            finalNumericalCDF[count] = finalNumericalAnalysis.getSolution()[count][0][0];
-        }
-        ResultWrapper approxOfNumericalWrapper = new ResultWrapper(finalNumericalCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-
-
-        // Approximation of Analysis
-        Numerical approxOfAnalysis = new Numerical("p_APPROXIMATION", timeTick, 0, cdfP.length + 1, cdfP, approximator);
-        TransientSolution<DeterministicEnablingState, RewardRate> finalAnalysis = approxOfAnalysis.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        finalAnalysis.getSolution();
-        double[] finalCDF = new double[finalAnalysis.getSolution().length];
-        for(int count = 0; count < finalAnalysis.getSolution().length; count++){
-            finalCDF[count] = finalAnalysis.getSolution()[count][0][0];
-        }
-        ResultWrapper approxOfAnalysisWrapper = new ResultWrapper(finalCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-
-
-        //ActivityViewer.CompareResults(List.of("Simulation", "Numerical", "AnalysisOfApprox"), simulationWrapper, numericalWrapper, approximationWrapper);
-
-        //ActivityViewer.CompareResults(List.of("Simulation", "ApproxOfNumerical", "ApproxOfAnalysisOfApprox"), simulationWrapper, approxOfNumericalWrapper, approxOfAnalysisWrapper);
-
-
-    }
-
-    public static DAG simulationModelSetup2(){
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif0_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif0_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        Analytical a = new Analytical("A", unif0_2);
-        Analytical b = new Analytical("B", unif0_6);
-        Analytical c = new Analytical("C", unif0_3);
-        Analytical d = new Analytical("D", unif0_1);
-        Analytical f = new Analytical("F", unif0_2);
-
-        DAG g = DAG.sequence("G",
-                new Analytical("G1", unif0_6),
-                new Analytical("G2", unif0_3));
-
-        DAG h = DAG.sequence("H",
-                new Analytical("H1", unif0_1),
-                new Analytical("H2", unif0_2));
-
-        Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif0_6),
-                        new Analytical("IB", unif0_3)),
-                List.of(0.3, 0.7));
-
-        DAG j = DAG.sequence("J",
-                new Analytical("J1", unif0_1),
-                new Analytical("J2", unif0_2),
-                new Analytical("J3", unif0_6));
-
-        Xor k = new Xor("K", List.of(
-                DAG.sequence("KA",
-                        new Analytical("KA1", unif0_3),
-                        new Analytical("KA2", unif0_1)),
-                DAG.sequence("KB",
-                        new Analytical("KB1", unif0_2),
-                        new Analytical("KB2", unif0_6))),
-                List.of(0.4, 0.6));
-
-        Analytical n = new Analytical("N", unif0_3);
-
-        DAG o = DAG.forkJoin("O",
-                DAG.sequence("YAPBP",
-                        new Analytical("Y", unif0_1),
-                        DAG.forkJoin("APBP",
-                                new Analytical("AP", unif0_2),
-                                new Analytical("BP", unif0_6))),
-                DAG.sequence("ZCPDP",
-                        new Analytical("Z", unif0_3),
-                        DAG.forkJoin("CPDP",
-                                DAG.sequence("CP",
-                                        new Analytical("CP1", unif0_1),
-                                        new Analytical("CP2", unif0_2)),
-                                DAG.sequence("DP",
-                                        new Analytical("DP1", unif0_6),
-                                        new Analytical("DP2", unif0_3)))));
-
-        o.flatten();  // to remove DAG nesting
-
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif0_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif0_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif0_6),
-                new Analytical("V2", unif0_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif0_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-        Repeat e = new Repeat("E", 0.1,
-                DAG.sequence("L", new Repeat("M", 0.2, p), n, o));
-
-        DAG main = DAG.empty("MAIN");
-        a.addPrecondition(main.begin());
-        b.addPrecondition(main.begin());
-        c.addPrecondition(main.begin());
-        d.addPrecondition(main.begin());
-        e.addPrecondition(a, b);
-        f.addPrecondition(b);
-        g.addPrecondition(c);
-        h.addPrecondition(c);
-        i.addPrecondition(e, f);
-        j.addPrecondition(f, g, h);
-        k.addPrecondition(h, d);
-        main.end().addPrecondition(i, j, k);
-
-        return main;
-    }
-
-    public static DAG modelSetup2(Approximator approximator, BigDecimal timeTick, BigDecimal timeLimit) {
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif0_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif0_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        Analytical a = new Analytical("A", unif0_2);
-        Analytical b = new Analytical("B", unif0_6);
-        Analytical c = new Analytical("C", unif0_3);
-        Analytical d = new Analytical("D", unif0_1);
-        Analytical f = new Analytical("F", unif0_2);
-
-        DAG g = DAG.sequence("G",
-                new Analytical("G1", unif0_6),
-                new Analytical("G2", unif0_3));
-
-        DAG h = DAG.sequence("H",
-                new Analytical("H1", unif0_1),
-                new Analytical("H2", unif0_2));
-
-        Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif0_6),
-                        new Analytical("IB", unif0_3)),
-                List.of(0.3, 0.7));
-
-        DAG j = DAG.sequence("J",
-                new Analytical("J1", unif0_1),
-                new Analytical("J2", unif0_2),
-                new Analytical("J3", unif0_6));
-
-        Xor k = new Xor("K", List.of(
-                DAG.sequence("KA",
-                        new Analytical("KA1", unif0_3),
-                        new Analytical("KA2", unif0_1)),
-                DAG.sequence("KB",
-                        new Analytical("KB1", unif0_2),
-                        new Analytical("KB2", unif0_6))),
-                List.of(0.4, 0.6));
-
-        Analytical n = new Analytical("N", unif0_3);
-
-        DAG o = DAG.forkJoin("O",
-                DAG.sequence("YAPBP",
-                        new Analytical("Y", unif0_1),
-                        DAG.forkJoin("APBP",
-                                new Analytical("AP", unif0_2),
-                                new Analytical("BP", unif0_6))),
-                DAG.sequence("ZCPDP",
-                        new Analytical("Z", unif0_3),
-                        DAG.forkJoin("CPDP",
-                                DAG.sequence("CP",
-                                        new Analytical("CP1", unif0_1),
-                                        new Analytical("CP2", unif0_2)),
-                                DAG.sequence("DP",
-                                        new Analytical("DP1", unif0_6),
-                                        new Analytical("DP2", unif0_3)))));
-
-        o.flatten();  // to remove DAG nesting
-
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif0_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif0_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif0_6),
-                new Analytical("V2", unif0_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif0_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-
-        System.out.println("Comincia l'analisi del miniblocco WX");
-        DAG wxBlock = p.nest(wx);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        wxBlockAnalysis.getSolution();
-        double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
-        for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
-            cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco WX");
-        Numerical wxApproximation = new Numerical("wx_APPROXIMATION", timeTick, 0, cdfWX.length + 1, cdfWX, approximator);
-        wxBlock.replace(wxApproximation); // sostituisce il sottodag con l'approssimante
-
-        System.out.println("Comincia l'analisi del miniblocco UT");
-        DAG tuBlock = p.nest(tu);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        tuBlockAnalysis.getSolution();
-        double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
-        for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
-            cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco UT");
-        Numerical tuApproximation = new Numerical("tu_APPROXIMATION", timeTick, 0, cdfTU.length + 1, cdfTU, approximator);
-        tuBlock.replace(tuApproximation); // sostituisce il sottodag con l'approssimante
-
-
-        System.out.println("Cominicia l'analisi del miniblocco P");
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> pBlockAnalysis = p.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        double[] cdfP = new double[pBlockAnalysis.getSolution().length];
-        for(int count = 0; count < pBlockAnalysis.getSolution().length; count++){
-            cdfP[count] = pBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco P");
-        Numerical pApproximation = new Numerical("P_APPROXIMATION", timeTick, 0, cdfP.length + 1, cdfP, approximator);
-
-        Repeat e = new Repeat("E", 0.1,
-                DAG.sequence("L", new Repeat("M", 0.2, pApproximation  ), n, o));
-
-        System.out.println("Cominicia l'analisi del miniblocco E");
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> eBlockAnalysis = e.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        double[] cdfE = new double[eBlockAnalysis.getSolution().length];
-        for(int count = 0; count < eBlockAnalysis.getSolution().length; count++){
-            cdfE[count] = eBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco E");
-        Numerical eApproximation = new Numerical("E_APPROXIMATION", timeTick, 0, cdfE.length + 1, cdfE, approximator);
-
-        DAG main = DAG.empty("MAIN");
-        a.addPrecondition(main.begin());
-        b.addPrecondition(main.begin());
-        c.addPrecondition(main.begin());
-        d.addPrecondition(main.begin());
-        eApproximation.addPrecondition(a, b);
-        f.addPrecondition(b);
-        g.addPrecondition(c);
-        h.addPrecondition(c);
-        i.addPrecondition(eApproximation, f);
-        j.addPrecondition(f, g, h);
-        k.addPrecondition(h, d);
-        main.end().addPrecondition(i, j, k);
-
-
-        System.out.println("Comincia l'analisi del miniblocco I");
-        DAG iBlock = main.nest(i);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.0001");
-        iBlockAnalysis.getSolution();
-        double[] cdfI = new double[iBlockAnalysis.getSolution().length];
-        for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
-            cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco I");
-        Numerical iApproximation = new Numerical("I_APPROXIMATION", timeTick, 0, cdfI.length + 1, cdfI, approximator);
-        iBlock.replace(iApproximation); // sostituisce il sottodag con l'approssimante
-
-        System.out.println("Comincia l'analisi del miniblocco J");
-        // Nesting node j
-        DAG jBlock = main.nest(j);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        jBlockAnalysis.getSolution();
-        double[] cdfJ = new double[jBlockAnalysis.getSolution().length];
-        for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
-            cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco J");
-        Numerical jApproximation = new Numerical("J_APPROXIMATION", timeTick, 0, cdfJ.length + 1, cdfJ, approximator);
-        jBlock.replace(jApproximation);
-
-        System.out.println("Comincia l'analisi del miniblocco K");
-        // Nesting node j
-        DAG kBlock = main.nest(k);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> kBlockAnalysis = kBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        kBlockAnalysis.getSolution();
-        double[] cdfK = new double[kBlockAnalysis.getSolution().length];
-        for(int count = 0; count < kBlockAnalysis.getSolution().length; count++){
-            cdfK[count] = kBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco K");
-        Numerical kApproximation = new Numerical("K_APPROXIMATION", timeTick, 0, cdfK.length + 1, cdfK, approximator);
-        kBlock.replace(kApproximation);
-
-        return main;
-    }
-
-    public static Numerical modelNumericalSetup2(Approximator approximator, BigDecimal timeTick, BigDecimal timeLimit) {
-        StochasticTransitionFeature unif0_2 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(2));
-
-        StochasticTransitionFeature unif0_6 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(6));
-
-        StochasticTransitionFeature unif0_3 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
-
-        StochasticTransitionFeature unif0_1 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-
-        Analytical a = new Analytical("A", unif0_2);
-        Analytical b = new Analytical("B", unif0_6);
-        Analytical c = new Analytical("C", unif0_3);
-        Analytical d = new Analytical("D", unif0_1);
-        Analytical f = new Analytical("F", unif0_2);
-
-        DAG g = DAG.sequence("G",
-                new Analytical("G1", unif0_6),
-                new Analytical("G2", unif0_3));
-
-        DAG h = DAG.sequence("H",
-                new Analytical("H1", unif0_1),
-                new Analytical("H2", unif0_2));
-
-        Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif0_6),
-                        new Analytical("IB", unif0_3)),
-                List.of(0.3, 0.7));
-
-        DAG j = DAG.sequence("J",
-                new Analytical("J1", unif0_1),
-                new Analytical("J2", unif0_2),
-                new Analytical("J3", unif0_6));
-
-        Xor k = new Xor("K", List.of(
-                DAG.sequence("KA",
-                        new Analytical("KA1", unif0_3),
-                        new Analytical("KA2", unif0_1)),
-                DAG.sequence("KB",
-                        new Analytical("KB1", unif0_2),
-                        new Analytical("KB2", unif0_6))),
-                List.of(0.4, 0.6));
-
-        Analytical n = new Analytical("N", unif0_3);
-
-        Numerical o = Numerical.and(List.of(
-                Numerical.seq(List.of(
-                        Numerical.uniform("Y", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                        Numerical.and(List.of(
-                                Numerical.uniform("AP", BigDecimal.ZERO, BigDecimal.valueOf(2), timeTick),
-                                Numerical.uniform("BP", BigDecimal.valueOf(2), BigDecimal.valueOf(6), timeTick)
-                        ))
-                )),
-                Numerical.seq(List.of(
-                        Numerical.uniform("X", BigDecimal.ONE, BigDecimal.valueOf(3), timeTick),
-                        Numerical.and(List.of(
-                                Numerical.seq(List.of(
-                                        Numerical.uniform("CP1", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                                        Numerical.uniform("CP2", BigDecimal.ZERO, BigDecimal.valueOf(2), timeTick)
-                                )),
-                                Numerical.seq(List.of(
-                                        Numerical.uniform("DP1", BigDecimal.valueOf(2), BigDecimal.valueOf(6), timeTick),
-                                        Numerical.uniform("DP2", BigDecimal.valueOf(1), BigDecimal.valueOf(3), timeTick)
-                                ))
-
-                        ))
-                ))
-        ));
-
-        Analytical q = new Analytical("Q", unif0_1);
-        Analytical r = new Analytical("R", unif0_2);
-        Analytical s = new Analytical("S", unif0_6);
-
-        DAG t = DAG.sequence("T",
-                new Analytical("T1", unif0_3),
-                new Analytical("T2", unif0_1));
-        Analytical u = new Analytical("U", unif0_2);
-        DAG tu = DAG.forkJoin("TU", t, u);
-
-        DAG v = DAG.sequence("V",
-                new Analytical("V1", unif0_6),
-                new Analytical("V2", unif0_3));
-
-        Analytical w = new Analytical("W", unif0_1);
-        DAG x = DAG.sequence("X",
-                new Analytical("X1", unif0_2),
-                new Analytical("X2", unif0_6));
-
-        DAG wx = DAG.forkJoin("WX", w, x);
-
-        DAG p = DAG.empty("P");
-        q.addPrecondition(p.begin());
-        r.addPrecondition(p.begin());
-        s.addPrecondition(p.begin());
-        tu.addPrecondition(q, r);
-        v.addPrecondition(r);
-        wx.addPrecondition(r, s);
-        p.end().addPrecondition(tu, v, wx);
-
-
-        System.out.println("Comincia l'analisi del miniblocco WX");
-        DAG wxBlock = p.nest(wx);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> wxBlockAnalysis = wxBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        wxBlockAnalysis.getSolution();
-        double[] cdfWX = new double[wxBlockAnalysis.getSolution().length];
-        for(int count = 0; count < wxBlockAnalysis.getSolution().length; count++){
-            cdfWX[count] = wxBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco WX");
-
-
-        System.out.println("Comincia l'analisi del miniblocco UT");
-        DAG tuBlock = p.nest(tu);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> tuBlockAnalysis = tuBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        tuBlockAnalysis.getSolution();
-        double[] cdfTU = new double[tuBlockAnalysis.getSolution().length];
-        for(int count = 0; count < tuBlockAnalysis.getSolution().length; count++){
-            cdfTU[count] = tuBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco UT");
-
-
-        System.out.println("Comincia l'analisi del miniblocco V");
-        DAG vBlock = p.nest(v);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> vBlockAnalysis = vBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        vBlockAnalysis.getSolution();
-        double[] cdfV = new double[vBlockAnalysis.getSolution().length];
-        for(int count = 0; count < vBlockAnalysis.getSolution().length; count++){
-            cdfV[count] = vBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco V");
-
-
-        Numerical pApproximation = Numerical.and(List.of(
-                new Numerical("wx_APPROXIMATION", timeTick, 0, cdfWX.length + 1, cdfWX, approximator),
-                new Numerical("v_APPROXIMATION", timeTick, 0, cdfV.length + 1, cdfV, approximator),
-                new Numerical("tu_APPROXIMATION", timeTick, 0, cdfTU.length + 1, cdfTU, approximator)
-        ));
-
-        Repeat e = new Repeat("E", 0.1,
-                DAG.sequence("L", new Repeat("M", 0.2, pApproximation ), n, o));
-
-        System.out.println("Cominicia l'analisi del miniblocco E");
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> eBlockAnalysis = e.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        double[] cdfE = new double[eBlockAnalysis.getSolution().length];
-        for(int count = 0; count < eBlockAnalysis.getSolution().length; count++){
-            cdfE[count] = eBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco E");
-        Numerical eApproximation = new Numerical("E_APPROXIMATION", timeTick, 0, cdfE.length + 1, cdfE, approximator);
-
-        DAG main = DAG.empty("MAIN");
-        a.addPrecondition(main.begin());
-        b.addPrecondition(main.begin());
-        c.addPrecondition(main.begin());
-        d.addPrecondition(main.begin());
-        eApproximation.addPrecondition(a, b);
-        f.addPrecondition(b);
-        g.addPrecondition(c);
-        h.addPrecondition(c);
-        i.addPrecondition(eApproximation, f);
-        j.addPrecondition(f, g, h);
-        k.addPrecondition(h, d);
-        main.end().addPrecondition(i, j, k);
-
-
-        System.out.println("Comincia l'analisi del miniblocco I");
-        DAG iBlock = main.nest(i);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> iBlockAnalysis = iBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        iBlockAnalysis.getSolution();
-        double[] cdfI = new double[iBlockAnalysis.getSolution().length];
-        for(int count = 0; count < iBlockAnalysis.getSolution().length; count++){
-            cdfI[count] = iBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco I");
-
-        System.out.println("Comincia l'analisi del miniblocco J");
-        // Nesting node j
-        DAG jBlock = main.nest(j);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> jBlockAnalysis = jBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        jBlockAnalysis.getSolution();
-        double[] cdfJ = new double[jBlockAnalysis.getSolution().length];
-        for(int count = 0; count < jBlockAnalysis.getSolution().length; count++){
-            cdfJ[count] = jBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco J");
-
-        System.out.println("Comincia l'analisi del miniblocco K");
-        // Nesting node j
-        DAG kBlock = main.nest(k);
-        // Get time bound from histogram supports.
-        TransientSolution<DeterministicEnablingState, RewardRate> kBlockAnalysis = kBlock.analyze(timeLimit.toString(), timeTick.toString(), "0.001");
-        kBlockAnalysis.getSolution();
-        double[] cdfK = new double[kBlockAnalysis.getSolution().length];
-        for(int count = 0; count < kBlockAnalysis.getSolution().length; count++){
-            cdfK[count] = kBlockAnalysis.getSolution()[count][0][0];
-        }
-        System.out.println("Finita l'analisi del miniblocco K");
-
-        return Numerical.and(List.of(
-                new Numerical("K_APPROXIMATION", timeTick, 0, cdfK.length + 1, cdfK, approximator),
-                new Numerical("J_APPROXIMATION", timeTick, 0, cdfJ.length + 1, cdfJ, approximator),
-                new Numerical("I_APPROXIMATION", timeTick, 0, cdfI.length + 1, cdfI, approximator)
-        ));
-    }
-
-    public static void test2(){
-        BigDecimal timeLimit = BigDecimal.valueOf(40);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
-        BigDecimal error = BigDecimal.valueOf(0.001);
-
-        int runs = 20000;
-
-        //Simulation
-        TransientSolution<DeterministicEnablingState, RewardRate> simulation = MainHelper.simulationModelSetup2()
-                .simulate(timeLimit.toString(), timeTick.toString(), runs);
-
-        System.out.println("Comincia l'analisi del main");
-        DAG analysisModel = MainHelper.modelSetup2(new EXPMixtureApproximation(), timeTick, timeLimit);
-        TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel
-                .analyze(timeLimit.toString(), timeTick.toString(), error.toString());
-        System.out.println("Finita l'analisi del main");
-
-        ActivityViewer.plot(List.of("Simulation", "Analysis"), simulation, analysis);
-    }
-
-    public static void testNumerical2() {
-        BigDecimal timeLimit = BigDecimal.valueOf(40);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1);
-
-        int runs = 20000;
-
-        //Simulation
-        TransientSolution<DeterministicEnablingState, RewardRate> simulation = MainHelper.simulationModelSetup2()
-                .simulate(timeLimit.toString(), timeTick.toString(), runs);
-
-        double[] simulationCDF = new double[simulation.getSolution().length];
-        for(int i = 0; i < simulationCDF.length; i++){
-            simulationCDF[i] = simulation.getSolution()[i][0][0];
-        }
-
-        System.out.println("Comincia l'analisi del main");
-        Numerical main = MainHelper.modelNumericalSetup2(new EXPMixtureApproximation(), timeTick, timeLimit);
-        System.out.println("Finita l'analisi del main");
-
-        MainHelper.ResultWrapper simulationResult = new MainHelper.ResultWrapper(simulationCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
-        MainHelper.ResultWrapper analysisResult = new MainHelper.ResultWrapper(main.getCdf(), main.min(), main.max(), timeTick.doubleValue());
-
-        //ActivityViewer.CompareResults(List.of("Simulation", "Analysis"), simulationResult, analysisResult);
-    }*/
-
-    public static void test(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int runs){
+    // TODO si può fare meglio e più componibile
+    public static void test_OLD(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int runs){
         // Simulation
         Activity simulationModel = builder.buildModelForSimulation();
         TransientSolution<DeterministicEnablingState, RewardRate> simulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
@@ -1483,8 +212,352 @@ public class MainHelper {
         System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
         MainHelper.ResultWrapper analysisResult2 = new MainHelper.ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
 
-        ActivityViewer.CompareResults("Test " + name, List.of("Simulation", "Analysis1", "Analysis2"), simulationResult, analysisResult, analysisResult2);
+        ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("Simulation", "Heuristic1", "Heuristic2"), simulationResult, analysisResult, analysisResult2);
         System.out.println("");
+    }
+
+    public static void test(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int groundTruthRuns, int runs, boolean save){
+        ArrayList<Double> computationTimes = new ArrayList<>();
+
+        // Ground Truth
+        System.out.println("GROUND_TRUTH\n");
+        double time = System.currentTimeMillis();
+        Activity simulationModel = builder.buildModelForSimulation();
+        TransientSolution<DeterministicEnablingState, RewardRate> groundTruth = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), groundTruthRuns);
+        double[] numericalGroundTruth = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalGroundTruth.length; i++){
+            numericalGroundTruth[i] = groundTruth.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        MainHelper.ResultWrapper groundTruthResult = new MainHelper.ResultWrapper(numericalGroundTruth, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Simulation Test
+        System.out.println("SHORT_SIMULATION\n");
+
+        time = System.currentTimeMillis();
+        TransientSolution<DeterministicEnablingState, RewardRate> shortSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
+        double[] numericalShortSimulation = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalShortSimulation.length; i++){
+            numericalShortSimulation[i] = shortSimulation.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        MainHelper.ResultWrapper shortTimeResult = new MainHelper.ResultWrapper(numericalShortSimulation, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Analysis
+        time = System.currentTimeMillis();
+        Activity analysisModel = builder.buildModelForAnalysis_Heuristic1(timeLimit, timeTick);
+        double[] numericalAnalysis = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = ((Numerical) analysisModel).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = analysis.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with first Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        MainHelper.ResultWrapper analysisResult = new MainHelper.ResultWrapper(numericalAnalysis, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        System.out.println("");
+
+        // Analysis 2
+        time = System.currentTimeMillis();
+        Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+        double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel2 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis2.length; i++){
+                numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis2.length; i++){
+                numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        MainHelper.ResultWrapper analysisResult2 = new MainHelper.ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        // Analysis 3
+        time = System.currentTimeMillis();
+        Activity analysisModel3 = builder.buildModelForAnalysis_Heuristic3(timeLimit, timeTick);
+        double[] numericalAnalysis3 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel3 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = ((Numerical) analysisModel3).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis3 = analysisModel3.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = analysis3.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with thirs Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        MainHelper.ResultWrapper analysisResult3 = new MainHelper.ResultWrapper(numericalAnalysis3, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        try{
+            ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        } catch (Exception e){
+            System.out.println("Impossible to plot images...");
+        }
+
+        if(save){
+            storeResults(SAVE_PATH, "Test" + name, List.of("GroundTruth", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), computationTimes, groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        }
+        System.out.println("");
+    }
+
+    public static void test(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, String groundTruthPath, String groundTruthTimePath, int runs, boolean save){
+        ArrayList<Double> computationTimes = new ArrayList<>();
+
+        // Ground Truth
+        System.out.println("Loading Ground truth simulation\n");
+        FileReader f = null;
+        try {
+            f = new FileReader(groundTruthPath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader b = new BufferedReader(f);
+        ArrayList<Double> extractedValues = new ArrayList<>();
+        boolean stringRead = false;
+        while(!stringRead){
+            try {
+                String groundTruthString = b.readLine();
+                extractedValues.add(Double.valueOf(groundTruthString.split(", ")[1]));
+            } catch (Exception e) {
+                System.out.println("String Read!!");
+                stringRead = true;
+            }
+        }
+
+        double[] numericalGroundTruth = new double[extractedValues.size()];
+        for(int i = 0; i < numericalGroundTruth.length; i++){
+            numericalGroundTruth[i] = extractedValues.get(i).doubleValue();
+        }
+
+        FileReader fComputationTimes = null;
+        try {
+            fComputationTimes = new FileReader(groundTruthTimePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        BufferedReader bComputationTimes = new BufferedReader(fComputationTimes);
+        String gtTime = null;
+        try {
+            gtTime = bComputationTimes.readLine();
+        } catch (Exception e) {
+            System.out.println("String Read!!");
+            stringRead = true;
+        }
+
+        computationTimes.add(Double.valueOf(gtTime.split("s")[0]).doubleValue() * 1000);
+        ResultWrapper groundTruthResult = new ResultWrapper(numericalGroundTruth, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        // Simulation Test
+        System.out.println("SHORT_SIMULATION\n");
+
+        double time = System.currentTimeMillis();
+        Activity simulationModel = builder.buildModelForSimulation();
+        TransientSolution<DeterministicEnablingState, RewardRate> shortSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
+        double[] numericalShortSimulation = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalShortSimulation.length; i++){
+            numericalShortSimulation[i] = shortSimulation.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        ResultWrapper shortTimeResult = new ResultWrapper(numericalShortSimulation, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Analysis
+        time = System.currentTimeMillis();
+        Activity analysisModel = builder.buildModelForAnalysis_Heuristic1(timeLimit, timeTick);
+        double[] numericalAnalysis = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = ((Numerical) analysisModel).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = analysis.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with first Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult = new ResultWrapper(numericalAnalysis, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        System.out.println("");
+
+        // Analysis 2
+        time = System.currentTimeMillis();
+        Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+        double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel2 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis2.length; i++){
+                numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis2.length; i++){
+                numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult2 = new ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        // Analysis 3
+        time = System.currentTimeMillis();
+        Activity analysisModel3 = builder.buildModelForAnalysis_Heuristic3(timeLimit, timeTick);
+        double[] numericalAnalysis3 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel3 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = ((Numerical) analysisModel3).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis3 = analysisModel3.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = analysis3.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with third Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult3 = new ResultWrapper(numericalAnalysis3, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        try{
+            ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        } catch (Exception e){
+            System.out.println("Impossible to plot images...");
+        }
+
+        if(save){
+            storeResults(SAVE_PATH, "Test" + name, List.of("GroundTruth", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), computationTimes, groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        }
+        System.out.println("");
+    }
+
+    public static void storeResults(String savePath, String testTitle, List<String> stringList, List<Double> computationTimes, ResultWrapper... results){
+        File pdfFile = new File(savePath + "/" + testTitle + "/PDF/");
+        if(!pdfFile.exists()){
+            pdfFile.mkdirs();
+        }
+
+        File cdfFile = new File(savePath + "/" + testTitle + "/CDF/");
+        if(!cdfFile.exists()){
+            cdfFile.mkdirs();
+        }
+
+        File timesFile = new File(savePath + "/" + testTitle + "/times/");
+        if(!timesFile.exists()){
+            timesFile.mkdirs();
+        }
+
+        File jsFile = new File(savePath + "/" + testTitle + "/jensenShannon/");
+        if(!jsFile.exists()){
+            jsFile.mkdirs();
+        }
+
+        double[] groundTruth = results[0].getPdf();
+
+        for (int i = 0; i < results.length; i++) {
+            // Handle cdf
+            double[] cdf = results[i].getCdf();
+            StringBuilder cdfString = new StringBuilder();
+            for(int j = 0; j < cdf.length; j++){
+                BigDecimal x = BigDecimal.valueOf((results[i].getMin() + j) * results[i].step)
+                        .setScale(BigDecimal.valueOf(results[i].step).scale(), RoundingMode.HALF_DOWN);
+                cdfString.append(x.toString()).append(", ").append(cdf[j]).append("\n");
+            }
+
+            //handle pdf
+            double[] pdf = results[i].getPdf();
+            StringBuilder pdfString = new StringBuilder();
+            for(int j = 0; j < cdf.length; j++){
+                BigDecimal x = BigDecimal.valueOf((results[i].getMin() + j) * results[i].step)
+                        .setScale(BigDecimal.valueOf(results[i].step).scale(), RoundingMode.HALF_DOWN);
+                pdfString.append(x.toString()).append(", ").append(pdf[j]).append("\n");
+            }
+
+            double time = computationTimes.get(i) / 1000;
+            double js = results[i].jsDistance(groundTruth);
+
+            try {
+                FileWriter cdfWriter = new FileWriter(savePath + "/" + testTitle + "/CDF/" + stringList.get(i) + ".txt");
+                FileWriter pdfWriter = new FileWriter(savePath + "/" + testTitle + "/PDF/" + stringList.get(i) + ".txt");
+                FileWriter timeWriter = new FileWriter(savePath + "/" + testTitle + "/times/" + stringList.get(i) + ".txt");
+                FileWriter jsWriter = new FileWriter(savePath + "/" + testTitle + "/jensenShannon/" + stringList.get(i) + ".txt");
+                cdfWriter.write(cdfString.toString());
+                cdfWriter.close();
+                pdfWriter.write(pdfString.toString());
+                pdfWriter.close();
+                timeWriter.write(time + "s");
+                timeWriter.close();
+                jsWriter.write(String.valueOf(js));
+                jsWriter.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static String simulationSensitivityAnalysis(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, int runs, int runStep){
+        int previousRun = runStep;
+        Activity simulationModel = builder.buildModelForSimulation();
+
+        StringBuilder myStringBuilder = new StringBuilder();
+        myStringBuilder.append("Sensitivity Analysis - Test " + name + "\n");
+
+        // FirstCase
+        TransientSolution<DeterministicEnablingState, RewardRate> previousSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), previousRun);
+        double[] previousCDF = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < previousCDF.length; i++){
+            previousCDF[i] = previousSimulation.getSolution()[i][0][0];
+        }
+
+        MainHelper.ResultWrapper previousResult = new MainHelper.ResultWrapper(previousCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        int currentRun = previousRun + runStep;
+
+        while(currentRun <= runs){
+            TransientSolution<DeterministicEnablingState, RewardRate> currentSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), currentRun);
+            double[] currentCDF = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+            for(int i = 0; i < currentCDF.length; i++){
+                currentCDF[i] = currentSimulation.getSolution()[i][0][0];
+            }
+
+            MainHelper.ResultWrapper currentResult = new MainHelper.ResultWrapper(currentCDF, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+            double js = currentResult.jsDistance(previousResult.getPdf());
+
+            myStringBuilder.append("[" + previousRun + "vs" + currentRun + "] - " + js + "\n");
+
+            previousRun = currentRun;
+            currentRun += runStep;
+            previousResult = currentResult;
+        }
+
+        myStringBuilder.append("\n");
+
+        return myStringBuilder.toString();
     }
 
     public static class ResultWrapper {

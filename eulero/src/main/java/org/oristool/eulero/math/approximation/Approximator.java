@@ -2,8 +2,9 @@ package org.oristool.eulero.math.approximation;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.Comparator;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -11,12 +12,12 @@ import java.util.stream.IntStream;
 public abstract class Approximator {
     public Approximator(){ };
 
-    public Map<String, Map<String, BigDecimal>> getApproximationSupports(double[] cdf, double low, double upp) {
+    public Map<String, Map<String, BigDecimal>> getApproximationSupports(double[] cdf, double low, double upp, BigDecimal step) {
         //BigDecimal tukeysUpperBound = ApproximationHelpers.getTukeysBounds(cdf, low, upp).get("upp");
         BigDecimal tukeysUpperBound = ApproximationHelpers.getQuartileBounds(cdf, low, upp).get("upp");
         int tukeysUpperBoundIndex = ApproximationHelpers.getTukeysBoundsIndices(cdf, low, upp).get("upp").intValue();
-        double timeTick = (upp - low) / (cdf.length - 1);
 
+        double timeTick = step.doubleValue();
         double[] pdf = new double[tukeysUpperBoundIndex];
         double[] x = new double[tukeysUpperBoundIndex];
         for(int i = 0; i < tukeysUpperBoundIndex; i++){
@@ -38,11 +39,11 @@ public abstract class Approximator {
                 .orElse(-1);
 
         Map<String, BigDecimal> bodySupport = new HashMap<>();
-        bodySupport.put("start", BigDecimal.valueOf(delta));
-        bodySupport.put("end", tukeysUpperBound);
+        bodySupport.put("start", BigDecimal.valueOf(delta).setScale(step.scale(), RoundingMode.HALF_DOWN));
+        bodySupport.put("end", tukeysUpperBound.setScale(step.scale(), RoundingMode.HALF_DOWN));
 
         Map<String, BigDecimal> tailSupport = new HashMap<>();
-        tailSupport.put("start", tukeysUpperBound);
+        tailSupport.put("start", tukeysUpperBound.setScale(step.scale(), RoundingMode.HALF_DOWN));
         tailSupport.put("end", BigDecimal.valueOf(Double.MAX_VALUE));
 
         return Map.ofEntries(Map.entry("body", bodySupport), Map.entry("tail", tailSupport));
@@ -96,10 +97,10 @@ public abstract class Approximator {
         );
     }
 
-    public Map<String, ApproximationSupportSetup> getApproximationSupportSetups(double[] cdf, double low, double upp){
-        Map<String, Map<String, BigDecimal>> approximationSupports = getApproximationSupports(cdf, low, upp);
+    public Map<String, ApproximationSupportSetup> getApproximationSupportSetups(double[] cdf, double low, double upp, BigDecimal step){
+        Map<String, Map<String, BigDecimal>> approximationSupports = getApproximationSupports(cdf, low, upp, step);
         Map<String, BigDecimal> weights = getApproximationSupportsWeight(cdf, low, upp);
-        Map<String, Map<String, BigDecimal>> params = getApproximationParameters(cdf, low, upp);
+        Map<String, Map<String, BigDecimal>> params = getApproximationParameters(cdf, low, upp, step);
 
         return Map.ofEntries(
                 Map.entry("body", new ApproximationSupportSetup(weights.get("body"), approximationSupports.get("body"), params.get("body"))),
@@ -107,7 +108,7 @@ public abstract class Approximator {
         );
     }
 
-    public abstract Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp);
+    public abstract Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp, BigDecimal step);
 
     public static class ApproximationSupportSetup {
         private final BigDecimal weight;

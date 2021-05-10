@@ -10,61 +10,108 @@ import java.util.Arrays;
 
 public class MainRiccardo {
     public static void main(String[] args) {
+        String GTPathPrefix = System.getProperty("user.dir") + "/results/Test";
+        String GTCDF = "/CDF";
+        String GTtimes = "/times";
+        String GTPathSuffix = "/GroundTruth.txt";
         Approximator approximator = new EXPMixtureApproximation();
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         BigDecimal timeLimit = BigDecimal.valueOf(8);
         BigDecimal timeTick = BigDecimal.valueOf(0.01);
         BigDecimal timeError = BigDecimal.valueOf(0.001);
-        int runs = 2000;
+        int groundTruthRuns = 500000;
+        boolean save = true;
+        boolean GTFromFile = true;
 
-        String[] testToRun = {"H"};//{"A", "B", "C", "D", "E", "F", "G", "H"};
+        String[] testToRun = {/*"A", "B", "C", "D",*/ "E", "F"/*, "G", "H"*/};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
+            System.out.println("Starting Test 1.");
             ModelBuilder testABuilder = new TestABuilder(feature, approximator);
-            MainHelper.test("A", testABuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("1", testABuilder, timeLimit, timeTick, timeError, groundTruthRuns, 171, save);
+            } else {
+                MainHelper.test("1", testABuilder, timeLimit, timeTick, timeError, GTPathPrefix + "1" + GTCDF + GTPathSuffix, GTPathPrefix + "1" + GTtimes + GTPathSuffix, 171, save);
+            }
+
         }
 
         // Test B
         if(Arrays.asList(testToRun).contains("B")){
+            System.out.println("Starting Test 2.");
             ModelBuilder testBBuilder = new TestBBuilder(feature, approximator);
-            MainHelper.test("B", testBBuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("2", testBBuilder, timeLimit, timeTick, timeError, groundTruthRuns, 175, save);
+            } else {
+                MainHelper.test("2", testBBuilder, timeLimit, timeTick, timeError, GTPathPrefix + "2" + GTCDF + GTPathSuffix, GTPathPrefix + "2" + GTtimes + GTPathSuffix, 175, save);
+            }
         }
 
         // Test C
         if(Arrays.asList(testToRun).contains("C")){
+            System.out.println("Starting Test 3.");
             ModelBuilder testCBuilder = new TestCBuilder(feature, approximator);
-            MainHelper.test("C", testCBuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("3", testCBuilder, timeLimit, timeTick, timeError, groundTruthRuns, 161, save);
+            } else {
+                MainHelper.test("3", testCBuilder, timeLimit, timeTick, timeError, GTPathPrefix + "3" + GTCDF + GTPathSuffix, GTPathPrefix + "3" + GTtimes + GTPathSuffix, 161, save);
+            }
         }
 
         // Test D
         if(Arrays.asList(testToRun).contains("D")){
+            System.out.println("Starting Test 4.");
             ModelBuilder testDBuilder = new TestDBuilder(feature, approximator);
-            MainHelper.test("D", testDBuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("4", testDBuilder, timeLimit, timeTick, timeError, groundTruthRuns, 179, save);
+            } else {
+                MainHelper.test("4", testDBuilder, timeLimit, timeTick, timeError, GTPathPrefix + "4" + GTCDF + GTPathSuffix, GTPathPrefix + "4" + GTtimes + GTPathSuffix, 179, save);
+            }
         }
 
         // Test E
         if(Arrays.asList(testToRun).contains("E")){
+            System.out.println("Starting Test 5.");
             ModelBuilder testEBuilder = new TestEBuilder(feature, approximator);
-            MainHelper.test("E", testEBuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("5", testEBuilder, timeLimit, timeTick, timeError, groundTruthRuns, 1147, save);
+            } else {
+                MainHelper.test("5", testEBuilder, timeLimit, timeTick, timeError, GTPathPrefix + "5" + GTCDF + GTPathSuffix, GTPathPrefix + "5" + GTtimes + GTPathSuffix, 1147, save);
+            }
         }
 
         // Test F
         if(Arrays.asList(testToRun).contains("F")){
+            System.out.println("Starting Test 6.");
             ModelBuilder testFBuilder = new TestFBuilder(feature, approximator);
-            MainHelper.test("F", testFBuilder, timeLimit, timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("6", testFBuilder, timeLimit, timeTick, timeError, groundTruthRuns, 595, save);
+            } else {
+                MainHelper.test("6", testFBuilder, timeLimit, timeTick, timeError, GTPathPrefix + "6" + GTCDF + GTPathSuffix, GTPathPrefix + "6" + GTtimes + GTPathSuffix, 595, save);
+            }
         }
 
         // Test G
         if(Arrays.asList(testToRun).contains("G")){
+            System.out.println("Starting Test 7.");
             ModelBuilder testGBuilder = new TestGBuilder(feature, approximator);
-            MainHelper.test("G", testGBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("7", testGBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, groundTruthRuns, 230, save);
+            } else {
+                MainHelper.test("7", testGBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, GTPathPrefix + "7" + GTCDF + GTPathSuffix, GTPathPrefix + "7" + GTtimes + GTPathSuffix, 230, save);
+            }
         }
 
         // Test H
         if(Arrays.asList(testToRun).contains("H")){
+            System.out.println("Starting Test 8.");
             ModelBuilder testHBuilder = new TestHBuilder(feature, approximator);
-            MainHelper.test("H", testHBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, runs);
+            if(!GTFromFile){
+                MainHelper.test("8", testHBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, groundTruthRuns, 249, save);
+            } else {
+                MainHelper.test("8", testHBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, GTPathPrefix + "8" + GTCDF + GTPathSuffix, GTPathPrefix + "8" + GTtimes + GTPathSuffix, 249, save);
+            }
         }
     }
 }

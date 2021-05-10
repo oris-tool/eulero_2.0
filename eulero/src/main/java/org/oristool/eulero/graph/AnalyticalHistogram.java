@@ -6,6 +6,7 @@ import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class AnalyticalHistogram extends Activity{
 
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp);
+        Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp, BigDecimal.ONE);
 
         PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 

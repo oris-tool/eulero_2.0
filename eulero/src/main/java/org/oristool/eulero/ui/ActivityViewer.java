@@ -34,10 +34,13 @@
 
 package org.oristool.eulero.ui;
 
-import java.awt.Color;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
@@ -199,7 +202,7 @@ public class ActivityViewer extends JFrame {
     }
 
     @SafeVarargs
-    public static void CompareResults(String title, List<String> stringList, MainHelper.ResultWrapper... results) {
+    public static void CompareResults(String savePath, boolean save, String title, List<String> stringList, MainHelper.ResultWrapper... results) {
         // TODO check dimension of step and upper
 
         ActivityViewer v = new ActivityViewer();
@@ -226,12 +229,39 @@ public class ActivityViewer extends JFrame {
         tabs.add("CDF", cdf);
         tabs.add("PDF", pdf);
 
+
         v.setTitle("Activity Viewer");
         v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         v.add(tabs);
         v.pack();
         v.setLocationRelativeTo(null);
         v.setVisible(true);
+
+        // TODO remove or substitute with JavaPlot (maybe one day...)
+        if(save){
+            BufferedImage imageBufferCDF = new BufferedImage(1920, 1080, BufferedImage.TYPE_3BYTE_BGR);
+            Graphics2D graphicsCDF = imageBufferCDF.createGraphics();
+            cdf.printAll(graphicsCDF);
+            graphicsCDF.dispose();
+
+            BufferedImage imageBufferPDF = new BufferedImage(1920, 1080, BufferedImage.TYPE_3BYTE_BGR);
+            Graphics2D graphicsPDF = imageBufferPDF.createGraphics();
+            pdf.printAll(graphicsPDF);
+            graphicsPDF.dispose();
+
+            File file = new File(savePath);
+            if(!file.exists()){
+                file.mkdirs();
+            }
+
+            try{
+                ImageIO.write(imageBufferPDF,"png", new File(savePath + "/" + title + "-PDF.png"));
+                ImageIO.write(imageBufferCDF,"png", new File(savePath + "/" + title + "-CDF.png"));
+            } catch(Exception e){
+                System.out.println("Something went wrong with result image storing...");
+            }
+        }
+
     }
 
 

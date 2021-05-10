@@ -26,7 +26,7 @@ public class EXPMixtureApproximationTest {
         }
 
         EXPMixtureApproximation approximator = new EXPMixtureApproximation();
-        Map<String, Map<String, BigDecimal>> approximationParameters = approximator.getApproximationParameters(cdf, low, upp);
+        Map<String, Map<String, BigDecimal>> approximationParameters = approximator.getApproximationParameters(cdf, low, upp, BigDecimal.valueOf(timeTick));
 
         double prova = 0;
         // timeTick is multiplied by a factor 3 in the allowed error, due to the two ways discretization step in computing Tukeys Bounds
@@ -47,7 +47,7 @@ public class EXPMixtureApproximationTest {
         }
 
         EXPMixtureApproximation approximator = new EXPMixtureApproximation();
-        Map<String, Approximator.ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp);
+        Map<String, Approximator.ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp, BigDecimal.valueOf(timeTick));
 
         ShiftedTruncatedExponentialDistribution body = new ShiftedTruncatedExponentialDistribution("body", setups.get("body").getSupport().get("start"),
                 setups.get("body").getSupport().get("end"), setups.get("body").getParameters().get("lambda"));

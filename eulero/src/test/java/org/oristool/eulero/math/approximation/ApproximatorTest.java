@@ -20,7 +20,7 @@ public class ApproximatorTest {
         }
 
         EXPMixtureApproximation approximator = new EXPMixtureApproximation();
-        Map<String, Map<String, BigDecimal>> approximationSupports = approximator.getApproximationSupports(cdf, low, upp);
+        Map<String, Map<String, BigDecimal>> approximationSupports = approximator.getApproximationSupports(cdf, low, upp, BigDecimal.valueOf(timeTick));
 
         // timeTick is multiplied by a factor 3 in the allowed error, due to the two ways discretization step in computin Tukeys Bounds
         Assertions.assertEquals(5.866, approximationSupports.get("body").get("start").doubleValue(), 2 * timeTick);

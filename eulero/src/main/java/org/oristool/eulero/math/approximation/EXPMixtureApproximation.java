@@ -15,13 +15,13 @@ public class EXPMixtureApproximation extends Approximator {
     }
 
     @Override
-    public Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp) {
+    public Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp, BigDecimal step) {
         Map<String, Map<String, BigInteger>> supportIndices = getApproximationSupportIndices(cdf, low, upp);
-        Map<String, Map<String, BigDecimal>> supportValues = getApproximationSupports(cdf, low, upp);
+        Map<String, Map<String, BigDecimal>> supportValues = getApproximationSupports(cdf, low, upp, step);
         Map<String, BigDecimal> supportWeight = getApproximationSupportsWeight(cdf, low, upp);
         NewtonRaphsonSolver zeroSolver = new NewtonRaphsonSolver();
 
-        double timeTick = (upp - low) / cdf.length;
+        double timeTick = step.doubleValue();
         double[] x = new double[cdf.length];
         for(int i = 0; i < x.length; i++){
             x[i] = low + i * timeTick;
