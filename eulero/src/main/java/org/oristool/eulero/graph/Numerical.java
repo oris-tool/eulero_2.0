@@ -45,7 +45,7 @@ public class Numerical extends Activity {
     private Approximator approximator;
     
     public Numerical(String name, BigDecimal step, int min, int max, double[] cdf, Approximator approximator) {
-        super(name);
+        super(name,  step.multiply(BigDecimal.valueOf(min)), step.multiply(BigDecimal.valueOf(max)));
         this.step = step;
         this.min = min;
         this.max = max;

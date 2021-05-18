@@ -20,6 +20,7 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
@@ -40,9 +41,9 @@ public class Analytical extends Activity {
      * Creates an activity with analytical PDF. 
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
-        super(name);
+        super(name, pdf.density().getDomainsEFT().bigDecimalValue(), pdf.density().getDomainsLFT().bigDecimalValue());
         this.pdf = pdf;
-    }
+        }
     
     @Override
     public Analytical copyRecursive(String suffix) {

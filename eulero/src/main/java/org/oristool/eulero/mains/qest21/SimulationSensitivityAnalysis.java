@@ -1,8 +1,10 @@
-package org.oristool.eulero;
+package org.oristool.eulero.mains.qest21;
 
+import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.models.*;
+import org.oristool.eulero.models.qest21.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.IOException;

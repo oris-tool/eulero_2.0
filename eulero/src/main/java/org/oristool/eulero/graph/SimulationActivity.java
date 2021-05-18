@@ -12,7 +12,7 @@ public class SimulationActivity extends Activity{
     private Approximator approximator;
 
     public SimulationActivity(String name, HistogramDistribution histogram, Approximator approximator) {
-        super(name);
+        super(name, histogram.getLow(), histogram.getUpp());
         this.histogram = histogram;
         this.approximator = approximator;
     }

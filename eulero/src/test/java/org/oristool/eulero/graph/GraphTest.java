@@ -23,7 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 class GraphTest {
 
@@ -240,5 +243,41 @@ class GraphTest {
         List<String> problems = cycle.problems();
         assertEquals(1, problems.size());
         assertTrue(problems.get(0).toLowerCase().contains("cycle"));
+    }
+
+    @Test
+    void testSequenceSupport(){
+        DAG sequence = DAG.sequence("Test",
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+        );
+
+        assertEquals(sequence.low().compareTo(BigDecimal.valueOf(2)), 0);
+        assertEquals(sequence.upp().compareTo(BigDecimal.valueOf(7.2)), 0);
+    }
+
+    @Test
+    void testAndSupport(){
+        DAG and = DAG.forkJoin("Test",
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+        );
+
+        assertEquals(and.low().compareTo(BigDecimal.valueOf(2)), 0);
+        assertEquals(and.upp().compareTo(BigDecimal.valueOf(4.2)), 0);
+
+    }
+
+    @Test
+    void testXorSupport(){
+        Xor xor = new Xor("Test", List.of(
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+            ), List.of(0.3, 0.7)
+        );
+
+        assertEquals(xor.low().compareTo(BigDecimal.valueOf(0)), 0);
+        assertEquals(xor.upp().compareTo(BigDecimal.valueOf(4.2)), 0);
+
     }
 }

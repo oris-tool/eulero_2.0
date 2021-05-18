@@ -20,7 +20,7 @@ public class AnalyticalHistogram extends Activity{
 
 
     public AnalyticalHistogram(String name, double[] cdf, double low, double upp, Approximator approximator) {
-        super(name);
+        super(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
         this.cdf = cdf;
         this.low = low;
         this.upp = upp;

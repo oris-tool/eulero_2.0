@@ -46,7 +46,7 @@ public class DAG extends Activity {
      * An empty DAG
      */
     public static DAG empty(String name) {
-        return new DAG(name);
+        return new DAG(name, BigDecimal.ZERO, BigDecimal.ZERO);
     }
     
     /**
@@ -56,8 +56,15 @@ public class DAG extends Activity {
         
         if (activities.length == 0)
             throw new IllegalArgumentException("Sequence cannot be empty");        
-        
-        DAG dag = new DAG(name);
+
+        double low = 0;
+        double upp = 0;
+        for(Activity activity: activities){
+            low += activity.low().doubleValue();
+            upp += activity.upp().doubleValue();
+        }
+
+        DAG dag = new DAG(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
         
         Activity prev = dag.begin();
         for (Activity a : activities) {
@@ -77,9 +84,16 @@ public class DAG extends Activity {
     public static DAG forkJoin(String name, Activity... activities) {
         
         if (activities.length == 0)
-            throw new IllegalArgumentException("Parallel cannot be empty");        
+            throw new IllegalArgumentException("Parallel cannot be empty");
 
-        DAG dag = new DAG(name);
+        double low = 0;
+        double upp = 0;
+        for(Activity activity: activities){
+            low = Math.max(low, activity.low().doubleValue());
+            upp = Math.max(upp, activity.upp().doubleValue());
+        }
+
+        DAG dag = new DAG(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
         
         for (Activity a : activities) {
             a.addPrecondition(dag.begin());
@@ -89,8 +103,8 @@ public class DAG extends Activity {
         return dag;
     }
 
-    private DAG(String name) {  // force use of static methods
-        super(name);
+    private DAG(String name, BigDecimal low, BigDecimal upp) {  // force use of static methods
+        super(name, low, upp);
         this.begin = new Analytical(name + "_BEGIN", 
                 StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
         this.end = new Analytical(name + "_END",
@@ -442,7 +456,7 @@ public class DAG extends Activity {
     public DAG copyRecursive(Activity begin, Activity end, String suffix) {
         
 
-        DAG copy = new DAG(this.name() + suffix);       
+        DAG copy = new DAG(this.name() + suffix, this.low(), this.upp());
         Map<Activity, Activity> nodeCopies = new HashMap<>();
 
         if (begin().equals(begin)) {

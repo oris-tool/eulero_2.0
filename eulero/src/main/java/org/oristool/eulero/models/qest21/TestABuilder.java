@@ -1,7 +1,8 @@
-package org.oristool.eulero.models;
+package org.oristool.eulero.models.qest21;
 
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
+import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
@@ -10,7 +11,7 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class TestABuilder extends ModelBuilder{
+public class TestABuilder extends ModelBuilder {
     public TestABuilder(StochasticTransitionFeature feature, Approximator approximator){
         super(feature, approximator);
     }

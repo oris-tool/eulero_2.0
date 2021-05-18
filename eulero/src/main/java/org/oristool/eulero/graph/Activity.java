@@ -53,6 +53,8 @@ import org.oristool.util.Pair;
  * Represents a node in an activity DAG.
  */
 public abstract class Activity {
+    private BigDecimal low;
+    private BigDecimal upp;
     private List<Activity> pre = new ArrayList<>();
     private List<Activity> post = new ArrayList<>();
     private String name;
@@ -92,13 +94,19 @@ public abstract class Activity {
         return name;
     }
 
+    public BigDecimal low(){ return low; }
+
+    public BigDecimal upp(){ return upp; }
+
     /** Activities that are part of this one */
     public List<Activity> nested() {
         return List.of();
     }
 
-    public Activity(String name) {
+    public Activity(String name, BigDecimal low, BigDecimal upp) {
         this.name = name;
+        this.low = low;
+        this.upp = upp;
     }
     
     public abstract Activity copyRecursive(String suffix);

@@ -1,14 +1,16 @@
-package org.oristool.eulero;
+package org.oristool.eulero.mains.qest21;
 
+import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.models.*;
+import org.oristool.eulero.models.qest21.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-public class MainRiccardo {
+public class Experimentation {
     public static void main(String[] args) {
         String GTPathPrefix = System.getProperty("user.dir") + "/results/Test";
         String GTCDF = "/CDF";

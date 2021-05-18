@@ -1,32 +1,20 @@
-package org.oristool.eulero;
+package org.oristool.eulero.mains.qest21;
 
 import org.oristool.eulero.graph.Analytical;
 import org.oristool.eulero.graph.DAG;
 import org.oristool.eulero.graph.Numerical;
-import org.oristool.eulero.graph.Xor;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
-import org.oristool.math.OmegaBigDecimal;
-import org.oristool.math.domain.DBMZone;
-import org.oristool.math.expression.Expolynomial;
-import org.oristool.math.expression.Variable;
-import org.oristool.math.function.GEN;
-import org.oristool.models.pn.Priority;
-import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
-import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
-import org.oristool.petrinet.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.IntStream;
 
 public class ApproximationTest {
