@@ -20,7 +20,7 @@ public class AnalyticalHistogram extends Activity{
 
 
     public AnalyticalHistogram(String name, double[] cdf, double low, double upp, Approximator approximator) {
-        super(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
+        super(name);
         this.cdf = cdf;
         this.low = low;
         this.upp = upp;
@@ -53,9 +53,19 @@ public class AnalyticalHistogram extends Activity{
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, low, upp, BigDecimal.ONE);
 
-        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
+        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups, PetriBlockHelper.GENRepresentation.XOR);
 
         return prio + 1;
+    }
+
+    @Override
+    public BigDecimal low() {
+        return null;
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return null;
     }
 
     // TODO yamlData()

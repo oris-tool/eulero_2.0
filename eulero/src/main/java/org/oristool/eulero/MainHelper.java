@@ -273,19 +273,28 @@ public class MainHelper {
         Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
         double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
 
-        if(analysisModel2 instanceof Numerical){
-            for(int i = 0; i < numericalAnalysis2.length; i++){
-                numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+        if(!name.equals("7") && !name.equals("8")){
+            if(analysisModel2 instanceof Numerical){
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+                }
+            } else {
+                TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+                }
             }
+            computationTimes.add(System.currentTimeMillis() - time);
+            System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
         } else {
-            TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
-            for(int i = 0; i < numericalAnalysis2.length; i++){
-                numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
-            }
+            System.out.println("troppo difficile per noi");
+            computationTimes.add(0.0);
         }
-        computationTimes.add(System.currentTimeMillis() - time);
-        System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+
         MainHelper.ResultWrapper analysisResult2 = new MainHelper.ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+
+        System.out.println("");
 
         // Analysis 3
         time = System.currentTimeMillis();
@@ -303,12 +312,13 @@ public class MainHelper {
             }
         }
         computationTimes.add(System.currentTimeMillis() - time);
-        System.out.println("Analysis of " + name + " with thirs Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        System.out.println("Analysis of " + name + " with third Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
         MainHelper.ResultWrapper analysisResult3 = new MainHelper.ResultWrapper(numericalAnalysis3, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
 
         try{
             ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
         } catch (Exception e){
+            System.out.println(e);
             System.out.println("Impossible to plot images...");
         }
 
@@ -407,17 +417,24 @@ public class MainHelper {
         Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
         double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
 
-        if(analysisModel2 instanceof Numerical){
-            for(int i = 0; i < numericalAnalysis2.length; i++){
-                numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+        if(!name.equals("7") && !name.equals("8")){
+            if(analysisModel2 instanceof Numerical){
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+                }
+            } else {
+                TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+                for (int i = 0; i < numericalAnalysis2.length; i++) {
+                    numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+                }
             }
+            computationTimes.add(System.currentTimeMillis() - time);
+
         } else {
-            TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
-            for(int i = 0; i < numericalAnalysis2.length; i++){
-                numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
-            }
+            System.out.println("No Maria io esco..");
+            System.out.println("troppo difficile per noi");
+            computationTimes.add(0.0);
         }
-        computationTimes.add(System.currentTimeMillis() - time);
         System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
         ResultWrapper analysisResult2 = new ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
 
@@ -443,6 +460,7 @@ public class MainHelper {
         try{
             ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
         } catch (Exception e){
+            System.out.println(e);
             System.out.println("Impossible to plot images...");
         }
 
@@ -502,14 +520,23 @@ public class MainHelper {
                 FileWriter pdfWriter = new FileWriter(savePath + "/" + testTitle + "/PDF/" + stringList.get(i) + ".txt");
                 FileWriter timeWriter = new FileWriter(savePath + "/" + testTitle + "/times/" + stringList.get(i) + ".txt");
                 FileWriter jsWriter = new FileWriter(savePath + "/" + testTitle + "/jensenShannon/" + stringList.get(i) + ".txt");
+
+                if((!testTitle.contains("7") && !testTitle.contains("8")) || i != 3){
+                    timeWriter.write(time + "s");
+                    timeWriter.close();
+                    jsWriter.write(String.valueOf(js));
+                    jsWriter.close();
+                } else {
+                    timeWriter.write("n.a.");
+                    timeWriter.close();
+                    jsWriter.write("n.a.");
+                    jsWriter.close();
+                }
+
                 cdfWriter.write(cdfString.toString());
                 cdfWriter.close();
                 pdfWriter.write(pdfString.toString());
                 pdfWriter.close();
-                timeWriter.write(time + "s");
-                timeWriter.close();
-                jsWriter.write(String.valueOf(js));
-                jsWriter.close();
             } catch (IOException e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
@@ -602,7 +629,6 @@ public class MainHelper {
         }
 
         public double jsDistance(double[] otherPDF) {
-            // TODO, questa va rivista perchè deve stare tra 0 e 1
             double[] pdf = getPdf();
             if (pdf.length != otherPDF.length)
                 throw new IllegalArgumentException("Should have the same number of samples");
@@ -621,10 +647,8 @@ public class MainHelper {
         public double klDivergence(double px, double py) {
             if (px > 0.0 && py > 0.0) {
                 return px * Math.log(px / py);
-            } else if (px == 0.0 && py >= 0) {
-                return 0.0;
             } else {
-                return Double.POSITIVE_INFINITY;
+                return 0.0;
             }
         }
     }

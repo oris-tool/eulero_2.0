@@ -5,6 +5,8 @@ import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
+import java.math.BigDecimal;
+
 public class SimulationActivity extends Activity{
     // TODO questa va cancellata, visto che non si parte più da istogrammi
 
@@ -12,7 +14,7 @@ public class SimulationActivity extends Activity{
     private Approximator approximator;
 
     public SimulationActivity(String name, HistogramDistribution histogram, Approximator approximator) {
-        super(name, histogram.getLow(), histogram.getUpp());
+        super(name);
         this.histogram = histogram;
         this.approximator = approximator;
     }
@@ -35,5 +37,15 @@ public class SimulationActivity extends Activity{
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         PetriBlockHelper.petriBlockWithHistogramFeatureFromSetups(this.name(), pn, in, out, prio, histogram);
         return prio + 1;
+    }
+
+    @Override
+    public BigDecimal low() {
+        return null;
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return null;
     }
 }

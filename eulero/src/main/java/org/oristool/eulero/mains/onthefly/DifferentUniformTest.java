@@ -19,22 +19,22 @@ public class DifferentUniformTest {
         String GTPathSuffix = "/GroundTruth.txt";
         Approximator approximator = new EXPMixtureApproximation();
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
-        BigDecimal timeLimit = BigDecimal.valueOf(35);
+        //BigDecimal timeLimit = BigDecimal.valueOf(35);
         BigDecimal timeTick = BigDecimal.valueOf(0.01);
         BigDecimal timeError = BigDecimal.valueOf(0.001);
-        int groundTruthRuns = 100;
+        int groundTruthRuns = 1000000;
         boolean save = false;
         boolean GTFromFile = false;
 
         ArrayList<Map<String, Double>> featureParameters = new ArrayList<>();
-
-        featureParameters.add(Map.ofEntries(Map.entry("low", 1.0), Map.entry("upp", 2.3)));
-        featureParameters.add(Map.ofEntries(Map.entry("low", 0.3), Map.entry("upp", 3.1)));
         featureParameters.add(Map.ofEntries(Map.entry("low", 4.0), Map.entry("upp", 6.0)));
+        featureParameters.add(Map.ofEntries(Map.entry("low", 1.0), Map.entry("upp", 2.3)));
+        featureParameters.add(Map.ofEntries(Map.entry("low", 1.5), Map.entry("upp", 3.1)));
         featureParameters.add(Map.ofEntries(Map.entry("low", 0.9), Map.entry("upp", 1.15)));
 
         System.out.println("Starting Test.");
         ModelBuilder builder = new DifferentUniformModelBuilder(featureParameters, approximator);
-        MainHelper.test("1", builder, timeLimit, timeTick, timeError, groundTruthRuns, 171, save);
+        BigDecimal timeLimit = builder.buildModelForSimulation().upp().add(BigDecimal.valueOf(2)); // TODO spostare dentro MainHelper.test?
+        MainHelper.test("4Uniform-Distributions", builder, timeLimit, timeTick, timeError, groundTruthRuns, 171, save);
     }
 }

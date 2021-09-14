@@ -37,9 +37,7 @@ public class Xor extends Activity {
     private List<Activity> alternatives;
     
     public Xor(String name, List<Activity> alternatives, List<Double> probs) {
-        super(name,
-                alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low(),
-                alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
+        super(name);
         if (alternatives.size() != probs.size())
             throw new IllegalArgumentException("Each alternative must have one probability");
         this.probs = probs;
@@ -62,6 +60,8 @@ public class Xor extends Activity {
     public List<Activity> alternatives() {
         return alternatives;
     }
+
+
     
     @Override
     public List<Activity> nested() {
@@ -121,5 +121,15 @@ public class Xor extends Activity {
         }
         
         return prio;
+    }
+
+    @Override
+    public BigDecimal low() {
+        return alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low();
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp();
     }
 }

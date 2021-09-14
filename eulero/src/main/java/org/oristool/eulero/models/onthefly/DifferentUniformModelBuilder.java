@@ -63,13 +63,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_0.addPrecondition(s_0, r_0_bis);
         p_down_0.end().addPrecondition(wx_0);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze(p_up_0.upp().toString(), timeTick.toString(), "0.001");
         double[] pUpCdf_0 = new double[pUpAnalysis_0.getSolution().length];
         for(int count = 0; count < pUpAnalysis_0.getSolution().length; count++){
             pUpCdf_0[count] = pUpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze(p_down_0.upp().toString(), timeTick.toString(), "0.001");
         double[] pDownCdf_0 = new double[pDownAnalysis_0.getSolution().length];
         for(int count = 0; count < pDownAnalysis_0.getSolution().length; count++){
             pDownCdf_0[count] = pDownAnalysis_0.getSolution()[count][0][0];
@@ -94,14 +94,14 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_1.addPrecondition(s_1, r_1);
         m_1.end().addPrecondition(t_1, u_1);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("9", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze(m_1.upp().toString(), timeTick.toString(), "0.001");
         m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for (int count = 0; count < m1Analysis.getSolution().length; count++) {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length + 1, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length, m1Cdf, approximator);
 
         Analytical q_2 = new Analytical("Q''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
         Analytical r_2 = new Analytical("R''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
@@ -117,14 +117,14 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_2.addPrecondition(s_2, r_2);
         m_2.end().addPrecondition(t_2, u_2);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("8.5", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze(m_1.upp().toString(), timeTick.toString(), "0.001");
         m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for (int count = 0; count < m2Analysis.getSolution().length; count++) {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length + 1, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
 
         Analytical q_3 = new Analytical("Q'''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
         Analytical r_3 = new Analytical("R''''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter) % featuresSize).get("upp"))));
@@ -161,13 +161,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_3.addPrecondition(s_3, r_3_bis);
         m_3_down.end().addPrecondition(wx_3);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze(m_3_up.upp().toString(), timeTick.toString(), "0.001");
         double[] m3UpCdf = new double[m3UpAnalysis_0.getSolution().length];
         for(int count = 0; count < m3UpAnalysis_0.getSolution().length; count++){
             m3UpCdf[count] = m3UpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze(m_3_down.upp().toString(), timeTick.toString(), "0.001");
         double[] m3DownCdf = new double[m3DownAnalysis_0.getSolution().length];
         for(int count = 0; count < m3DownAnalysis_0.getSolution().length; count++){
             m3DownCdf[count] = m3DownAnalysis_0.getSolution()[count][0][0];
@@ -238,13 +238,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         j.addPrecondition(g, fBis);
         main2.end().addPrecondition(numericalM3, j);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> main1Analysis = main1.analyze("32", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> main1Analysis = main1.analyze(main1.upp().toString(), timeTick.toString(), "0.001");
         double[] main1Cdf = new double[main1Analysis.getSolution().length];
         for(int count = 0; count < main1Analysis.getSolution().length; count++){
             main1Cdf[count] = main1Analysis.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> main2Analysis = main2.analyze("22", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> main2Analysis = main2.analyze(main2.upp().toString(), timeTick.toString(), "0.001");
         double[] main2Cdf = new double[main2Analysis.getSolution().length];
         for(int count = 0; count < main2Analysis.getSolution().length; count++){
             main2Cdf[count] = main2Analysis.getSolution()[count][0][0];
@@ -299,13 +299,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_0.addPrecondition(s_0, r_0_bis);
         p_down_0.end().addPrecondition(wx_0);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze(p_up_0.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] pUpCdf_0 = new double[pUpAnalysis_0.getSolution().length];
         for(int count = 0; count < pUpAnalysis_0.getSolution().length; count++){
             pUpCdf_0[count] = pUpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze(p_down_0.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] pDownCdf_0 = new double[pDownAnalysis_0.getSolution().length];
         for(int count = 0; count < pDownAnalysis_0.getSolution().length; count++){
             pDownCdf_0[count] = pDownAnalysis_0.getSolution()[count][0][0];
@@ -330,14 +330,14 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_1.addPrecondition(s_1, r_1);
         m_1.end().addPrecondition(t_1, u_1);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("9", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze(m_1.upp().toString(), timeTick.toString(), "0.001");
         m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for (int count = 0; count < m1Analysis.getSolution().length; count++) {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length + 1, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length, m1Cdf, approximator);
 
         Analytical q_2 = new Analytical("Q''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
         Analytical r_2 = new Analytical("R''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
@@ -353,14 +353,14 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_2.addPrecondition(s_2, r_2);
         m_2.end().addPrecondition(t_2, u_2);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("8.5", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze(m_2.upp().toString(), timeTick.toString(), "0.001");
         m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for (int count = 0; count < m2Analysis.getSolution().length; count++) {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length + 1, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
 
         Analytical q_3 = new Analytical("Q'''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
         Analytical r_3 = new Analytical("R''''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter) % featuresSize).get("upp"))));
@@ -397,13 +397,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_3.addPrecondition(s_3, r_3_bis);
         m_3_down.end().addPrecondition(wx_3);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze(m_3_up.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] m3UpCdf = new double[m3UpAnalysis_0.getSolution().length];
         for(int count = 0; count < m3UpAnalysis_0.getSolution().length; count++){
             m3UpCdf[count] = m3UpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze(m_3_down.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] m3DownCdf = new double[m3DownAnalysis_0.getSolution().length];
         for(int count = 0; count < m3DownAnalysis_0.getSolution().length; count++){
             m3DownCdf[count] = m3DownAnalysis_0.getSolution()[count][0][0];
@@ -439,7 +439,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
                 DAG.sequence("L", m, n, o)
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze("30", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze("33.5", timeTick.toString(), "0.001");
         double[] eCdf = new double[eAnalysis.getSolution().length];
         for (int count = 0; count < eAnalysis.getSolution().length; count++) {
             eCdf[count] = eAnalysis.getSolution()[count][0][0];
@@ -514,13 +514,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_0.addPrecondition(s_0, r_0_bis);
         p_down_0.end().addPrecondition(wx_0);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pUpAnalysis_0 = p_up_0.analyze(p_up_0.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] pUpCdf_0 = new double[pUpAnalysis_0.getSolution().length];
         for(int count = 0; count < pUpAnalysis_0.getSolution().length; count++){
             pUpCdf_0[count] = pUpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze("15", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> pDownAnalysis_0 = p_down_0.analyze(p_down_0.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] pDownCdf_0 = new double[pDownAnalysis_0.getSolution().length];
         for(int count = 0; count < pDownAnalysis_0.getSolution().length; count++){
             pDownCdf_0[count] = pDownAnalysis_0.getSolution()[count][0][0];
@@ -545,7 +545,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_1.addPrecondition(s_1, r_1);
         m_1.end().addPrecondition(t_1, u_1);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("9", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze(m_1.upp().toString(), timeTick.toString(), "0.001");
         m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for (int count = 0; count < m1Analysis.getSolution().length; count++) {
@@ -568,14 +568,14 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         u_2.addPrecondition(s_2, r_2);
         m_2.end().addPrecondition(t_2, u_2);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("8.5", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze(m_2.upp().toString(), timeTick.toString(), "0.001");
         m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for (int count = 0; count < m2Analysis.getSolution().length; count++) {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length + 1, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
 
         Analytical q_3 = new Analytical("Q'''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter++) % featuresSize).get("upp"))));
         Analytical r_3 = new Analytical("R''''", StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(features.get((counter) % featuresSize).get("low")), BigDecimal.valueOf(features.get((counter) % featuresSize).get("upp"))));
@@ -612,13 +612,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         wx_3.addPrecondition(s_3, r_3_bis);
         m_3_down.end().addPrecondition(wx_3);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3UpAnalysis_0 = m_3_up.analyze(m_3_up.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] m3UpCdf = new double[m3UpAnalysis_0.getSolution().length];
         for(int count = 0; count < m3UpAnalysis_0.getSolution().length; count++){
             m3UpCdf[count] = m3UpAnalysis_0.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze("12.1", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> m3DownAnalysis_0 = m_3_down.analyze(m_3_down.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] m3DownCdf = new double[m3DownAnalysis_0.getSolution().length];
         for(int count = 0; count < m3DownAnalysis_0.getSolution().length; count++){
             m3DownCdf[count] = m3DownAnalysis_0.getSolution()[count][0][0];
@@ -641,7 +641,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
                 )
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("4.3", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze(o1.upp().toString(), timeTick.toString(), "0.001");
         double[] o1Cdf = new double[o1Analysis.getSolution().length];
         for(int count = 0; count < o1Analysis.getSolution().length; count++){
             o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
@@ -654,7 +654,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
                 DAG.forkJoin("M1M2", numericalM1, numericalM2)
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze("16", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze(o2.upp().toString(), timeTick.toString(), "0.001");
         double[] o2Cdf = new double[o2Analysis.getSolution().length];
         for(int count = 0; count < o2Analysis.getSolution().length; count++){
             o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
@@ -664,7 +664,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
 
         DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze("16", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze(o.upp().toString(), timeTick.toString(), "0.001");
         double[] oCdf = new double[oAnalysis.getSolution().length];
         for(int count = 0; count < oAnalysis.getSolution().length; count++){
             oCdf[count] = oAnalysis.getSolution()[count][0][0];
@@ -677,7 +677,7 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
                 DAG.sequence("L", m, n, oNumerical)
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze("30", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze("33.5", timeTick.toString(), "0.001");
         double[] eCdf = new double[eAnalysis.getSolution().length];
         for(int count = 0; count < eAnalysis.getSolution().length; count++){
             eCdf[count] = eAnalysis.getSolution()[count][0][0];
@@ -711,13 +711,13 @@ public class DifferentUniformModelBuilder extends ModelBuilder {
         j.addPrecondition(g, fBis);
         main2.end().addPrecondition(numericalM3, j);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> main1Analysis = main1.analyze("32", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> main1Analysis = main1.analyze(main1.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] main1Cdf = new double[main1Analysis.getSolution().length];
         for(int count = 0; count < main1Analysis.getSolution().length; count++){
             main1Cdf[count] = main1Analysis.getSolution()[count][0][0];
         }
 
-        TransientSolution<DeterministicEnablingState, RewardRate> main2Analysis = main2.analyze("22", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> main2Analysis = main2.analyze(main2.upp().add(BigDecimal.valueOf(2)).toString(), timeTick.toString(), "0.001");
         double[] main2Cdf = new double[main2Analysis.getSolution().length];
         for(int count = 0; count < main2Analysis.getSolution().length; count++){
             main2Cdf[count] = main2Analysis.getSolution()[count][0][0];

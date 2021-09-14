@@ -35,8 +35,7 @@ public class Repeat extends Activity {
     private Activity repeatBody;
     
     public Repeat(String name, double repeatProb, Activity repeatBody) {
-        // TODO: here must be understood how to handle upper bound. In principle is Infinity, but in practival we don't use it.
-        super(name, repeatBody.low(), repeatBody.upp());
+        super(name);
         this.repeatProb = repeatProb;
         this.repeatBody = repeatBody;
     }
@@ -89,5 +88,16 @@ public class Repeat extends Activity {
         
         prio = repeatBody.addPetriBlock(pn, in, choose, prio);
         return prio;
+    }
+
+    // TODO: here must be understood how to handle upper bound. In principle is Infinity, but in practice we don't use it.
+    @Override
+    public BigDecimal low() {
+        return repeatBody.low();
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return repeatBody.upp();
     }
 }

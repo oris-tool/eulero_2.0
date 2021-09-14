@@ -71,9 +71,10 @@ public class TestHBuilder extends ModelBuilder {
         }
 
         Numerical numericalP = Numerical.and(List.of(
-                new Numerical("PUp_numerical", timeTick, 0, pUpCdf_0.length, pUpCdf_0, approximator),
-                new Numerical("PDown_numerical", timeTick, 0, pDownCdf_0.length, pDownCdf_0, approximator)
+                new Numerical("PUp_numerical", timeTick, getLowIndex(pUpCdf_0), getUppIndex(pUpCdf_0), cutCDF(pUpCdf_0), approximator),
+                new Numerical("PDown_numerical", timeTick, getLowIndex(pDownCdf_0), getUppIndex(pDownCdf_0), cutCDF(pDownCdf_0), approximator)
         ));
+        numericalP.setApproximator(approximator);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -96,7 +97,7 @@ public class TestHBuilder extends ModelBuilder {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -119,7 +120,7 @@ public class TestHBuilder extends ModelBuilder {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R''''", feature);
@@ -171,9 +172,10 @@ public class TestHBuilder extends ModelBuilder {
 
         // P
         Numerical numericalM3 = Numerical.and(List.of(
-                new Numerical("M3Up_Numerical", timeTick, 0, m3UpCdf.length, m3UpCdf),
-                new Numerical("M3Down_Numerical", timeTick, 0, m3DownCdf.length, m3DownCdf)
+                new Numerical("M3Up_Numerical", timeTick, getLowIndex(m3UpCdf), getUppIndex(m3UpCdf), cutCDF(m3UpCdf), approximator),
+                new Numerical("M3Down_Numerical", timeTick, getLowIndex(m3DownCdf), getUppIndex(m3DownCdf), cutCDF(m3DownCdf), approximator)
         ));
+        numericalM3.setApproximator(approximator);
 
         // Gestisco E
         Numerical oNumerical = Numerical.and(List.of(
@@ -189,6 +191,7 @@ public class TestHBuilder extends ModelBuilder {
                 Numerical.and(List.of(numericalM1, numericalM2)))
             ))
         );
+        oNumerical.setApproximator(approximator);
 
         Repeat m = new Repeat("M", 0.2, numericalP);
         Analytical n = new Analytical("N", feature);
@@ -204,7 +207,7 @@ public class TestHBuilder extends ModelBuilder {
             eCdf[count] = eAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalE = new Numerical("e", timeTick, 0,  timeBound.divide(timeTick).intValue(), eCdf, approximator);
+        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
 
 
         // Gestione Main
@@ -254,10 +257,11 @@ public class TestHBuilder extends ModelBuilder {
         }
 
         Numerical main = Numerical.and(List.of(
-                new Numerical("I_Numerical", timeTick, 0, iCDF.length, iCDF),
-                new Numerical("K_Numerical", timeTick, 0, kCDF.length, kCDF),
-                new Numerical("J_Numerical", timeTick, 0, jCDF.length, jCDF)
+                new Numerical("I_Numerical", timeTick, getLowIndex(iCDF), getUppIndex(iCDF), cutCDF(iCDF), approximator),
+                new Numerical("K_Numerical", timeTick, getLowIndex(kCDF), getUppIndex(kCDF), cutCDF(kCDF), approximator),
+                new Numerical("J_Numerical", timeTick, getLowIndex(jCDF), getUppIndex(jCDF), cutCDF(jCDF), approximator)
         ));
+        main.setApproximator(approximator);
 
         return main;
     }
@@ -280,6 +284,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("T2", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
+        tu_0.setApproximator(approximator);
 
         Numerical wx_0 = Numerical.and(List.of(
                 Numerical.uniform("W", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -288,6 +293,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("X2", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
+        wx_0.setApproximator(approximator);
 
         DAG p = DAG.empty("P");
         q_0.addPrecondition(p.begin());
@@ -304,7 +310,7 @@ public class TestHBuilder extends ModelBuilder {
             pCDF[count] = pAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalP = new Numerical("PUp_numerical", timeTick, 0, pCDF.length, pCDF, approximator);
+        Numerical numericalP = new Numerical("PUp_numerical", timeTick, getLowIndex(pCDF), getUppIndex(pCDF), cutCDF(pCDF), approximator);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -327,7 +333,7 @@ public class TestHBuilder extends ModelBuilder {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -350,7 +356,7 @@ public class TestHBuilder extends ModelBuilder {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R''''", feature);
@@ -364,6 +370,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("T2'''", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
+        tu_3.setApproximator(approximator);
 
         Numerical wx_3 = Numerical.and(List.of(
                 Numerical.uniform("W'''", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -372,6 +379,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("X2'''", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
+        wx_3.setApproximator(approximator);
 
         DAG m_3 = DAG.empty("M'''");
         q_3.addPrecondition(m_3.begin());
@@ -389,7 +397,7 @@ public class TestHBuilder extends ModelBuilder {
         }
 
         // M3
-        Numerical numericalM3 = new Numerical("M3Numerical", timeTick, 0, m3Cdf.length, m3Cdf);
+        Numerical numericalM3 = new Numerical("M3Numerical", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
 
         // Gestisco E
         Numerical oNumerical = Numerical.and(List.of(
@@ -405,6 +413,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.and(List.of(numericalM1, numericalM2)))
                 ))
         );
+        oNumerical.setApproximator(approximator);
 
         Repeat m = new Repeat("M", 0.2, numericalP);
         Analytical n = new Analytical("N", feature);
@@ -420,7 +429,7 @@ public class TestHBuilder extends ModelBuilder {
             eCdf[count] = eAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalE = new Numerical("e", timeTick, 0,  timeBound.divide(timeTick).intValue(), eCdf, approximator);
+        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
 
         // Gestione Main
         Analytical r_main = new Analytical("R_main", feature);
@@ -429,6 +438,7 @@ public class TestHBuilder extends ModelBuilder {
                 Numerical.uniform("S_main_1", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
                 Numerical.uniform("S_main_2", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
         ));
+        s_main.setApproximator(approximator);
 
         Numerical t_main = Numerical.and(List.of(
                 Numerical.uniform("T_main", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -437,6 +447,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("T_main_2", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
+        t_main.setApproximator(approximator);
 
         Numerical v_main = Numerical.and(List.of(
                 Numerical.uniform("V_main", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -445,7 +456,7 @@ public class TestHBuilder extends ModelBuilder {
                         Numerical.uniform("V_main_2", BigDecimal.ZERO, BigDecimal.ONE, timeTick)
                 ))
         ));
-
+        v_main.setApproximator(approximator);
 
         DAG main = DAG.empty("MAIN");
         numericalE.addPrecondition(main.begin());
@@ -514,9 +525,10 @@ public class TestHBuilder extends ModelBuilder {
         }
 
         Numerical numericalP = Numerical.and(List.of(
-                new Numerical("PUp_numerical", timeTick, 0, pUpCdf_0.length, pUpCdf_0, approximator),
-                new Numerical("PDown_numerical", timeTick, 0, pDownCdf_0.length, pDownCdf_0, approximator)
+                new Numerical("PUp_numerical", timeTick, getLowIndex(pUpCdf_0), getUppIndex(pUpCdf_0), cutCDF(pUpCdf_0), approximator),
+                new Numerical("PDown_numerical", timeTick, getLowIndex(pDownCdf_0), getUppIndex(pDownCdf_0), cutCDF(pDownCdf_0), approximator)
         ));
+        numericalP.setApproximator(approximator);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -539,7 +551,7 @@ public class TestHBuilder extends ModelBuilder {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0, m1Cdf.length, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -562,7 +574,7 @@ public class TestHBuilder extends ModelBuilder {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0, m2Cdf.length, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R''''", feature);
@@ -614,9 +626,10 @@ public class TestHBuilder extends ModelBuilder {
 
         // P
         Numerical numericalM3 = Numerical.and(List.of(
-                new Numerical("M3Up_Numerical", timeTick, 0, m3UpCdf.length, m3UpCdf),
-                new Numerical("M3Down_Numerical", timeTick, 0, m3DownCdf.length, m3DownCdf)
+                new Numerical("M3Up_Numerical", timeTick, getLowIndex(m3UpCdf), getUppIndex(m3UpCdf), cutCDF(m3UpCdf), approximator),
+                new Numerical("M3Down_Numerical", timeTick, getLowIndex(m3DownCdf), getUppIndex(m3DownCdf), cutCDF(m3DownCdf), approximator)
         ));
+        numericalM3.setApproximator(approximator);
 
         // Gestisco E
         DAG o1 = DAG.sequence("O1",
@@ -633,7 +646,7 @@ public class TestHBuilder extends ModelBuilder {
             o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, 0, o1Cdf.length, o1Cdf, approximator);
+        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, getLowIndex(o1Cdf), getUppIndex(o1Cdf), cutCDF(o1Cdf), approximator);
 
         DAG o2 = DAG.sequence("O2",
                 new Analytical("Kisthis", feature),
@@ -646,7 +659,7 @@ public class TestHBuilder extends ModelBuilder {
             o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, 0, o2Cdf.length, o2Cdf, approximator);
+        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, getLowIndex(o2Cdf), getUppIndex(o2Cdf), cutCDF(o2Cdf), approximator);
 
         DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
 
@@ -656,7 +669,7 @@ public class TestHBuilder extends ModelBuilder {
             oCdf[count] = oAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical oNumerical = new Numerical("O_Numerical", timeTick, 0, oCdf.length, oCdf, approximator);
+        Numerical oNumerical = new Numerical("O_Numerical", timeTick, getLowIndex(oCdf), getUppIndex(oCdf), cutCDF(oCdf), approximator);
         Repeat m = new Repeat("M", 0.2, numericalP);
         Analytical n = new Analytical("N", feature);
 
@@ -670,7 +683,7 @@ public class TestHBuilder extends ModelBuilder {
             eCdf[count] = eAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalE = new Numerical("e", timeTick, 0,  timeBound.divide(timeTick).intValue(), eCdf, approximator);
+        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
 
 
         // Gestione Main
@@ -720,9 +733,9 @@ public class TestHBuilder extends ModelBuilder {
         }
 
         DAG main = DAG.forkJoin("Main",
-                new Numerical("I_Numerical", timeTick, 0, iCDF.length, iCDF),
-                new Numerical("K_Numerical", timeTick, 0, kCDF.length, kCDF),
-                new Numerical("J_Numerical", timeTick, 0, jCDF.length, jCDF)
+                new Numerical("I_Numerical", timeTick, getLowIndex(iCDF), getUppIndex(iCDF), cutCDF(iCDF), approximator),
+                new Numerical("K_Numerical", timeTick, getLowIndex(kCDF), getUppIndex(kCDF), cutCDF(kCDF), approximator),
+                new Numerical("J_Numerical", timeTick, getLowIndex(jCDF), getUppIndex(jCDF), cutCDF(jCDF), approximator)
         );
 
         return main;

@@ -3,13 +3,16 @@ package org.oristool.eulero.models.qest21;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class TestABuilder extends ModelBuilder {
     public TestABuilder(StochasticTransitionFeature feature, Approximator approximator){
@@ -43,7 +46,7 @@ public class TestABuilder extends ModelBuilder {
             m0Cdf[count] = m0Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM0 = new Numerical("m0", timeTick, 0, m0Cdf.length + 1, m0Cdf, approximator);
+        Numerical numericalM0 = new Numerical("m0", timeTick, getLowIndex(m0Cdf), getUppIndex(m0Cdf), cutCDF(m0Cdf), approximator);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -66,7 +69,7 @@ public class TestABuilder extends ModelBuilder {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0,  m1Cdf.length + 1, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -89,7 +92,7 @@ public class TestABuilder extends ModelBuilder {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0,  m2Cdf.length + 1, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R'''", feature);
@@ -112,7 +115,7 @@ public class TestABuilder extends ModelBuilder {
             m3Cdf[count] = m3Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM3 = new Numerical("m3", timeTick, 0,  m3Cdf.length + 1, m3Cdf, approximator);
+        Numerical numericalM3 = new Numerical("m3", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
 
         Numerical main = Numerical.and(List.of(
             Numerical.and(List.of(
@@ -166,6 +169,7 @@ public class TestABuilder extends ModelBuilder {
                 ))
             ))
         );
+        main.setApproximator(approximator);
 
         return main;
     }
@@ -196,13 +200,14 @@ public class TestABuilder extends ModelBuilder {
         m_0.end().addPrecondition(t_0, v_0);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m0Analysis = m_0.analyze("3", timeTick.toString(), "0.001");
-        m0Analysis.getSolution();
         double[] m0Cdf = new double[m0Analysis.getSolution().length];
         for(int count = 0; count < m0Analysis.getSolution().length; count++){
             m0Cdf[count] = m0Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM0 = new Numerical("m0", timeTick, 0, m0Cdf.length, m0Cdf, approximator);
+        Numerical numericalM0 = new Numerical("m0", timeTick, getLowIndex(m0Cdf), getUppIndex(m0Cdf), cutCDF(m0Cdf), approximator);
+
+        //ActivityViewer.plot(List.of("Vero", "Falso"), m0Analysis, numericalM0.analyze("3", timeTick.toString(), "0.001"));
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -225,7 +230,10 @@ public class TestABuilder extends ModelBuilder {
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, 0,  m1Cdf.length, m1Cdf, approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
+
+        //ActivityViewer.plot(List.of("Vero", "Falso"), m1Analysis, numericalM1.analyze("3", timeTick.toString(), "0.001"));
+
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -248,7 +256,9 @@ public class TestABuilder extends ModelBuilder {
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, 0,  m2Cdf.length, m2Cdf, approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
+        //ActivityViewer.plot(List.of("Vero", "Falso"), m2Analysis, numericalM2.analyze("3", timeTick.toString(), "0.001"));
+
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R'''", feature);
@@ -265,13 +275,14 @@ public class TestABuilder extends ModelBuilder {
         m_3.end().addPrecondition(t_3, v_3);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m3Analysis = m_3.analyze("3", timeTick.toString(), "0.001");
-        m3Analysis.getSolution();
         double[] m3Cdf = new double[m3Analysis.getSolution().length];
         for(int count = 0; count < m3Analysis.getSolution().length; count++){
             m3Cdf[count] = m3Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM3 = new Numerical("m3", timeTick, 0,  m3Cdf.length, m3Cdf, approximator);
+        Numerical numericalM3 = new Numerical("m3", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
+
+        //ActivityViewer.plot(List.of("Original", "Approximation"), m3Analysis, numericalM3.analyze("3", timeTick.toString(), "0.001"));
 
         DAG main_right = DAG.sequence("M2",
                 DAG.forkJoin("M2A",
@@ -307,7 +318,7 @@ public class TestABuilder extends ModelBuilder {
             mainRightCdf[count] = mainRightAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical mainRightNumerical = new Numerical("MainRightNumerical", timeTick, 0, mainRightCdf.length, mainRightCdf, approximator);
+        Numerical mainRightNumerical = new Numerical("MainRightNumerical", timeTick, getLowIndex(mainRightCdf), getUppIndex(mainRightCdf), cutCDF(mainRightCdf), approximator);
 
         // Left part
         DAG o1 = DAG.sequence("O1",
@@ -318,49 +329,70 @@ public class TestABuilder extends ModelBuilder {
                 )
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("2", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("4", timeTick.toString(), "0.001");
         double[] o1Cdf = new double[o1Analysis.getSolution().length];
         for(int count = 0; count < o1Analysis.getSolution().length; count++){
             o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, 0, o1Cdf.length, o1Cdf, approximator);
+        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, getLowIndex(o1Cdf), getUppIndex(o1Cdf), cutCDF(o1Cdf), approximator);
+        //ActivityViewer.plot(List.of("Vero", "Falso"), o1Analysis, o1Numerical.analyze("4", timeTick.toString(), "0.001"));
+
+
 
         DAG o2 = DAG.sequence("O2",
                 new Analytical("K", feature),
                 DAG.forkJoin("M1M2", numericalM1, numericalM2)
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze("3", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze("4", timeTick.toString(), "0.001");
         double[] o2Cdf = new double[o2Analysis.getSolution().length];
         for(int count = 0; count < o2Analysis.getSolution().length; count++){
             o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, 0, o2Cdf.length, o2Cdf, approximator);
+        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, getLowIndex(o2Cdf), getUppIndex(o2Cdf), cutCDF(o2Cdf), approximator);
+        //ActivityViewer.plot(List.of("Vero", "Falso"), o2Analysis, o2Numerical.analyze("4", timeTick.toString(), "0.001"));
 
         DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
 
-        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze("3", timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze("5", timeTick.toString(), "0.001");
         double[] oCdf = new double[oAnalysis.getSolution().length];
         for(int count = 0; count < oAnalysis.getSolution().length; count++){
             oCdf[count] = oAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical oNumerical = new Numerical("O_Numerical", timeTick, 0, oCdf.length, oCdf, approximator);
+        Numerical oNumerical = new Numerical("O_Numerical", timeTick, getLowIndex(oCdf), getUppIndex(oCdf), cutCDF(oCdf), approximator);
+        //ActivityViewer.plot(List.of("Vero", "Falso"), oAnalysis, oNumerical.analyze("5", timeTick.toString(), "0.001"));
+
+        DAG main_left_up = DAG.sequence("MLU",
+                new Analytical("A", feature),
+                new Analytical("B", feature),
+                new Analytical("C", feature),
+                new Analytical("D", feature)
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> MLUAnalysis = main_left_up.analyze("5", timeTick.toString(), "0.001");
+        double[] mluCdf = new double[MLUAnalysis.getSolution().length];
+        for(int count = 0; count < MLUAnalysis.getSolution().length; count++){
+            mluCdf[count] = MLUAnalysis.getSolution()[count][0][0];
+        }
+
+        DAG main_left_down = DAG.sequence("MLD",
+                numericalM0,
+                new Analytical("N", feature),
+                oNumerical
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> MLDAnalysis = main_left_down.analyze("5", timeTick.toString(), "0.001");
+        double[] mldCdf = new double[MLDAnalysis.getSolution().length];
+        for(int count = 0; count < MLDAnalysis.getSolution().length; count++){
+            mldCdf[count] = MLDAnalysis.getSolution()[count][0][0];
+        }
 
         DAG main_left = DAG.forkJoin("M1",
-                DAG.sequence("M1A",
-                        new Analytical("A", feature),
-                        new Analytical("B", feature),
-                        new Analytical("C", feature),
-                        new Analytical("D", feature)
-                ),
-                DAG.sequence("E",
-                        numericalM0,
-                        new Analytical("N", feature),
-                        oNumerical
-                )
+                new Numerical("MLU_Numerical", timeTick, getLowIndex(mluCdf), getUppIndex(mluCdf), cutCDF(mluCdf), approximator),
+                new Numerical("MLD_Numerical", timeTick, getLowIndex(mldCdf), getUppIndex(mldCdf), cutCDF(mldCdf), approximator)
         );
 
         TransientSolution<DeterministicEnablingState, RewardRate> mainLeftAnalysis = main_left.analyze(timeBound.toString(), timeTick.toString(), "0.001");
@@ -369,7 +401,9 @@ public class TestABuilder extends ModelBuilder {
             mainLeftCdf[count] = mainLeftAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, 0, mainLeftCdf.length, mainLeftCdf, approximator);
+        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, getLowIndex(mainLeftCdf), getUppIndex(mainLeftCdf), cutCDF(mainLeftCdf), approximator);
+        //ActivityViewer.plot(List.of("Vero", "Falso"), mainLeftAnalysis, mainLeftNumerical.analyze(timeBound.toString(), timeTick.toString(), "0.001"));
+        //ActivityViewer.plot(List.of("Vero", "Falso"), mainRightAnalysis, mainRightNumerical.analyze(timeBound.toString(), timeTick.toString(), "0.001"));
 
         DAG main = DAG.forkJoin("MAIN", mainLeftNumerical, mainRightNumerical);
 

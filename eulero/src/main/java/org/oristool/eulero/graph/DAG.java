@@ -46,7 +46,7 @@ public class DAG extends Activity {
      * An empty DAG
      */
     public static DAG empty(String name) {
-        return new DAG(name, BigDecimal.ZERO, BigDecimal.ZERO);
+        return new DAG(name);
     }
     
     /**
@@ -64,7 +64,7 @@ public class DAG extends Activity {
             upp += activity.upp().doubleValue();
         }
 
-        DAG dag = new DAG(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
+        DAG dag = new DAG(name);
         
         Activity prev = dag.begin();
         for (Activity a : activities) {
@@ -93,7 +93,7 @@ public class DAG extends Activity {
             upp = Math.max(upp, activity.upp().doubleValue());
         }
 
-        DAG dag = new DAG(name, BigDecimal.valueOf(low), BigDecimal.valueOf(upp));
+        DAG dag = new DAG(name);
         
         for (Activity a : activities) {
             a.addPrecondition(dag.begin());
@@ -103,8 +103,8 @@ public class DAG extends Activity {
         return dag;
     }
 
-    private DAG(String name, BigDecimal low, BigDecimal upp) {  // force use of static methods
-        super(name, low, upp);
+    private DAG(String name) {  // force use of static methods
+        super(name);
         this.begin = new Analytical(name + "_BEGIN", 
                 StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
         this.end = new Analytical(name + "_END",
@@ -396,7 +396,7 @@ public class DAG extends Activity {
         
         return priority[0];
     }
-    
+
     /**
      * Returns the activities between {@code begin} and
      * {@code end} (inclusive)
@@ -456,7 +456,7 @@ public class DAG extends Activity {
     public DAG copyRecursive(Activity begin, Activity end, String suffix) {
         
 
-        DAG copy = new DAG(this.name() + suffix, this.low(), this.upp());
+        DAG copy = new DAG(this.name() + suffix);
         Map<Activity, Activity> nodeCopies = new HashMap<>();
 
         if (begin().equals(begin)) {
@@ -561,4 +561,41 @@ public class DAG extends Activity {
 
         return copy;
     }
+
+    @Override
+    public BigDecimal low() {
+        return getSupportLowerBound(this.end);
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return getSupportUpperBound(this.end);
+    }
+
+    public BigDecimal getSupportLowerBound(Activity activity){
+        if(activity.equals(this.begin)){
+            return activity.low();
+        }
+
+        BigDecimal maximumPredecessorLow = BigDecimal.ZERO;
+        for(Activity predecessor: activity.pre()){
+            maximumPredecessorLow = maximumPredecessorLow.max(getSupportLowerBound(predecessor));
+        }
+
+        return activity.low().add(maximumPredecessorLow);
+    }
+
+    public BigDecimal getSupportUpperBound(Activity activity){
+        if(activity.equals(this.begin)){
+            return activity.upp();
+        }
+
+        BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
+        for(Activity predecessor: activity.pre()){
+            maximumPredecessorUpp = maximumPredecessorUpp.max(getSupportUpperBound(predecessor));
+        }
+
+        return activity.upp().add(maximumPredecessorUpp);
+    }
+
 }

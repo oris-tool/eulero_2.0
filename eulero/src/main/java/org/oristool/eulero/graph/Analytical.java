@@ -41,7 +41,7 @@ public class Analytical extends Activity {
      * Creates an activity with analytical PDF. 
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
-        super(name, pdf.density().getDomainsEFT().bigDecimalValue(), pdf.density().getDomainsLFT().bigDecimalValue());
+        super(name);
         this.pdf = pdf;
         }
     
@@ -91,5 +91,15 @@ public class Analytical extends Activity {
         pn.addPrecondition(in, t);
         pn.addPostcondition(t, out);
         return prio + 1;
+    }
+
+    @Override
+    public BigDecimal low() {
+        return pdf.density().getDomainsEFT().bigDecimalValue();
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return pdf.density().getDomainsLFT().bigDecimalValue();
     }
 }

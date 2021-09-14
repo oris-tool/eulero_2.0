@@ -30,6 +30,7 @@ import org.apache.commons.math3.distribution.GammaDistribution;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
+import org.oristool.eulero.math.approximation.SplineBodyEXPTailApproximation;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -42,10 +43,19 @@ public class Numerical extends Activity {
     private int min;
     private int max;
     private double[] cdf;
+
+    public Approximator getApproximator() {
+        return approximator;
+    }
+
+    public void setApproximator(Approximator approximator) {
+        this.approximator = approximator;
+    }
+
     private Approximator approximator;
     
     public Numerical(String name, BigDecimal step, int min, int max, double[] cdf, Approximator approximator) {
-        super(name,  step.multiply(BigDecimal.valueOf(min)), step.multiply(BigDecimal.valueOf(max)));
+        super(name);
         this.step = step;
         this.min = min;
         this.max = max;
@@ -83,12 +93,22 @@ public class Numerical extends Activity {
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue(), step);
+        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups, PetriBlockHelper.GENRepresentation.PIECEWISE);
         System.out.println("Approximation performed on " + name());
-        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups);
 
         return prio + 1;
     }
-    
+
+    @Override
+    public BigDecimal low() {
+        return step().multiply(BigDecimal.valueOf(min()));
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return step().multiply(BigDecimal.valueOf(max()));
+    }
+
     public double CDF(int time) {
         if (time <= min)
             return 0;
@@ -155,6 +175,21 @@ public class Numerical extends Activity {
             cdf[t] = g.cumulativeProbability(t*s);
         
         return new Numerical(name, step, min, max, cdf);
+    }
+
+    public static Numerical truncatedExp(String name, double lambda,
+             double a, double b, BigDecimal step){
+        int min = (int) (a / step.doubleValue());
+        int max = (int) (b / step.doubleValue());
+        double s = step.doubleValue();
+        double[] cdf = new double[max-min+1];
+        for (int x = 0; x < cdf.length; x++) {
+            int t = min + 1 + x;
+            cdf[x] = (1 - Math.exp(-lambda * (t * s - a)))/(1 - Math.exp(-lambda * (b - a)));
+        }
+
+        return new Numerical(name, step, min, max, cdf);
+
     }
     
     public static Numerical erlang(String name, int k, double lambda, 
