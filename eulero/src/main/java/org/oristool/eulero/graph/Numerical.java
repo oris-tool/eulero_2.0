@@ -93,7 +93,7 @@ public class Numerical extends Activity {
     @Override
     public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue(), step);
-        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups, PetriBlockHelper.GENRepresentation.PIECEWISE);
+        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups, PetriBlockHelper.GENRepresentation.XOR);
         System.out.println("Approximation performed on " + name());
 
         return prio + 1;
