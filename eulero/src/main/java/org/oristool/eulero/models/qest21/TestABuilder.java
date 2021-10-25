@@ -207,7 +207,7 @@ public class TestABuilder extends ModelBuilder {
 
         Numerical numericalM0 = new Numerical("m0", timeTick, getLowIndex(m0Cdf), getUppIndex(m0Cdf), cutCDF(m0Cdf), approximator);
 
-        //ActivityViewer.plot(List.of("Vero", "Falso"), m0Analysis, numericalM0.analyze("3", timeTick.toString(), "0.001"));
+        ActivityViewer.plot("test", List.of("Vero", "Falso"), m0Analysis, numericalM0.analyze("3", timeTick.toString(), "0.001"));
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);

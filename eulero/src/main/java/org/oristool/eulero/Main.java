@@ -149,7 +149,7 @@ public class Main {
         TransientSolution<DeterministicEnablingState, RewardRate> after =
                 main.simulate("10", "0.1", 3000);
 
-        ActivityViewer.plot(List.of("Before", "After"), before, after);
+        ActivityViewer.plot("MAIN", List.of("Before", "After"), before, after);
 
 //        System.out.println(main.yamlRecursive());
 

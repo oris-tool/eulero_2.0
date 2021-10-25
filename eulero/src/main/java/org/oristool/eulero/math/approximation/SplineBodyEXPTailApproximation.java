@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class SplineBodyEXPTailApproximation extends Approximator {
     private int pieces;
+    private int scale = 4;
 
     public SplineBodyEXPTailApproximation(int pieces){
         this.pieces = pieces;
@@ -22,8 +23,8 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         int tukeysUpperBoundIndex = ApproximationHelpers.getQuartileBoundsIndices(cdf, low, upp).get("upp").intValue();
 
         double timeTick = step.doubleValue();
-        double[] x = new double[tukeysUpperBoundIndex];
-        for(int i = 0; i < tukeysUpperBoundIndex; i++){
+        double[] x = new double[tukeysUpperBoundIndex + 1];
+        for(int i = 0; i <= tukeysUpperBoundIndex; i++){
             x[i] = low + i * timeTick;
         }
 
@@ -32,16 +33,16 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
         for(int i = 0; i < this.pieces; i++){
             Map<String, BigDecimal> support = new HashMap<>();
-            support.put("start", BigDecimal.valueOf(x[i * pieceLength]));
+            support.put("start", BigDecimal.valueOf(x[i * pieceLength]).setScale(BigDecimal.valueOf(timeTick).scale(), RoundingMode.HALF_DOWN));
             support.put("end", BigDecimal.valueOf(
-                    i == this.pieces - 1 ? tukeysUpperBound.setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue() : x[(i + 1) * pieceLength]
-            ));
+                    i == this.pieces - 1 ? x[tukeysUpperBoundIndex] : x[(i + 1) * pieceLength]
+            ).setScale(BigDecimal.valueOf(timeTick).scale(), RoundingMode.HALF_DOWN));
 
             supports.put("body_" + i, support);
         }
 
         Map<String, BigDecimal> tailSupport = new HashMap<>();
-        tailSupport.put("start", tukeysUpperBound.setScale(step.scale(), RoundingMode.HALF_DOWN));
+        tailSupport.put("start", BigDecimal.valueOf(x[tukeysUpperBoundIndex]).setScale(BigDecimal.valueOf(timeTick).scale(), RoundingMode.HALF_DOWN));
         tailSupport.put("end", BigDecimal.valueOf(Double.MAX_VALUE));
         supports.put("tail", tailSupport);
 
@@ -59,7 +60,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
             Map<String, BigInteger> supportIndices = new HashMap<>();
             supportIndices.put("start", BigInteger.valueOf(i * pieceLength));
             supportIndices.put("end", BigInteger.valueOf(
-                    i == this.pieces - 1 ? tukeysUpperBoundIndex - 1 : (i + 1) * pieceLength
+                    i == this.pieces - 1 ? tukeysUpperBoundIndex : (i + 1) * pieceLength
             ));
 
             supports.put("body_" + i, supportIndices);
@@ -79,11 +80,26 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
         Map<String, Map<String, BigInteger>> supportIndices = getApproximationSupportIndices(cdf, low, upp);
 
+        double weightsSum = supportIndices.entrySet().stream().filter(t -> !t.getKey().equals("tail")).mapToDouble(t -> cdf[t.getValue().get("end").intValue()] - (t.getValue().get("start").intValue() - 1 < 0 ? 0 : cdf[t.getValue().get("start").intValue() - 1])).sum();
+
         supportIndices.forEach((name, support) -> {
             if(name.equals("tail")){
                 weights.put(name, BigDecimal.valueOf(0.25));
             } else {
-                weights.put(name, BigDecimal.valueOf(cdf[support.get("end").intValue()] - (support.get("start").intValue() - 1 < 0 ? 0 : cdf[support.get("start").intValue() - 1])));
+                weights.put(name, BigDecimal.valueOf(
+                        (cdf[support.get("end").intValue()] - (support.get("start").intValue() - 1 < 0 ? 0 : cdf[support.get("start").intValue() - 1]))
+                ));
+
+                /*double[] x = new double[cdf.length];
+                for(int i = 0; i < x.length; i++){
+                    x[i] = BigDecimal.valueOf(low + i * step.doubleValue()).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue();
+                }
+
+                double localArea = 0;
+                for (int j = support.get("start").intValue(); j <= support.get("end").intValue(); j++){
+                    localArea += cdf[j] * step.doubleValue();
+                }
+                weights.put(name, BigDecimal.valueOf(localArea));*/
             }
         });
 
@@ -97,6 +113,11 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         Map<String, Map<String, BigInteger>> approximationIndexedSupports = getApproximationSupportIndices(cdf, low, upp);
         Map<String, BigDecimal> weights = getApproximationSupportsWeight(cdf, low, upp, step);
         Map<String, Map<String, BigDecimal>> params = getApproximationParameters(cdf, low, upp, step);
+        double[] pdf = new double[cdf.length];
+
+        for(int i = 0; i < pdf.length; i++){
+            pdf[i] = (i != pdf.length - 1 ? (cdf[i+1] - cdf[i]) : cdf[i]) / step.doubleValue() ;
+        }
 
         params.forEach((name, parameters) -> {
             if(name.equals("tail")){
@@ -109,11 +130,10 @@ public class SplineBodyEXPTailApproximation extends Approximator {
                                 approximationSupports.get(name).get("end"),
                                 parameters.get("alpha"),
                                 weights.get(name),
-                                BigDecimal.valueOf(cdf[Math.max(approximationIndexedSupports.get(name).get("start").intValue() - 1, 0)])
+                                BigDecimal.valueOf(pdf[Math.max(approximationIndexedSupports.get(name).get("start").intValue(), 0)])
                         )
                 ));
             }
-
         });
 
         return setups;
@@ -127,8 +147,12 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
         double timeTick = step.doubleValue();
         double[] x = new double[cdf.length];
+        double[] pdf = new double[cdf.length];
         for(int i = 0; i < x.length; i++){
             x[i] = BigDecimal.valueOf(low + i * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue();
+        }
+        for(int i = 0; i < pdf.length; i++){
+            pdf[i] = (i != pdf.length - 1 ? (cdf[i+1] - cdf[i]) : 0) / timeTick ;
         }
 
         Map<String, Map<String, BigDecimal>> allParameters = new HashMap<>();
@@ -138,11 +162,10 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
             if(name.equals("tail")){
                 double tailLambda = Double.MAX_VALUE;
-                for(int i = indices.get("start").intValue() + 1; i < indices.get("end").intValue(); i++){
-                    double cdfValue = ((i != 0 ? cdf[i - 1] : cdf[i]) - (1 - supportWeight.get("tail").doubleValue())) / supportWeight.get("tail").doubleValue();
-                    cdfValue = (cdfValue < 0) ? 0 : BigDecimal.valueOf(cdfValue).setScale(3, RoundingMode.HALF_DOWN).doubleValue();
+                for(int i = indices.get("start").intValue() ; i < indices.get("end").intValue(); i++){
+                    double cdfValue = ((i != 0 ? cdf[i - 1] : cdf[i]) - (cdf[indices.get("start").intValue() - 1])) / 0.25;//supportWeight.get("tail").doubleValue();
                     //TODO Fixme
-                    if(cdfValue<1 && x[i]>= supportValues.get("tail").get("start").doubleValue()) {
+                    if(cdfValue>0 && cdfValue<1 && x[i]> supportValues.get("tail").get("start").doubleValue()) {
                         tailLambda = Math.min(
                                 tailLambda,
                                 -Math.log(1 - cdfValue) / (x[i] - supportValues.get("tail").get("start").doubleValue())
@@ -153,25 +176,27 @@ public class SplineBodyEXPTailApproximation extends Approximator {
                 allParameters.put(name, parameters);
 
             } else {
-                double localArea = 0;
+                double localArea = supportWeight.get(name).doubleValue();
                 double localMean = 0;
 
-                for (int j = indices.get("start").intValue(); j <= indices.get("end").intValue(); j++){
-                    localArea += cdf[j] * timeTick;
-                    localMean += cdf[j] * timeTick * x[j];
+                for (int j = indices.get("start").intValue(); j < indices.get("end").intValue(); j++){
+                    localMean += //((pdf[j] + pdf[j+1]) * timeTick / 2 ) * x[j + 1];
+                            (pdf[j] * timeTick) * x[j];
                 }
 
                 localMean = localMean/localArea;
 
-                double x1 = x[Math.max(indices.get("start").intValue()-1,0)];
+                double x1 = x[Math.max(indices.get("start").intValue(),0)];
                 double x2 = x[(indices.get("end").intValue())];
-                double f1 = cdf[indices.get("start").intValue()];
-                double h = x2 - x1;
-                double m = (Math.pow(x2, 3)/6 - Math.pow(x1, 3)/6  - (x1 * x2 * h)/2) / h;
-                double q = (Math.pow(x2, 3)/6 - Math.pow(x1, 3)/6  - (x1 * x2 * h)/2) * f1 / h -
-                        (Math.pow(x2, 3)/3 + Math.pow(x1, 3)/6  - (x1 * x2 * x2)/2) * (2 * localArea) / Math.pow(h, 2);
+                double f1 = pdf[Math.max(indices.get("start").intValue(),0)];
+                double f2 = pdf[Math.max(indices.get("end").intValue(),0)];
+                double h = BigDecimal.valueOf(x2 - x1).setScale(BigDecimal.valueOf(timeTick).scale(), RoundingMode.HALF_DOWN).doubleValue();
+                double m = (Math.pow(x1, 3)/6 - Math.pow(x2, 3)/6  + (x1 * x2 * h)/2) / (localArea * h);
+                double q = (Math.pow(x1, 3)/6 - Math.pow(x2, 3)/6  + (x1 * x2 * h)/2) * f1 / (localArea * h) /*-
+                        (Math.pow(x2, 3)/3 + Math.pow(x1, 3)/6  - (x1 * x2 * x2 / 2)) * f2 / (localArea * h)*/ +
+                        (Math.pow(x2, 3)/3 + Math.pow(x1, 3)/6  - (x1 * x2 * x2) / 2) * 2 / (h * h);
 
-                double alpha = (localMean * localArea - q) / m;
+                double alpha = (localMean - q) / m;
 
                 if(alpha < -f1){
                     alpha = -f1;

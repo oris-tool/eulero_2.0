@@ -13,11 +13,11 @@ import java.util.Arrays;
 
 public class Experimentation {
     public static void main(String[] args) {
-        String GTPathPrefix = System.getProperty("user.dir") + "/results/Test";
+        String GTPathPrefix = System.getProperty("user.dir") + "/results/XORSplineTest/Test";
         String GTCDF = "/CDF";
         String GTtimes = "/times";
         String GTPathSuffix = "/GroundTruth.txt";
-        Approximator approximator = new SplineBodyEXPTailApproximation(2);//new EXPMixtureApproximation();
+        Approximator approximator = new SplineBodyEXPTailApproximation(3);//new EXPMixtureApproximation();
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         BigDecimal timeLimit = BigDecimal.valueOf(8);
         BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
@@ -26,7 +26,7 @@ public class Experimentation {
         boolean save = true;
         boolean GTFromFile = true;
 
-        String[] testToRun = {"A", "B", "C", "D", "E", "F", "G","H"};
+        String[] testToRun = {/*"A", "B", "C", "D", "E",*/ "F",/* "G","H"*/};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){

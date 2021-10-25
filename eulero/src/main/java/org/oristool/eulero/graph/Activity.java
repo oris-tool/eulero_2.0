@@ -53,8 +53,10 @@ import org.oristool.util.Pair;
  * Represents a node in an activity DAG.
  */
 public abstract class Activity {
-    /*private BigDecimal low;
-    private BigDecimal upp;*/
+    private BigDecimal tMin;
+    private BigDecimal tMax;
+    private BigDecimal C;
+    private BigDecimal R;
     private List<Activity> pre = new ArrayList<>();
     private List<Activity> post = new ArrayList<>();
     private String name;
@@ -80,6 +82,34 @@ public abstract class Activity {
         this.pre = pre;
     }
     
+    /**
+     * @param tMin the postconditions to set
+     */
+    public void setTMin(BigDecimal tMin) {
+        this.tMin = tMin;
+    }
+
+    /**
+     * @param tMax the postconditions to set
+     */
+    public void setTMax(BigDecimal tMax) {
+        this.tMax = tMax;
+    }
+
+    /**
+     * @param R the postconditions to set
+     */
+    public void setR(BigDecimal R) {
+        this.R = R;
+    }
+
+    /**
+     * @param C the postconditions to set
+     */
+    public void setC(BigDecimal C) {
+        this.C = C;
+    }
+
     /**
      * @param post the postconditions to set
      */

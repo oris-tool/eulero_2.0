@@ -42,6 +42,10 @@ public class Analytical extends Activity {
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
         super(name);
+        setTMax(pdf.density().getDomainsLFT().bigDecimalValue());
+        setTMin(pdf.density().getDomainsEFT().bigDecimalValue());
+        setC(BigDecimal.ONE);
+        setR(BigDecimal.ONE);
         this.pdf = pdf;
         }
     

@@ -87,7 +87,7 @@ class PetriTest {
         
         System.out.println(t.petriArcs());
         
-        ActivityViewer.plot(List.of("Analysis", "Simulation"),
+        ActivityViewer.plot("SEQ-TEST", List.of("Analysis", "Simulation"),
                 t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
         Thread.sleep(30000);
     }
@@ -134,7 +134,7 @@ class PetriTest {
         System.out.println(t.petriArcs());
         System.out.println(CostEstimator.edgeCount(t.classGraph()));
         
-        ActivityViewer.plot(List.of("Analysis", "Simulation"),
+        ActivityViewer.plot("PETRI-TEST", List.of("Analysis", "Simulation"),
                 t.analyze("5", "0.01", "0.001"), t.simulate("5", "0.01", 10000));
         
         Thread.sleep(130000);
@@ -155,7 +155,7 @@ class PetriTest {
 
         Numerical activityApproximated = new Numerical("Appr", BigDecimal.valueOf(0.01), min, max, cutCdf);
         TransientSolution<DeterministicEnablingState, RewardRate> approximationSolution = activityApproximated.analyze("50", "0.01", "0.001");
-        ActivityViewer.plot(List.of("Original", "Approximation"), solution, approximationSolution);
+        ActivityViewer.plot("PETRI-TEST", List.of("Original", "Approximation"), solution, approximationSolution);
         Thread.sleep(20000);
     }
 
@@ -189,7 +189,7 @@ class PetriTest {
 
         Numerical activityApproximated = new Numerical("Appr", BigDecimal.valueOf(0.01), min, max, cutCdf);
         TransientSolution<DeterministicEnablingState, RewardRate> approximationSolution = activityApproximated.analyze("50", "0.01", "0.001");
-        ActivityViewer.plot(List.of("Original", "Approximation"), solution, approximationSolution);
+        ActivityViewer.plot("SEQ-TEST", List.of("Original", "Approximation"), solution, approximationSolution);
         Thread.sleep(20000);
     }
 }

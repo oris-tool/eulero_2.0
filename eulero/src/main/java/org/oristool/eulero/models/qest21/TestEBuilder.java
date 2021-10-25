@@ -3,6 +3,7 @@ package org.oristool.eulero.models.qest21;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
@@ -43,6 +44,7 @@ public class TestEBuilder extends ModelBuilder {
         }
 
         Numerical numericalP = new Numerical("p", timeTick, getLowIndex(pCdf), getUppIndex(pCdf), cutCDF(pCdf), approximator);
+        ActivityViewer.plot("P", List.of("Vero", "Falso"), pAnalysis, numericalP.analyze("3", timeTick.toString(), "0.001"));
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -65,6 +67,7 @@ public class TestEBuilder extends ModelBuilder {
         }
 
         Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
+        ActivityViewer.plot("M1", List.of("Vero", "Falso"), m1Analysis, numericalM1.analyze("3", timeTick.toString(), "0.001"));
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -87,6 +90,7 @@ public class TestEBuilder extends ModelBuilder {
         }
 
         Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
+        ActivityViewer.plot("M2", List.of("Vero", "Falso"), m2Analysis, numericalM2.analyze("3", timeTick.toString(), "0.001"));
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R'''", feature);
@@ -109,6 +113,7 @@ public class TestEBuilder extends ModelBuilder {
         }
 
         Numerical numericalM3 = new Numerical("m3", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
+        ActivityViewer.plot("M3", List.of("Vero", "Falso"), m3Analysis, numericalM3.analyze("3", timeTick.toString(), "0.001"));
 
         // Gestisco E
         Numerical oNumerical = Numerical.and(List.of(
@@ -128,7 +133,9 @@ public class TestEBuilder extends ModelBuilder {
 
         Repeat m = new Repeat("M", 0.2, numericalP);
         Analytical n = new Analytical("N", feature);
+        //Superfluo
         Numerical o = new Numerical("O", timeTick, oNumerical.min(), oNumerical.max(), oNumerical.getCdf(), approximator);
+        ActivityViewer.plot("O", List.of("Vero", "Falso"), oNumerical.analyze("3", timeTick.toString(), "0.001"), o.analyze("3", timeTick.toString(), "0.001"));
 
         Repeat e = new Repeat("E", 0.3,
             DAG.sequence("L", m, n, o)
@@ -141,6 +148,7 @@ public class TestEBuilder extends ModelBuilder {
         }
 
         Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
+        ActivityViewer.plot("E", List.of("Vero", "Falso"), eAnalysis, numericalE.analyze(timeBound.toString(), timeTick.toString(), "0.001"));
 
         Analytical f = new Analytical("F", feature);
         Analytical fBis = new Analytical("FBis", feature);
@@ -179,6 +187,10 @@ public class TestEBuilder extends ModelBuilder {
         for(int count = 0; count < main2Analysis.getSolution().length; count++){
             main2Cdf[count] = main2Analysis.getSolution()[count][0][0];
         }
+
+        ActivityViewer.plot("main1", List.of("Vero", "Falso"), main1Analysis, new Numerical("numericalM1", timeTick, getLowIndex(main1Cdf), getUppIndex(main1Cdf), cutCDF(main1Cdf), approximator).analyze(timeBound.toString(), timeTick.toString(), "0.001"));
+        ActivityViewer.plot("main2", List.of("Vero", "Falso"), main2Analysis, new Numerical("numericalM2", timeTick, getLowIndex(main2Cdf), getUppIndex(main2Cdf), cutCDF(main2Cdf), approximator).analyze(timeBound.toString(), timeTick.toString(), "0.001"));
+
 
         Numerical main = Numerical.and(List.of(
                 new Numerical("numericalM1", timeTick, getLowIndex(main1Cdf), getUppIndex(main1Cdf), cutCDF(main1Cdf), approximator),

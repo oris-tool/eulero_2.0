@@ -130,7 +130,7 @@ public class ActivityViewer extends JFrame {
      * @param transientSolutions transient solutions
      */
     @SafeVarargs
-    public static <R, S> void plot(List<String> stringList, TransientSolution<R, S>... transientSolutions) {
+    public static <R, S> void plot(String title, List<String> stringList, TransientSolution<R, S>... transientSolutions) {
 
         ActivityViewer v = new ActivityViewer();
         
@@ -150,7 +150,7 @@ public class ActivityViewer extends JFrame {
         tabs.add("CDF", cdf);
         tabs.add("PDF", pdf);
         
-        v.setTitle("Activity Viewer");
+        v.setTitle("Activity Viewer " + title);
         v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         v.add(tabs);
         v.pack();

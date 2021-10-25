@@ -60,6 +60,10 @@ public class Numerical extends Activity {
         this.min = min;
         this.max = max;
         this.cdf = cdf;
+        setTMax(BigDecimal.valueOf(step.doubleValue() * min));
+        setTMin(BigDecimal.valueOf(step.doubleValue() * min));
+        setC(BigDecimal.ONE);
+        setR(BigDecimal.ONE);
         this.approximator = approximator;
     }
 
