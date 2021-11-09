@@ -30,7 +30,6 @@ import org.apache.commons.math3.distribution.GammaDistribution;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
-import org.oristool.eulero.math.approximation.SplineBodyEXPTailApproximation;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -60,8 +59,8 @@ public class Numerical extends Activity {
         this.min = min;
         this.max = max;
         this.cdf = cdf;
-        setTMax(BigDecimal.valueOf(step.doubleValue() * min));
-        setTMin(BigDecimal.valueOf(step.doubleValue() * min));
+        setEFT(BigDecimal.valueOf(step.doubleValue() * min));
+        setLFT(BigDecimal.valueOf(step.doubleValue() * min));
         setC(BigDecimal.ONE);
         setR(BigDecimal.ONE);
         this.approximator = approximator;
@@ -111,6 +110,11 @@ public class Numerical extends Activity {
     @Override
     public BigDecimal upp() {
         return step().multiply(BigDecimal.valueOf(max()));
+    }
+
+    @Override
+    public boolean isWellNested() {
+        return true;
     }
 
     public double CDF(int time) {

@@ -10,9 +10,7 @@ import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class TestABuilder extends ModelBuilder {
     public TestABuilder(StochasticTransitionFeature feature, Approximator approximator){

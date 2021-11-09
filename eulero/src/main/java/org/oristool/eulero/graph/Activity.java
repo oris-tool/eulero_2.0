@@ -53,13 +53,14 @@ import org.oristool.util.Pair;
  * Represents a node in an activity DAG.
  */
 public abstract class Activity {
-    private BigDecimal tMin;
-    private BigDecimal tMax;
+    private BigDecimal EFT;
+    private BigDecimal LFT;
     private BigDecimal C;
     private BigDecimal R;
     private List<Activity> pre = new ArrayList<>();
     private List<Activity> post = new ArrayList<>();
     private String name;
+    private double[] numericalCDF; // Rappresentazione numerica su tutto il dominio della cdf
     
     /**
      * The activities that this activity directly depends on.
@@ -81,34 +82,6 @@ public abstract class Activity {
     public void setPre(List<Activity> pre) {
         this.pre = pre;
     }
-    
-    /**
-     * @param tMin the postconditions to set
-     */
-    public void setTMin(BigDecimal tMin) {
-        this.tMin = tMin;
-    }
-
-    /**
-     * @param tMax the postconditions to set
-     */
-    public void setTMax(BigDecimal tMax) {
-        this.tMax = tMax;
-    }
-
-    /**
-     * @param R the postconditions to set
-     */
-    public void setR(BigDecimal R) {
-        this.R = R;
-    }
-
-    /**
-     * @param C the postconditions to set
-     */
-    public void setC(BigDecimal C) {
-        this.C = C;
-    }
 
     /**
      * @param post the postconditions to set
@@ -122,6 +95,38 @@ public abstract class Activity {
      */
     public final String name() {
         return name;
+    }
+
+    public BigDecimal EFT() {
+        return EFT;
+    }
+
+    public BigDecimal LFT() {
+        return LFT;
+    }
+
+    public BigDecimal C() {
+        return C;
+    }
+
+    public BigDecimal R() {
+        return R;
+    }
+
+    public void setEFT(BigDecimal EFT) {
+        this.EFT = EFT;
+    }
+
+    public void setLFT(BigDecimal LFT) {
+        this.LFT = LFT;
+    }
+
+    public void setC(BigDecimal C) {
+        this.C = C;
+    }
+
+    public void setR(BigDecimal R) {
+        this.R = R;
     }
 
     /** Activities that are part of this one */
@@ -359,8 +364,8 @@ public abstract class Activity {
     /**
      * Adds the activity as an STPN transition.
      * 
-     * @param petriNet STPN where the activity is added
-     * @param priority initial priority of the transitions of this activity 
+     * @param pn STPN where the activity is added
+     * @param prio initial priority of the transitions of this activity
      * @return next priority level for the rest of the network
      */
     public abstract int addPetriBlock(PetriNet pn, Place in, Place out, int prio);
@@ -368,6 +373,22 @@ public abstract class Activity {
     public abstract BigDecimal low();
 
     public abstract BigDecimal upp();
+
+    public abstract boolean isWellNested();
+
+    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step){
+        //Tutto il DAG funziona, anche grazie all'attributo StochasticFeature; se lo tolgo, occorre definire la ContinuousDistribution IMM, e non mi piace.
+        // Sarebbe bello se SIRIO riuscisse a valutare le stringhe per la calsse Analytical --> TODO Da chiedere
+        // Per ora facciamo ritornare analisi transiente del blocco filtrata.
+        TransientSolution<DeterministicEnablingState, RewardRate> solution = this.analyze(timeLimit.toString(), step.toString(), String.valueOf(Math.pow(10, -step.scale())));
+        //double[] numericalSolution = new double[solution.getSolution().length - this.EFT.divide(step).intValue()]; // questo dovrebbe beccare la soluzione nel suo supporto, rimuovendo gli zero a sx
+        double[] numericalSolution = new double[solution.getSolution().length];
+        for(int i = this.EFT.divide(step).intValue(); i < solution.getSolution().length; i++){
+            //numericalSolution[i - this.EFT.divide(step).intValue()] = solution.getSolution()[i][0][0];
+            numericalSolution[i] = solution.getSolution()[i][0][0];
+        }
+        return numericalSolution;
+    }
     
     /**
      * Returns a string representation of the preconditions and postconditions 

@@ -600,6 +600,17 @@ public class MainHelper {
             this.step = step;
         }
 
+        public ResultWrapper(TransientSolution<DeterministicEnablingState, RewardRate> solution, int min, int max, double step){
+            double[] cdf = new double[solution.getSolution().length];
+            for(int count = 0; count < solution.getSolution().length; count++){
+                cdf[count] = solution.getSolution()[count][0][0];
+            }
+            this.cdf = cdf;
+            this.min = min;
+            this.max = max;
+            this.step = step;
+        }
+
         public double[] getCdf() {
             return cdf;
         }

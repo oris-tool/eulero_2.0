@@ -1,13 +1,20 @@
 package org.oristool.eulero.math.approximation;
 
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
+import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.oristool.eulero.math.distribution.continuous.ShiftedExponentialDistribution;
 import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
+import org.oristool.math.OmegaBigDecimal;
+import org.oristool.math.function.GEN;
+import org.oristool.math.function.PartitionedGEN;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -174,6 +181,109 @@ public class EXPMixtureApproximation extends Approximator {
                 Map.entry("body", bodyParameters),
                 Map.entry("tail", tailParameters)
         );
+    }
+
+    @Override
+    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+        if(cdf.length < (upp - low)/step.doubleValue()){
+            throw new RuntimeException("cdf has enpugh samples with respect to provided support and time step value");
+        }
+        // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
+        ArrayList<GEN> distributionPieces = new ArrayList<>();
+        NewtonRaphsonSolver zeroSolver = new NewtonRaphsonSolver();
+
+        int Q3Index = IntStream.range(0, cdf.length)
+                .filter(i -> cdf[i] >= 0.75)
+                .findFirst()
+                .orElse(cdf.length - 1);
+
+        double Q3 = /*low +*/ Q3Index * step.doubleValue();
+        double timeTick = step.doubleValue();
+
+        double[] pdf = new double[cdf.length];
+        double[] x = new double[cdf.length];
+        for(int i = 0; i < cdf.length - 1; i++){
+            pdf[i + 1] = (cdf[i+1] - cdf[i]) / timeTick;
+            x[i] = /*low +*/ i * timeTick;
+        }
+
+        double pdfMax = Arrays.stream(pdf, 0, Q3Index).max().getAsDouble();
+        int xMaxIndex = IntStream.range(0, Q3Index)
+                .filter(i ->  pdf[i] == pdfMax)
+                .findFirst() // first occurrence
+                .orElse(-1);
+        double xMax = /*low +*/ timeTick * xMaxIndex;
+        double cdfMax = cdf[xMaxIndex];
+
+        double delta = (pdfMax * xMax - cdfMax) / pdfMax;
+
+        int deltaIndex = IntStream.range(0, Q3Index)
+                .filter(i ->  x[i] >= delta)
+                .findFirst() // first occurrence
+                .orElse(-1);
+
+        // Body
+        double bodyLambda = Double.MAX_VALUE;
+
+        double[] test = new double[cdf.length];
+        for(int i = deltaIndex; i < Q3Index; i++){
+            double cdfValue = cdf[i] / cdf[Q3Index];
+            test[i] = cdfValue;
+            bodyLambda = Math.min(
+                    bodyLambda,
+                    zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
+                        private double delta;
+                        private double b;
+                        private double time;
+                        private double histogram;
+
+                        @Override
+                        public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
+                            // t should be our lambda
+                            DerivativeStructure p = t.multiply(delta - time).expm1();
+                            DerivativeStructure q = t.multiply(delta - b).expm1();
+
+                            return p.divide(q).subtract(histogram);
+                        }
+
+                        @Override
+                        public double value(double x) {
+                            // Here x is the lambda of the function
+                            return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
+                        }
+
+                        public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram){
+                            this.delta = delta;
+                            this.b = b;
+                            this.time = time;
+                            this.histogram = histogram;
+                            return this;
+                        }
+                    }.init(delta, Q3, x[i], cdfValue), 0.0001)
+            );
+        }
+
+        String bodyDensity = cdf[Q3Index] * bodyLambda * Math.exp(bodyLambda * delta) + " * Exp[-" + bodyLambda + " x]";
+        distributionPieces.add(GEN.newExpolynomial(bodyDensity, new OmegaBigDecimal(String.valueOf(delta)), new OmegaBigDecimal(String.valueOf(Q3))));
+
+        //tail
+        double tailLambda = Double.MAX_VALUE;
+        for(int i = Q3Index ; i < cdf.length; i++){
+            double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
+
+            //Discard bad conditioned values
+            if(cdfValue > 0  &&  cdfValue < 1 && /*low +*/ (i * step.doubleValue()) > Q3) {
+                tailLambda = Math.min(
+                        tailLambda,
+                        -Math.log(1 - cdfValue) / (/*low +*/ (i * step.doubleValue()) - Q3)
+                );
+            }
+        }
+
+        String tailDensity = (1 - cdf[Q3Index]) * tailLambda * Math.exp(tailLambda * Q3) + " * Exp[-" + tailLambda + " x]";
+        distributionPieces.add(GEN.newExpolynomial(tailDensity, new OmegaBigDecimal(String.valueOf(Q3)), OmegaBigDecimal.POSITIVE_INFINITY));
+
+        return StochasticTransitionFeature.of(new PartitionedGEN(distributionPieces));
     }
 
     /*public Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp){

@@ -20,6 +20,7 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
@@ -34,20 +35,33 @@ import org.oristool.petrinet.Transition;
  * Activity with an analytical CDF.
  */
 public class Analytical extends Activity {
-    
+
     private StochasticTransitionFeature pdf;
-    
+
     /**
      * Creates an activity with analytical PDF. 
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
         super(name);
-        setTMax(pdf.density().getDomainsLFT().bigDecimalValue());
-        setTMin(pdf.density().getDomainsEFT().bigDecimalValue());
+        setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
+        setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigDecimal.ONE);
         setR(BigDecimal.ONE);
         this.pdf = pdf;
-        }
+    }
+
+    public Analytical(String name, ContinuousDistribution distribution) {
+        super(name);
+        this.pdf = StochasticTransitionFeature.newExpolynomial(
+                distribution.getExpolynomialDensityString(),
+                new OmegaBigDecimal(distribution.getLow()),
+                new OmegaBigDecimal(distribution.getUpp())
+        );
+        setEFT(pdf.density().getDomainsLFT().bigDecimalValue());
+        setLFT(pdf.density().getDomainsEFT().bigDecimalValue());
+        setC(BigDecimal.ONE);
+        setR(BigDecimal.ONE);
+    }
     
     @Override
     public Analytical copyRecursive(String suffix) {
@@ -73,17 +87,17 @@ public class Analytical extends Activity {
     }
     
     public static Analytical uniform(String name, BigDecimal a, BigDecimal b) {
-        return new Analytical(name, 
+        return new Analytical(name,
                 StochasticTransitionFeature.newUniformInstance(a, b));
     }
 
     public static Analytical exp(String name, BigDecimal lambda) {
-        return new Analytical(name, 
+        return new Analytical(name,
                 StochasticTransitionFeature.newExponentialInstance(lambda));
     }
 
     public static Analytical erlang(String name, int k, BigDecimal lambda) {
-        return new Analytical(name, 
+        return new Analytical(name,
                 StochasticTransitionFeature.newErlangInstance(k, lambda));
     }
     
@@ -98,12 +112,18 @@ public class Analytical extends Activity {
     }
 
     @Override
+    public boolean isWellNested() {
+        return true;
+    }
+
+    // Forse qui si può sfruttare direttamente EFT e LFT, bisogna capire come si calcolano sugli altri a livelli superiori.
+    @Override
     public BigDecimal low() {
-        return pdf.density().getDomainsEFT().bigDecimalValue();
+        return this.EFT();
     }
 
     @Override
     public BigDecimal upp() {
-        return pdf.density().getDomainsLFT().bigDecimalValue();
+        return this.LFT();
     }
 }

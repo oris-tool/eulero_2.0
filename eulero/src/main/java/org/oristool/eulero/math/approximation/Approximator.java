@@ -1,6 +1,7 @@
 package org.oristool.eulero.math.approximation;
 
 import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,6 +24,8 @@ public abstract class Approximator {
     public abstract Map<String, ApproximationSupportSetup> getApproximationSupportSetups(double[] cdf, double low, double upp, BigDecimal step);
 
     public abstract Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp, BigDecimal step);
+
+    public abstract StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step);
 
     public static class ApproximationSupportSetup {
         private final BigDecimal weight;

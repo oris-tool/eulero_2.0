@@ -24,11 +24,15 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
+import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.eulero.solver.CostEstimator;
 import org.oristool.eulero.ui.ActivityViewer;
+import org.oristool.math.OmegaBigDecimal;
+import org.oristool.math.function.GEN;
+import org.oristool.math.function.PartitionedGEN;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.TransientSolutionViewer;
@@ -162,7 +166,10 @@ class PetriTest {
     @Test
     void TestRepetitionApproximation() throws InterruptedException {
         StochasticTransitionFeature unif0_10 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(10));
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(8));
+
+        StochasticTransitionFeature unif2_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(10));
 
         StochasticTransitionFeature erl =
                 StochasticTransitionFeature.newErlangInstance(2, BigDecimal.valueOf(0.2));
@@ -173,7 +180,7 @@ class PetriTest {
                     new Analytical("U2", unif0_10),
                     new Analytical("U3", unif0_10)
                 ),
-                new Analytical("E1", erl)
+                new Analytical("E1", unif2_10)
         );
         Repeat e = new Repeat("REP", 0.2, dag);
 
@@ -190,6 +197,72 @@ class PetriTest {
         Numerical activityApproximated = new Numerical("Appr", BigDecimal.valueOf(0.01), min, max, cutCdf);
         TransientSolution<DeterministicEnablingState, RewardRate> approximationSolution = activityApproximated.analyze("50", "0.01", "0.001");
         ActivityViewer.plot("SEQ-TEST", List.of("Original", "Approximation"), solution, approximationSolution);
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestSEQNumericalAnalysis() throws InterruptedException {
+        BigDecimal step = BigDecimal.valueOf(0.01);
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(3));
+
+        StochasticTransitionFeature unif2_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(0), BigDecimal.valueOf(4));
+
+        DAG dag = DAG.sequence("DAG",
+                new Analytical("U1", unif0_10),
+                new Analytical("E1", unif2_10)
+        );
+
+        MainHelper.ResultWrapper test1 = new MainHelper.ResultWrapper(dag.getNumericalCDF(BigDecimal.valueOf(10), step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        MainHelper.ResultWrapper test2 = new MainHelper.ResultWrapper(dag.analyze("10", step.toString(), "0.01"), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        ActivityViewer.CompareResults("SEQ-TEST", false, "", List.of("NumericalEvaluation", "AnalysisEvaluation"), test1, test2);
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestANDNumericalAnalysis() throws InterruptedException {
+        BigDecimal step = BigDecimal.valueOf(0.01);
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(8));
+
+        StochasticTransitionFeature unif2_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(10));
+
+        DAG dag = DAG.forkJoin("DAG",
+                new Analytical("U1", unif0_10),
+                new Analytical("E1", unif2_10)
+        );
+
+        MainHelper.ResultWrapper test1 = new MainHelper.ResultWrapper(dag.getNumericalCDF(BigDecimal.valueOf(14), step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        MainHelper.ResultWrapper test2 = new MainHelper.ResultWrapper(dag.analyze("14", step.toString(), "0.01"), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        ActivityViewer.CompareResults("AND-TEST", false, "", List.of("NumericalEvaluation", "AnalysisEvaluation"), test1, test2);
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestXORNumericalAnalysis() throws InterruptedException {
+        BigDecimal step = BigDecimal.valueOf(0.01);
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(8));
+
+        StochasticTransitionFeature unif2_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(10));
+
+        Xor xor = new Xor(
+            "Xor",
+            List.of(
+                new Analytical("U1", unif0_10),
+                new Analytical("E1", unif2_10)
+            ),
+            List.of(0.3, 0.7)
+        );
+
+        double[] we = xor.getNumericalCDF(BigDecimal.valueOf(14), step);
+
+        MainHelper.ResultWrapper test1 = new MainHelper.ResultWrapper(we, xor.EFT().divide(step).intValue(), xor.LFT().divide(step).intValue(), step.doubleValue());
+        MainHelper.ResultWrapper test2 = new MainHelper.ResultWrapper(xor.analyze("14", step.toString(), "0.01"), xor.EFT().divide(step).intValue(), xor.LFT().divide(step).intValue(), step.doubleValue());
+        ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("NumericalEvaluation", "AnalysisEvaluation"), test1, test2);
         Thread.sleep(20000);
     }
 }

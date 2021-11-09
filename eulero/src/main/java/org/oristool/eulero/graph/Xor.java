@@ -19,6 +19,8 @@ package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +42,14 @@ public class Xor extends Activity {
         super(name);
         if (alternatives.size() != probs.size())
             throw new IllegalArgumentException("Each alternative must have one probability");
+
+        setEFT(alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
+        setLFT(alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
+        setC(alternatives.stream().max(Comparator.comparing(Activity::C)).get().C());
+        setR(alternatives.stream().max(Comparator.comparing(Activity::R)).get().R());
         this.probs = probs;
         this.alternatives = alternatives;
+
     }
 
     @Override
@@ -125,11 +133,37 @@ public class Xor extends Activity {
 
     @Override
     public BigDecimal low() {
-        return alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low();
+        return this.EFT();
     }
 
     @Override
     public BigDecimal upp() {
-        return alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp();
+        return this.LFT();
+    }
+
+    @Override
+    public boolean isWellNested() {
+        boolean isWellNested = true;
+        for (Activity block: this.alternatives()) {
+            isWellNested = isWellNested && block.isWellNested();
+        }
+        return isWellNested;
+    }
+
+    @Override
+    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
+        double[] cdf = new double[timeLimit.divide(step).intValue() + 1];
+
+        for (Activity activity: this.alternatives()) {
+            double[] activityCDF = activity.getNumericalCDF(timeLimit, step);
+            double prob = probs.get(alternatives.indexOf(activity));
+
+            for (int x = 0; x < cdf.length; x++) {
+                // CDF of max is F(x)*G(x)
+                cdf[x] += prob * activityCDF[x];
+            }
+        }
+
+        return cdf;
     }
 }

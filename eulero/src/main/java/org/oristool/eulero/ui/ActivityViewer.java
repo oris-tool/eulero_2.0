@@ -210,7 +210,7 @@ public class ActivityViewer extends JFrame {
         double[][] cdfs = new double[results.length][];
         double[][] pdfs = new double[results.length][];
         double step = results[0].getStep();
-        double upper = results[0].getMax() * step;
+        double upper = results[0].getPdf().length * step;
 
         List<String> labels = new ArrayList<>();
         for (int i = 0; i < results.length; i++) {

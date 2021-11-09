@@ -18,18 +18,13 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.RewardRate;
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -57,14 +52,14 @@ public class DAG extends Activity {
         if (activities.length == 0)
             throw new IllegalArgumentException("Sequence cannot be empty");        
 
-        double low = 0;
+        /*double low = 0;
         double upp = 0;
         for(Activity activity: activities){
             low += activity.low().doubleValue();
             upp += activity.upp().doubleValue();
-        }
+        }*/
 
-        DAG dag = new DAG(name);
+        DAG dag = new SEQ(name, Arrays.asList(activities));
         
         Activity prev = dag.begin();
         for (Activity a : activities) {
@@ -73,7 +68,10 @@ public class DAG extends Activity {
         }
         
         dag.end().addPrecondition(prev);
-        
+
+        dag.setEFT(dag.low());
+        dag.setLFT(dag.upp());
+        //TODO set C e set R
         return dag;
     }
 
@@ -93,17 +91,20 @@ public class DAG extends Activity {
             upp = Math.max(upp, activity.upp().doubleValue());
         }
 
-        DAG dag = new DAG(name);
+        DAG dag = new AND(name, Arrays.asList(activities));
         
         for (Activity a : activities) {
             a.addPrecondition(dag.begin());
             dag.end().addPrecondition(a);
         }
+
+        dag.setEFT(dag.low());
+        dag.setLFT(dag.upp());
         
         return dag;
     }
 
-    private DAG(String name) {  // force use of static methods
+    protected DAG(String name) {  // force use of static methods
         super(name);
         this.begin = new Analytical(name + "_BEGIN", 
                 StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
@@ -454,8 +455,6 @@ public class DAG extends Activity {
      * @return       a DAG with duplicated activities between "from" and "to"
      */
     public DAG copyRecursive(Activity begin, Activity end, String suffix) {
-        
-
         DAG copy = new DAG(this.name() + suffix);
         Map<Activity, Activity> nodeCopies = new HashMap<>();
 
@@ -504,7 +503,7 @@ public class DAG extends Activity {
      * 
      * @param begin          initial activity 
      * @param end            final activity
-     * @param removedShared  whether to remove nodes also reachable without end
+     * @param removeShared  whether to remove nodes also reachable without end
      */
     public void removeBetween(Activity begin, Activity end, boolean removeShared) {
         
@@ -570,6 +569,11 @@ public class DAG extends Activity {
     @Override
     public BigDecimal upp() {
         return getSupportUpperBound(this.end);
+    }
+
+    @Override
+    public boolean isWellNested() {
+        return false;
     }
 
     public BigDecimal getSupportLowerBound(Activity activity){
