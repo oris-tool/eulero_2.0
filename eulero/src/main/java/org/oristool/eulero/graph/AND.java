@@ -11,8 +11,9 @@ public class AND extends DAG {
         super(name);
         setEFT(this.low());
         setLFT(this.upp());
-        setC(BigDecimal.valueOf(activities.stream().mapToDouble(act -> act.C().doubleValue()).sum()));
-        setR(BigDecimal.valueOf(activities.stream().mapToDouble(act -> act.R().doubleValue()).sum()));
+        //setC(activities.stream().mapToInt(act -> act.C()).sum());
+        //setC(activities.stream().mapToInt(Activity::C).sum());
+        //setR(activities.stream().mapToInt(Activity::R).sum());
         this.activities = activities;
         // Forse si dovrebbe trovare un modo per init EFT, LFT, C, R; per ora è fatto in quello statico. Se avessi il costruttore privato, forzerei quello statico e allora andrebbe bene.
     }
@@ -30,7 +31,7 @@ public class AND extends DAG {
         return isWellNested;
     }
 
-    @Override
+    /*@Override
     public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
         double[] cdf = activities.get(0).getNumericalCDF(timeLimit, step);
 
@@ -43,6 +44,6 @@ public class AND extends DAG {
             }
         }
         return cdf;
-    }
+    }*/
 }
 

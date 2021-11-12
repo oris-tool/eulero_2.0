@@ -34,7 +34,7 @@ public class SimulationActivity extends Activity{
     }
 
     @Override
-    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         PetriBlockHelper.petriBlockWithHistogramFeatureFromSetups(this.name(), pn, in, out, prio, histogram);
         return prio + 1;
     }

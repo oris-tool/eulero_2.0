@@ -10,8 +10,8 @@ public class SEQ extends DAG{
         super(name);
         setEFT(this.low());
         setLFT(this.upp());
-        setC(activities.stream().max(Comparator.comparing(Activity::C)).get().C());
-        setR(activities.stream().max(Comparator.comparing(Activity::R)).get().R());
+        //setC(activities.stream().max(Comparator.comparing(Activity::C)).get().C());
+        //setR(activities.stream().max(Comparator.comparing(Activity::R)).get().R());
         this.activities = activities;
     }
 
@@ -28,7 +28,7 @@ public class SEQ extends DAG{
         return isWellNested;
     }
 
-    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
+    /*public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
         if(!this.isWellNested()){
             throw new RuntimeException("Block is not well-nested...");
         }
@@ -54,5 +54,5 @@ public class SEQ extends DAG{
         }
 
         return cdf;
-    }
+    }*/
 }

@@ -18,6 +18,7 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
@@ -26,7 +27,13 @@ import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
 import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.RewardRate;
+import org.oristool.models.stpn.TransientSolution;
+import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.models.tpn.ConcurrencyTransitionFeature;
+import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
+import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
@@ -45,11 +52,14 @@ public class Analytical extends Activity {
         super(name);
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
-        setC(BigDecimal.ONE);
-        setR(BigDecimal.ONE);
+        setC(BigInteger.ONE);
+        setR(BigInteger.ONE);
+        setSimplifiedC(BigInteger.ONE);
+        setSimplifiedR(BigInteger.ONE);
         this.pdf = pdf;
     }
 
+    // TODO cancellare?
     public Analytical(String name, ContinuousDistribution distribution) {
         super(name);
         this.pdf = StochasticTransitionFeature.newExpolynomial(
@@ -59,15 +69,21 @@ public class Analytical extends Activity {
         );
         setEFT(pdf.density().getDomainsLFT().bigDecimalValue());
         setLFT(pdf.density().getDomainsEFT().bigDecimalValue());
-        setC(BigDecimal.ONE);
-        setR(BigDecimal.ONE);
+        setC(BigInteger.ONE);
+        setR(BigInteger.ONE);
+        setSimplifiedC(BigInteger.ONE);
+        setSimplifiedR(BigInteger.ONE);
     }
     
     @Override
     public Analytical copyRecursive(String suffix) {
         return new Analytical(this.name() + suffix, this.pdf());
     }
-    
+
+    @Override
+    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int priority) {}
+
+
     public StochasticTransitionFeature pdf() {
         return pdf;
     }
@@ -100,9 +116,18 @@ public class Analytical extends Activity {
         return new Analytical(name,
                 StochasticTransitionFeature.newErlangInstance(k, lambda));
     }
+
+    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step){
+        TransientSolution<DeterministicEnablingState, RewardRate> analysisSolution = this.analyze(timeLimit.toString(), step.toString(), step.toString());
+        double[] cdf = new double[analysisSolution.getSolution().length];
+        for(int i = 0; i < cdf.length; i++){
+            cdf[i] = analysisSolution.getSolution()[i][0][0];
+        }
+        return cdf;
+    }
     
     @Override
-    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Transition t = pn.addTransition(this.name());
         t.addFeature(new Priority(prio));
         t.addFeature(pdf);

@@ -199,8 +199,8 @@ class PetriTest {
         ActivityViewer.plot("SEQ-TEST", List.of("Original", "Approximation"), solution, approximationSolution);
         Thread.sleep(20000);
     }
-
-    @Test
+    //TODO rimuovere
+    /*@Test
     void TestSEQNumericalAnalysis() throws InterruptedException {
         BigDecimal step = BigDecimal.valueOf(0.01);
         StochasticTransitionFeature unif0_10 =
@@ -264,5 +264,5 @@ class PetriTest {
         MainHelper.ResultWrapper test2 = new MainHelper.ResultWrapper(xor.analyze("14", step.toString(), "0.01"), xor.EFT().divide(step).intValue(), xor.LFT().divide(step).intValue(), step.doubleValue());
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("NumericalEvaluation", "AnalysisEvaluation"), test1, test2);
         Thread.sleep(20000);
-    }
+    }*/
 }

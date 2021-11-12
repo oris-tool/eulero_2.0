@@ -13,6 +13,7 @@ import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 class AnalysisHeuristic1Test {
@@ -24,8 +25,8 @@ class AnalysisHeuristic1Test {
         BigDecimal error = BigDecimal.valueOf(0.1);
         int simulationRuns = 20000;
 
-        BigDecimal C =  BigDecimal.valueOf(3);
-        BigDecimal R =  BigDecimal.valueOf(10);
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
@@ -72,8 +73,8 @@ class AnalysisHeuristic1Test {
         BigDecimal error = BigDecimal.valueOf(0.1);
         int simulationRuns = 20000;
 
-        BigDecimal C =  BigDecimal.valueOf(3);
-        BigDecimal R =  BigDecimal.valueOf(10);
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
@@ -128,8 +129,8 @@ class AnalysisHeuristic1Test {
         BigDecimal step = BigDecimal.valueOf(0.01);
         int simulationRuns = 20000;
 
-        BigDecimal C =  BigDecimal.valueOf(3);
-        BigDecimal R =  BigDecimal.valueOf(10);
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         //Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
@@ -176,4 +177,9 @@ class AnalysisHeuristic1Test {
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
+
+
+
+    // TODO add DAG test;
+    // TODO check also R, SimplifiedR, SimplifiedC
 }

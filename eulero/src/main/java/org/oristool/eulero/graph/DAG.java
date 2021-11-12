@@ -22,10 +22,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.oristool.models.pn.Priority;
-import org.oristool.models.stpn.RewardRate;
-import org.oristool.models.stpn.TransientSolution;
-import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.models.tpn.ConcurrencyTransitionFeature;
+import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
+import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
@@ -52,13 +52,6 @@ public class DAG extends Activity {
         if (activities.length == 0)
             throw new IllegalArgumentException("Sequence cannot be empty");        
 
-        /*double low = 0;
-        double upp = 0;
-        for(Activity activity: activities){
-            low += activity.low().doubleValue();
-            upp += activity.upp().doubleValue();
-        }*/
-
         DAG dag = new SEQ(name, Arrays.asList(activities));
         
         Activity prev = dag.begin();
@@ -71,7 +64,7 @@ public class DAG extends Activity {
 
         dag.setEFT(dag.low());
         dag.setLFT(dag.upp());
-        //TODO set C e set R
+
         return dag;
     }
 
@@ -114,6 +107,141 @@ public class DAG extends Activity {
     
     @Override public DAG copyRecursive(String suffix) {
         return copyRecursive(begin(), end(), suffix);
+    }
+
+    @Override
+    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio) {
+        Map<Activity, Place> actOut = new LinkedHashMap<>();
+        Map<Activity, Transition> actPost = new LinkedHashMap<>();
+        Map<Activity, Transition> actPre = new LinkedHashMap<>();
+        Map<Activity, Place> actIn = new LinkedHashMap<>();
+        List<Activity> act = new ArrayList<>();
+        int[] priority = new int[] { prio };
+        //int[] priority = new int[] { prio };  // to access in closure
+
+        boolean useBegin = begin().post().size() > 1;
+        boolean useEnd = end().pre().size() > 1;
+
+        this.end().dfs(true, new DFSObserver() {
+            @Override public boolean onSkip(Activity opened, Activity from) {
+                return onOpenOrSkip(opened, from);
+            }
+
+            @Override public boolean onOpen(Activity opened, Activity from) {
+                return onOpenOrSkip(opened, from);
+            }
+
+            private boolean onOpenOrSkip(Activity opened, Activity from) {
+                if (opened.equals(begin()) && from.equals(end())) {
+                    throw new IllegalStateException("Empty DAG");
+                }
+
+                if (!act.contains(opened)) {
+                    // will be in visit order (END to BEGIN)
+                    act.add(opened);
+                }
+
+                if (from == null) {
+                    return true;  // END is not a real dependency, continue
+                }
+
+                // general structure:
+
+                // [OPENED]    ->  (pOPENED_out)  -> [OPENED_POST]
+                //             ->  (pOPENED_FROM) ->
+                // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
+
+                if (!actOut.containsKey(opened)) {
+                    Place openedOut = opened.equals(begin()) && useBegin ? in :
+                            pn.addPlace("p" + opened + "_out");  // add pOPENED_out
+                    actOut.put(opened, openedOut);
+
+                    if (opened.post().size() > 1) {  // add pOPENED_out, OPENED_POST
+                        Transition openedPost = pn.addTransition(opened + "_POST");
+                        openedPost.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+                        openedPost.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+                        openedPost.addFeature(new Priority(priority[0]++));
+                        pn.addPrecondition(openedOut, openedPost);
+                        actPost.put(opened, openedPost);
+                    }
+                }
+
+                if (!actIn.containsKey(from)) {
+                    Place fromIn = from.equals(end()) && useEnd ? out :
+                            pn.addPlace("p" + from + "_in");  // add pFROM_in
+                    actIn.put(from, fromIn);
+
+                    if (from.pre().size() > 1) {  // add FROM_PRE, pFROM_in
+                        Transition fromPre = pn.addTransition(from + "_PRE");
+                        fromPre.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+                        fromPre.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+                        fromPre.addFeature(new Priority(priority[0]++));
+                        pn.addPostcondition(fromPre, fromIn);
+                        actPre.put(from, fromPre);
+                    }
+                }
+
+                if (opened.post().size() > 1 && from.pre().size() > 1) {  // use intermediate pOPENED_FROM
+                    Transition openedPost = actPost.get(opened);
+                    Transition fromPre = actPre.get(from);
+                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                    pn.addPostcondition(openedPost, openedFrom);
+                    pn.addPrecondition(openedFrom, fromPre);
+
+                } else if (opened.post().size() > 1) {  // add token directly to fromIn
+                    Transition openedPost = actPost.get(opened);
+                    Place fromIn = actIn.get(from);
+                    pn.addPostcondition(openedPost, fromIn);
+
+                } else if (from.pre().size() > 1) {  // take token directly from openedOut
+                    Place openedOut = actOut.get(opened);
+                    Transition fromPre = actPre.get(from);
+                    pn.addPrecondition(openedOut, fromPre);
+
+                } else {  // "opened" and "from" should share a place
+                    Place openedFrom = pn.addPlace("p" + opened + "_" + from);
+                    pn.removePlace(actOut.get(opened));
+                    actOut.put(opened, openedFrom);
+                    pn.removePlace(actIn.get(from));
+                    actIn.put(from, openedFrom);
+                }
+
+                return true;  // continue
+            }
+        });
+
+        // recursively add nested activities
+        for (int i = act.size() - 1; i >= 0; i--) {
+            Activity a = act.get(i);
+
+            if (a.equals(begin())) {
+                if (useBegin) {
+                    pn.addPrecondition(in, actPost.get(a));
+                }
+
+            } else if (a.equals(end())) {
+                if (useEnd) {
+                    pn.addPostcondition(actPre.get(a), out);
+                }
+
+            } else {
+                Place aIn = actIn.get(a);
+                if (aIn.equals(actOut.get(begin())) && !useBegin)
+                    aIn = in;
+                Place aOut = actOut.get(a);
+                if (aOut.equals(actIn.get(end())) && !useEnd)
+                    aOut = out;
+
+                Transition t = pn.addTransition(a.name() + "_untimed");
+                // A fake stochastic feature to make the timed analysis properly work.
+                t.addFeature(StochasticTransitionFeature.newUniformInstance(a.EFT().toString(), a.LFT().toString()));
+                t.addFeature(new TimedTransitionFeature(a.EFT().toString(), a.LFT().toString()));
+                t.addFeature(new ConcurrencyTransitionFeature(a.C()));
+                t.addFeature(new RegenerationEpochLengthTransitionFeature(a.R()));
+                pn.addPostcondition(t, aOut);
+                pn.addPrecondition(aIn, t);
+            }
+        };
     }
 
     /**
@@ -273,7 +401,7 @@ public class DAG extends Activity {
     }
     
     @Override
-    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Map<Activity, Place> actOut = new LinkedHashMap<>();
         Map<Activity, Transition> actPost = new LinkedHashMap<>();
         Map<Activity, Transition> actPre = new LinkedHashMap<>();
@@ -391,7 +519,7 @@ public class DAG extends Activity {
                 Place aOut = actOut.get(a);
                 if (aOut.equals(actIn.get(end())) && !useEnd)
                     aOut = out;
-                a.addPetriBlock(pn, aIn, aOut, priority[0]++);
+                a.addStochasticPetriBlock(pn, aIn, aOut, priority[0]++);
             }
         }
         

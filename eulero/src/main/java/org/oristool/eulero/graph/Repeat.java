@@ -20,9 +20,13 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.models.tpn.ConcurrencyTransitionFeature;
+import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
+import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
@@ -37,7 +41,7 @@ public class Repeat extends Activity {
     public Repeat(String name, double repeatProb, Activity repeatBody) {
         super(name);
         setC(repeatBody.C());
-        setR(BigDecimal.valueOf(Double.MAX_VALUE));
+        setR(repeatBody.R());
         setEFT(repeatBody.EFT());
         setLFT(BigDecimal.valueOf(Double.MAX_VALUE));
         this.repeatProb = repeatProb;
@@ -49,7 +53,7 @@ public class Repeat extends Activity {
         Activity bodyCopy = repeatBody.copyRecursive(suffix);
         return new Repeat(this.name() + suffix, this.repeatProb, bodyCopy);
     }
-    
+
     public Activity repeatBody() {
         return repeatBody;
     }
@@ -72,17 +76,18 @@ public class Repeat extends Activity {
     }
     
     @Override
-    public int addPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        
+    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Transition repeat = pn.addTransition(name() + "_repeat");
         repeat.addFeature(new Priority(prio++));
         repeat.addFeature(StochasticTransitionFeature
                 .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(repeatProb)));
+        repeat.addFeature(new TimedTransitionFeature("0", "0"));
         
         Transition exit = pn.addTransition(name() + "_continue");
         exit.addFeature(new Priority(prio++));
         exit.addFeature(StochasticTransitionFeature
                 .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(1.0 - repeatProb)));
+        exit.addFeature(new TimedTransitionFeature("0", "0"));
         
         Place choose = pn.addPlace("p" + name() + "_choose");
         pn.addPrecondition(choose, repeat);
@@ -90,8 +95,38 @@ public class Repeat extends Activity {
         pn.addPrecondition(choose, exit);
         pn.addPostcondition(exit, out);
         
-        prio = repeatBody.addPetriBlock(pn, in, choose, prio);
+        prio = repeatBody.addStochasticPetriBlock(pn, in, choose, prio);
         return prio;
+    }
+
+    @Override
+    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio) {
+        Transition repeat = pn.addTransition(name() + "_repeat");
+        repeat.addFeature(new Priority(prio++));
+        repeat.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(repeatProb)));
+        repeat.addFeature(new TimedTransitionFeature("0", "0"));
+
+        Transition exit = pn.addTransition(name() + "_continue");
+        exit.addFeature(new Priority(prio++));
+        exit.addFeature(StochasticTransitionFeature
+                .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(1.0 - repeatProb)));
+        exit.addFeature(new TimedTransitionFeature("0", "0"));
+
+        Place choose = pn.addPlace("p" + name() + "_choose");
+        pn.addPrecondition(choose, repeat);
+        pn.addPostcondition(repeat, in);
+        pn.addPrecondition(choose, exit);
+        pn.addPostcondition(exit, out);
+
+        Transition t = pn.addTransition(repeatBody.name() + "_timed");
+        // TODO può capitare che repeatBody sia a sua volta una REP e abbia -- Priviamo con al Expol
+        t.addFeature(StochasticTransitionFeature.newExpolynomial("1", new OmegaBigDecimal(repeatBody.EFT()), new OmegaBigDecimal(repeatBody.LFT())));
+        t.addFeature(new TimedTransitionFeature(repeatBody.EFT().toString(), repeatBody().LFT().toString()));
+        t.addFeature(new ConcurrencyTransitionFeature(repeatBody.C()));
+        t.addFeature(new RegenerationEpochLengthTransitionFeature(repeatBody().R()));
+        pn.addPrecondition(in, t);
+        pn.addPostcondition(t, choose);
     }
 
     // TODO: here must be understood how to handle upper bound. In principle is Infinity, but in practice we don't use it.

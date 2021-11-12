@@ -1,25 +1,39 @@
 package org.oristool.eulero.analysisheuristics;
 
+import org.oristool.analyzer.graph.SuccessionGraph;
+import org.oristool.analyzer.state.State;
 import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.ui.ActivityViewer;
+import org.oristool.math.expression.Variable;
+import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.stpn.trees.EnablingSyncsFeature;
+import org.oristool.models.tpn.ConcurrencyTransitionFeature;
+import org.oristool.models.tpn.TimedAnalysis;
+import org.oristool.models.tpn.TimedStateFeature;
+import org.oristool.models.tpn.TimedTransitionFeature;
+import org.oristool.petrinet.Marking;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Transition;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 public abstract class AnalysisHeuristicStrategy {
-    private BigDecimal CThreshold;
-    private BigDecimal RThreshold;
-    private Approximator approximator;
+    private final BigInteger CThreshold;
+    private final BigInteger RThreshold;
+    private final Approximator approximator;
 
-    public AnalysisHeuristicStrategy(BigDecimal CThreshold, BigDecimal RThreshold, Approximator approximator){
+    public AnalysisHeuristicStrategy(BigInteger CThreshold, BigInteger RThreshold, Approximator approximator){
         this.CThreshold = CThreshold;
         this.RThreshold = RThreshold;
         this.approximator = approximator;
@@ -27,11 +41,11 @@ public abstract class AnalysisHeuristicStrategy {
 
     public abstract double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error);
 
-    public BigDecimal CThreshold() {
+    public BigInteger CThreshold() {
         return CThreshold;
     }
 
-    public BigDecimal RThreshold() {
+    public BigInteger RThreshold() {
         return RThreshold;
     }
     public Approximator approximator() {
@@ -105,10 +119,10 @@ public abstract class AnalysisHeuristicStrategy {
         for(Activity activity: ((DAG) model).end().pre()){
             nestedModels.add(((DAG) model).nest(activity));
         }
-        nestedModels.sort(Comparator.comparing(act -> act.C().add(act.R().multiply(BigDecimal.valueOf(0.5)))));
+        nestedModels.sort(Comparator.comparing(act -> act.C().doubleValue() + 0.5 * act.R().doubleValue()));
         int nestedModelCounter = 0;
 
-        while(model.C().compareTo(this.CThreshold()) > 0 && model.R().compareTo(this.RThreshold()) > 0){
+        while(model.C().compareTo(CThreshold) > 0 && model.R().compareTo(RThreshold) > 0){
             DAG theNestedModel = nestedModels.get(nestedModelCounter);
             theNestedModel.replace(new Analytical(theNestedModel.name() + "_N",
                     approximator().getApproximatedStochasticTransitionFeature(analyze(theNestedModel, theNestedModel.LFT(), step, error),
@@ -126,4 +140,42 @@ public abstract class AnalysisHeuristicStrategy {
 
         return solution;
     }
+
+    /*public boolean complexityCheck(Activity model, boolean simplifiedAnalysis){
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        model.getTimedPetriBlock(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        TimedAnalysis.Builder builder = TimedAnalysis.builder();
+        builder.includeAge(true);
+        builder.markRegenerations(true);
+        builder.excludeZeroProb(true);
+
+        TimedAnalysis analysis = builder.build();
+
+        SuccessionGraph graph = analysis.compute(pn, m);
+
+        // Get C
+        int maxC = 0;
+        for (State s: graph.getStates()) {
+            int maximumTestValue = 0;
+            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
+                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+                    maximumTestValue += !simplifiedAnalysis ? 1 : t.getFeature(ConcurrencyTransitionFeature.class).getC();
+                }
+            }
+
+            if(maximumTestValue > maxC){
+                maxC = maximumTestValue;
+            }
+        }
+
+        return maxC > CThreshold;
+    }
+
+    getC()*/
 }

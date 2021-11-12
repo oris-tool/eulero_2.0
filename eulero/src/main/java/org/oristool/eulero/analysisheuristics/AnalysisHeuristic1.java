@@ -5,9 +5,10 @@ import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
-    public AnalysisHeuristic1(BigDecimal CThreshold, BigDecimal RThreshold, Approximator approximator) {
+    public AnalysisHeuristic1(BigInteger CThreshold, BigInteger RThreshold, Approximator approximator) {
         super(CThreshold, RThreshold, approximator);
     }
 
@@ -22,7 +23,8 @@ public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
         }*/
 
         if(model instanceof Analytical){
-            return model.getNumericalCDF(timeLimit, step);
+            // Nota che volendo se è annalytical può andare in fondo fino a regenerativeTransientAnalysis, senza che si necessario scrivere questa..
+            return ((Analytical) model).getNumericalCDF(timeLimit, step);
         }
 
         if(model instanceof Xor){
@@ -44,7 +46,7 @@ public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
         }
 
         if(model instanceof DAG){
-            if(model.C().compareTo(this.CThreshold()) > 0 && model.R().compareTo(this.RThreshold()) > 0){
+            if(false){
                 // Cosa succede se replicarlo non lo cambia? Farei delle operazioni a vuoto?
                 DAGBlockReplication(model, timeLimit, step, error);
                 //DAGINNERBLOCKANALYSIS???

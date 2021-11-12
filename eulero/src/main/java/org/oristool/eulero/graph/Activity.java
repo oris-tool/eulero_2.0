@@ -18,22 +18,21 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.math.BigInteger;
+import java.util.*;
 
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
+import org.oristool.analyzer.state.State;
+import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.tpn.ConcurrencyTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
 import org.oristool.models.tpn.TimedAnalysis.Builder;
+import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.Marking;
 import org.oristool.petrinet.MarkingCondition;
 import org.oristool.petrinet.PetriNet;
@@ -55,12 +54,13 @@ import org.oristool.util.Pair;
 public abstract class Activity {
     private BigDecimal EFT;
     private BigDecimal LFT;
-    private BigDecimal C;
-    private BigDecimal R;
+    private BigInteger C;
+    private BigInteger R;
+    private BigInteger simplifiedR;
+    private BigInteger simplifiedC;
     private List<Activity> pre = new ArrayList<>();
     private List<Activity> post = new ArrayList<>();
     private String name;
-    private double[] numericalCDF; // Rappresentazione numerica su tutto il dominio della cdf
     
     /**
      * The activities that this activity directly depends on.
@@ -105,12 +105,20 @@ public abstract class Activity {
         return LFT;
     }
 
-    public BigDecimal C() {
-        return C;
+    public BigInteger C() {
+        return !Objects.isNull(C) ? C : computeC(false);
     }
 
-    public BigDecimal R() {
-        return R;
+    public BigInteger R() {
+        return !Objects.isNull(R) ? R : computeR(false);
+    }
+
+    public BigInteger simplifiedC() {
+        return !Objects.isNull(simplifiedC) ? simplifiedC : computeC(true);
+    }
+
+    public BigInteger simplifiedR() {
+        return !Objects.isNull(simplifiedR) ? simplifiedR : computeR(true);
     }
 
     public void setEFT(BigDecimal EFT) {
@@ -121,12 +129,20 @@ public abstract class Activity {
         this.LFT = LFT;
     }
 
-    public void setC(BigDecimal C) {
+    public void setC(BigInteger C) {
         this.C = C;
     }
 
-    public void setR(BigDecimal R) {
+    public void setR(BigInteger R) {
         this.R = R;
+    }
+
+    public void setSimplifiedR(BigInteger simplifiedR) {
+        this.simplifiedR = simplifiedR;
+    }
+
+    public void setSimplifiedC(BigInteger simplifiedC) {
+        this.simplifiedC = simplifiedC;
     }
 
     /** Activities that are part of this one */
@@ -139,6 +155,57 @@ public abstract class Activity {
     }
     
     public abstract Activity copyRecursive(String suffix);
+
+    public BigInteger computeC(boolean getSimplified){
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        buildTimedPetriNet(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        TimedAnalysis.Builder builder = TimedAnalysis.builder();
+        builder.includeAge(true);
+        builder.markRegenerations(true);
+        builder.excludeZeroProb(true);
+
+        TimedAnalysis analysis = builder.build();
+
+        SuccessionGraph graph = analysis.compute(pn, m);
+
+        // Get C
+        BigInteger maxC = BigInteger.ZERO;
+        BigInteger simplifiedMaxC = BigInteger.ZERO;
+        for (State s: graph.getStates()) {
+            BigInteger maximumTestValue = BigInteger.ZERO;
+            BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
+            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
+                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
+                    simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
+                }
+            }
+
+            if(maximumTestValue.compareTo(maxC) > 0){
+                maxC = maximumTestValue;
+            }
+            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxC) > 0){
+                simplifiedMaxC = simplifiedMaximumTestValue;
+            }
+        }
+
+        setC(maxC);
+        setSimplifiedC(simplifiedMaxC);
+
+        return getSimplified ? simplifiedMaxC : maxC;
+    }
+
+    public BigInteger computeR(boolean getSimplified){
+        return BigInteger.ZERO;
+    };
+
+    public abstract void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio);
     
     @Override
     public final String toString() {
@@ -368,7 +435,9 @@ public abstract class Activity {
      * @param prio initial priority of the transitions of this activity
      * @return next priority level for the rest of the network
      */
-    public abstract int addPetriBlock(PetriNet pn, Place in, Place out, int prio);
+    public abstract int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio);
+
+    //public abstract int getTimedPetriBlock(PetriNet pn, Place in, Place out, int prio);
 
     public abstract BigDecimal low();
 
@@ -376,20 +445,6 @@ public abstract class Activity {
 
     public abstract boolean isWellNested();
 
-    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step){
-        //Tutto il DAG funziona, anche grazie all'attributo StochasticFeature; se lo tolgo, occorre definire la ContinuousDistribution IMM, e non mi piace.
-        // Sarebbe bello se SIRIO riuscisse a valutare le stringhe per la calsse Analytical --> TODO Da chiedere
-        // Per ora facciamo ritornare analisi transiente del blocco filtrata.
-        TransientSolution<DeterministicEnablingState, RewardRate> solution = this.analyze(timeLimit.toString(), step.toString(), String.valueOf(Math.pow(10, -step.scale())));
-        //double[] numericalSolution = new double[solution.getSolution().length - this.EFT.divide(step).intValue()]; // questo dovrebbe beccare la soluzione nel suo supporto, rimuovendo gli zero a sx
-        double[] numericalSolution = new double[solution.getSolution().length];
-        for(int i = this.EFT.divide(step).intValue(); i < solution.getSolution().length; i++){
-            //numericalSolution[i - this.EFT.divide(step).intValue()] = solution.getSolution()[i][0][0];
-            numericalSolution[i] = solution.getSolution()[i][0][0];
-        }
-        return numericalSolution;
-    }
-    
     /**
      * Returns a string representation of the preconditions and postconditions 
      * for the STPN of this activity.
@@ -401,7 +456,7 @@ public abstract class Activity {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
+        this.addStochasticPetriBlock(pn, in, out, 1);
         
         StringBuilder b = new StringBuilder();
         for (Transition t : pn.getTransitions()) {
@@ -427,7 +482,7 @@ public abstract class Activity {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
+        this.addStochasticPetriBlock(pn, in, out, 1);
         
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -460,7 +515,7 @@ public abstract class Activity {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
+        this.addStochasticPetriBlock(pn, in, out, 1);
         
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -490,7 +545,7 @@ public abstract class Activity {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addPetriBlock(pn, in, out, 1);
+        this.addStochasticPetriBlock(pn, in, out, 1);
 
         Marking m = new Marking();
         m.addTokens(in, 1);
