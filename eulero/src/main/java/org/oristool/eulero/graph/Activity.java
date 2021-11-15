@@ -202,8 +202,49 @@ public abstract class Activity {
     }
 
     public BigInteger computeR(boolean getSimplified){
-        return BigInteger.ZERO;
-    };
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        buildTimedPetriNet(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        TimedAnalysis.Builder builder = TimedAnalysis.builder();
+        builder.includeAge(true);
+        builder.markRegenerations(true);
+        builder.excludeZeroProb(true);
+
+        TimedAnalysis analysis = builder.build();
+
+        SuccessionGraph graph = analysis.compute(pn, m);
+
+        // Get C
+        BigInteger maxR = BigInteger.ZERO;
+        BigInteger simplifiedMaxR = BigInteger.ZERO;
+        for (State s: graph.getStates()) {
+            BigInteger maximumTestValue = BigInteger.ZERO;
+            BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
+            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
+                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
+                    simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
+                }
+            }
+
+            if(maximumTestValue.compareTo(maxR) > 0){
+                maxR = maximumTestValue;
+            }
+            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxR) > 0){
+                simplifiedMaxR = simplifiedMaximumTestValue;
+            }
+        }
+
+        setR(maxR);
+        setSimplifiedR(simplifiedMaxR);
+
+        return getSimplified ? simplifiedMaxR : maxR;
+    }
 
     public abstract void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio);
     

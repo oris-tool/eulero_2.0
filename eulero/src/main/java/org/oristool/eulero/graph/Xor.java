@@ -19,7 +19,6 @@ package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,7 +74,7 @@ public class Xor extends Activity {
             branch.addFeature(new Priority(prio));
             branch.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(probs.get(i))));
-            branch.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+            branch.addFeature(new TimedTransitionFeature("0", "0"));
 
             Place act_in = pn.addPlace("p" + name() + "_case" + i);
             pn.addPrecondition(in, branch);
@@ -101,7 +100,7 @@ public class Xor extends Activity {
             Transition merge = pn.addTransition(name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO));
-            merge.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+            merge.addFeature(new TimedTransitionFeature("0", "0"));
             // new priority not necessary: only one branch will be selected
             merge.addFeature(new Priority(prio++));
             pn.addPrecondition(act_outs.get(i), merge);
@@ -149,7 +148,6 @@ public class Xor extends Activity {
             branch.addFeature(new Priority(prio));
             branch.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(probs.get(i))));
-            branch.addFeature(new TimedTransitionFeature("0.0", "0.0"));
             
             Place act_in = pn.addPlace("p" + name() + "_case" + i);
             pn.addPrecondition(in, branch);
@@ -168,7 +166,6 @@ public class Xor extends Activity {
             Transition merge = pn.addTransition(name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                 .newDeterministicInstance(BigDecimal.ZERO));
-            merge.addFeature(new TimedTransitionFeature("0.0", "0.0"));
             // new priority not necessary: only one branch will be selected
             merge.addFeature(new Priority(prio++));
             pn.addPrecondition(act_outs.get(i), merge);

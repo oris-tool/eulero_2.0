@@ -159,7 +159,7 @@ public class DAG extends Activity {
                     if (opened.post().size() > 1) {  // add pOPENED_out, OPENED_POST
                         Transition openedPost = pn.addTransition(opened + "_POST");
                         openedPost.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
-                        openedPost.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+                        openedPost.addFeature(new TimedTransitionFeature("0", "0"));
                         openedPost.addFeature(new Priority(priority[0]++));
                         pn.addPrecondition(openedOut, openedPost);
                         actPost.put(opened, openedPost);
@@ -174,7 +174,7 @@ public class DAG extends Activity {
                     if (from.pre().size() > 1) {  // add FROM_PRE, pFROM_in
                         Transition fromPre = pn.addTransition(from + "_PRE");
                         fromPre.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
-                        fromPre.addFeature(new TimedTransitionFeature("0.0", "0.0"));
+                        fromPre.addFeature(new TimedTransitionFeature("0", "0"));
                         fromPre.addFeature(new Priority(priority[0]++));
                         pn.addPostcondition(fromPre, fromIn);
                         actPre.put(from, fromPre);

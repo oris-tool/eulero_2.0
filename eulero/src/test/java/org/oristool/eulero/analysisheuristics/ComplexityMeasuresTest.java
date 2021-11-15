@@ -25,8 +25,13 @@ public class ComplexityMeasuresTest {
 
         Activity model = new Analytical("A6", unif0_10);
 
+        // C
         Assertions.assertTrue(model.C().compareTo(C) < 0);
         Assertions.assertEquals(0, model.C().compareTo(BigInteger.ONE));
+
+        // Simplified C
+        Assertions.assertTrue(model.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, model.simplifiedC().compareTo(BigInteger.ONE));
     }
 
     @Test
@@ -41,8 +46,13 @@ public class ComplexityMeasuresTest {
                 new Analytical("A1", unif0_10)
         );
 
+        // C
         Assertions.assertTrue(model.C().compareTo(C) < 0);
         Assertions.assertEquals(0, model.C().compareTo(BigInteger.valueOf(2)));
+
+        // Simplified C
+        Assertions.assertTrue(model.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, model.simplifiedC().compareTo(BigInteger.valueOf(2)));
     }
 
     @Test
@@ -57,8 +67,13 @@ public class ComplexityMeasuresTest {
                 new Analytical("A1", unif0_10)
         );
 
+        // C
         Assertions.assertTrue(model.C().compareTo(C) < 0);
         Assertions.assertEquals(0, model.C().compareTo(BigInteger.ONE));
+
+        // Simplified C
+        Assertions.assertTrue(model.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, model.simplifiedC().compareTo(BigInteger.ONE));
     }
 
     @Test
@@ -104,6 +119,7 @@ public class ComplexityMeasuresTest {
                 List.of(0.3, 0.4)
         );
 
+        // C
         Assertions.assertTrue(simpleModel.C().compareTo(C) < 0);
         Assertions.assertEquals(0, simpleModel.C().compareTo(BigInteger.ONE));
 
@@ -112,6 +128,16 @@ public class ComplexityMeasuresTest {
 
         Assertions.assertEquals(0, veryComplexModel.C().compareTo(C));
         Assertions.assertEquals(0, veryComplexModel.C().compareTo(BigInteger.valueOf(3)));
+
+        // Simplified C
+        Assertions.assertTrue(simpleModel.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, simpleModel.simplifiedC().compareTo(BigInteger.ONE));
+
+        Assertions.assertTrue(complexModel.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, complexModel.simplifiedC().compareTo(BigInteger.ONE));
+
+        Assertions.assertTrue(veryComplexModel.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, veryComplexModel.simplifiedC().compareTo(BigInteger.ONE));
     }
 
     @Test
@@ -156,10 +182,96 @@ public class ComplexityMeasuresTest {
 
         Activity complexRepeat = new Repeat("CRepeat", 0.4, complexRepeatBody);
 
+        // C
         Assertions.assertTrue(repeat.C().compareTo(C) < 0);
         Assertions.assertEquals(0, repeat.C().compareTo(BigInteger.valueOf(2)));
 
         Assertions.assertTrue(complexRepeat.C().compareTo(C) > 0);
         Assertions.assertEquals(0, complexRepeat.C().compareTo(BigInteger.valueOf(4)));
+
+        // Simplified C
+        Assertions.assertTrue(repeat.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, repeat.simplifiedC().compareTo(BigInteger.ONE));
+
+        Assertions.assertTrue(complexRepeat.simplifiedC().compareTo(C) < 0);
+        Assertions.assertEquals(0, complexRepeat.simplifiedC().compareTo(BigInteger.ONE));
+    }
+
+    @Test
+    void TestSimpleDAGComplexityMeasure(){
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(10);
+
+        Analytical q = new Analytical("Q", unif0_10);
+        Analytical r = new Analytical("R", unif0_10);
+        Analytical s = new Analytical("S", unif0_10);
+        Analytical u = new Analytical("U", unif0_10);
+        Analytical v = new Analytical("V", unif0_10);
+
+        DAG pSimple = DAG.empty("P");
+        q.addPrecondition(pSimple.begin());
+        r.addPrecondition(pSimple.begin());
+        s.addPrecondition(pSimple.begin());
+        u.addPrecondition(q, r);
+        v.addPrecondition(s, r);
+        pSimple.end().addPrecondition(u, v);
+
+        // C
+        Assertions.assertEquals(0, pSimple.C().compareTo(C));
+        Assertions.assertEquals(0, pSimple.C().compareTo(BigInteger.valueOf(3)));
+
+        // Simplified C
+        Assertions.assertEquals(0, pSimple.simplifiedC().compareTo(C));
+        Assertions.assertEquals(0, pSimple.simplifiedC().compareTo(BigInteger.valueOf(3)));
+    }
+
+    @Test
+    void TestComplexDAGComplexityMeasure(){
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(10);
+
+        Analytical q = new Analytical("Q", unif0_10);
+        Analytical r = new Analytical("R", unif0_10);
+        Analytical s = new Analytical("S", unif0_10);
+        Analytical v = new Analytical("V", unif0_10);
+
+        DAG tu = DAG.forkJoin("TU",
+                DAG.sequence("T",
+                        new Analytical("T1", unif0_10),
+                        new Analytical("T2", unif0_10)
+                ), new Analytical("U", unif0_10)
+        );
+
+        DAG wx = DAG.forkJoin("WX",
+                DAG.sequence("X",
+                        new Analytical("X1", unif0_10),
+                        new Analytical("X2", unif0_10)
+                ),
+                new Analytical("W", unif0_10)
+        );
+
+        DAG pComplex = DAG.empty("P");
+        q.addPrecondition(pComplex.begin());
+        r.addPrecondition(pComplex.begin());
+        s.addPrecondition(pComplex.begin());
+        tu.addPrecondition(q, r);
+        v.addPrecondition(r);
+        wx.addPrecondition(s, r);
+        pComplex.end().addPrecondition(tu, v, wx);
+
+
+        Assertions.assertTrue(pComplex.C().compareTo(C) > 0);
+        Assertions.assertEquals(0, pComplex.C().compareTo(BigInteger.valueOf(5)));
+
+        // Simplified C
+        Assertions.assertEquals(0, pComplex.simplifiedC().compareTo(C));
+        Assertions.assertEquals(0, pComplex.simplifiedC().compareTo(BigInteger.valueOf(3)));
     }
 }
+
+// TODO add DAG ;
+// TODO check also R, SimplifiedR, SimplifiedC

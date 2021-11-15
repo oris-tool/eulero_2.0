@@ -40,8 +40,6 @@ public class Repeat extends Activity {
     
     public Repeat(String name, double repeatProb, Activity repeatBody) {
         super(name);
-        setC(repeatBody.C());
-        setR(repeatBody.R());
         setEFT(repeatBody.EFT());
         setLFT(BigDecimal.valueOf(Double.MAX_VALUE));
         this.repeatProb = repeatProb;
