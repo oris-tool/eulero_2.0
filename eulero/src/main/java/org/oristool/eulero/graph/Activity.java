@@ -21,15 +21,25 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import org.oristool.analyzer.Succession;
+import org.oristool.analyzer.graph.Node;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
+import org.oristool.math.OmegaBigDecimal;
+import org.oristool.math.expression.Variable;
+import org.oristool.math.function.GEN;
+import org.oristool.math.function.StateDensityFunction;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.stpn.trees.Regeneration;
+import org.oristool.models.stpn.trees.StochasticStateFeature;
+import org.oristool.models.stpn.trees.TransientStochasticStateFeature;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
+import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
 import org.oristool.models.tpn.TimedAnalysis.Builder;
 import org.oristool.models.tpn.TimedTransitionFeature;
@@ -216,27 +226,28 @@ public abstract class Activity {
         builder.excludeZeroProb(true);
 
         TimedAnalysis analysis = builder.build();
-
         SuccessionGraph graph = analysis.compute(pn, m);
 
-        // Get C
+        // Get R
+        Deque<Node> regenerativeStack = new LinkedList<Node>();
+        regenerativeStack.push(graph.getRoot());
         BigInteger maxR = BigInteger.ZERO;
         BigInteger simplifiedMaxR = BigInteger.ZERO;
-        for (State s: graph.getStates()) {
-            BigInteger maximumTestValue = BigInteger.ZERO;
-            BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
-            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
-                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
-                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
-                    simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
-                }
-            }
+        while (!regenerativeStack.isEmpty()) {
+            // Ogni volta che re-itero, sto verificando una rigenerazione di partenza diversa
 
-            if(maximumTestValue.compareTo(maxR) > 0){
-                maxR = maximumTestValue;
-            }
-            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxR) > 0){
-                simplifiedMaxR = simplifiedMaximumTestValue;
+            Node n = regenerativeStack.pop();
+            if (n != null) {
+                BigInteger nodePathLength = computeMaximumPathLength(graph, n, regenerativeStack, false);
+                BigInteger nodeSimplifiedPathLength = computeMaximumPathLength(graph, n, regenerativeStack, true);
+
+                if(nodePathLength.compareTo(maxR) > 0){
+                    maxR = nodePathLength;
+                }
+
+                if(nodeSimplifiedPathLength.compareTo(simplifiedMaxR) > 0){
+                    simplifiedMaxR = nodeSimplifiedPathLength;
+                }
             }
         }
 
@@ -244,6 +255,43 @@ public abstract class Activity {
         setSimplifiedR(simplifiedMaxR);
 
         return getSimplified ? simplifiedMaxR : maxR;
+    }
+
+    private BigInteger computeMaximumPathLength(SuccessionGraph graph, Node node, Deque<Node> stack, boolean getSimplified){
+        /*BigInteger maximumR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
+                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
+                .mapToInt(t -> t.getFeature(RegenerationEpochLengthTransitionFeature.class).getR().intValue()).sum());
+        BigInteger maximumSimplifiedR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
+                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
+                .mapToInt(t -> 1).sum());*/
+
+        BigInteger maximumR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
+                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
+                .mapToInt(t -> t.getFeature(RegenerationEpochLengthTransitionFeature.class).getR().intValue()).max().orElse(0));
+        BigInteger maximumSimplifiedR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
+                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
+                .mapToInt(t -> 1).max().orElse(0));
+
+        BigInteger maximumChoice = BigInteger.ZERO;
+        BigInteger maximumSimplifiedChoice = BigInteger.ZERO;
+        for(Node n: graph.getSuccessors(node)){
+            if(graph.getState(n).hasFeature(Regeneration.class)){
+                stack.push(n);
+            } else {
+                BigInteger nodePathLength = computeMaximumPathLength(graph, n, stack, false);
+                BigInteger nodeSimplifiedPathLength = computeMaximumPathLength(graph, n, stack, true);
+
+                if(nodePathLength.compareTo(maximumChoice) > 0){
+                    maximumChoice = nodePathLength;
+                }
+
+                if(nodeSimplifiedPathLength.compareTo(maximumSimplifiedChoice) > 0){
+                    maximumSimplifiedChoice = nodeSimplifiedPathLength;
+                }
+            }
+        }
+
+        return getSimplified ?  maximumSimplifiedR.add(maximumSimplifiedChoice) : maximumR.add(maximumChoice);
     }
 
     public abstract void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio);

@@ -40,16 +40,23 @@ public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
         }
 
         if(model instanceof Repeat) {
-            if(model.C().compareTo(this.CThreshold()) > 0) {
+            if(model.C().compareTo(this.CThreshold()) > 0 || model.R().compareTo(this.RThreshold()) > 0) {
+                System.out.println("Performing Inner Block Analysis on " + model.name());
                 REPInnerBlockAnalysis(model, timeLimit, step, error);
             }
         }
 
         if(model instanceof DAG){
-            if(false){
+            if(model.simplifiedC().compareTo(this.CThreshold()) > 0){
                 // Cosa succede se replicarlo non lo cambia? Farei delle operazioni a vuoto?
-                DAGBlockReplication(model, timeLimit, step, error);
+                System.out.println("Performing Block Replication on " + model.name());
+                //DAGBlockReplication(model, timeLimit, step, error);
                 //DAGINNERBLOCKANALYSIS???
+            }
+
+            if(model.C().compareTo(this.CThreshold()) > 0){
+                System.out.println("Performing Inner Block Analysis on " + model.name());
+                DAGInnerBlockAnalysis(model, timeLimit, step, error);
             }
         }
 

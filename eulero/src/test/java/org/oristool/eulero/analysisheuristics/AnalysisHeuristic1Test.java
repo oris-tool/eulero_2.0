@@ -1,5 +1,6 @@
 package org.oristool.eulero.analysisheuristics;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.graph.Analytical;
@@ -130,7 +131,7 @@ class AnalysisHeuristic1Test {
         int simulationRuns = 20000;
 
         BigInteger C =  BigInteger.valueOf(3);
-        BigInteger R =  BigInteger.valueOf(10);
+        BigInteger R =  BigInteger.valueOf(20);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         //Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
@@ -174,6 +175,63 @@ class AnalysisHeuristic1Test {
         );
 
         MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(dag, timeLimit, step, step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
+        Thread.sleep(20000);
+    }
+
+    @Test
+    void TestComplexDAG() throws InterruptedException {
+        BigDecimal timeLimit = BigDecimal.valueOf(4.8);
+        BigDecimal step = BigDecimal.valueOf(0.01);
+        int simulationRuns = 200;
+
+        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger R =  BigInteger.valueOf(20);
+        Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        //Approximator approximator = new EXPMixtureApproximation();
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+
+        StochasticTransitionFeature unif0_10 =
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
+
+        Analytical q = new Analytical("Q", unif0_10);
+        Analytical r = new Analytical("R", unif0_10);
+        Analytical s = new Analytical("S", unif0_10);
+        Analytical v = new Analytical("V", unif0_10);
+
+        DAG tu = DAG.forkJoin("TU",
+                DAG.sequence("T",
+                        new Analytical("T1", unif0_10),
+                        new Analytical("T2", unif0_10)
+                ), new Analytical("U", unif0_10)
+        );
+
+        DAG wx = DAG.forkJoin("WX",
+                DAG.sequence("X",
+                        new Analytical("X1", unif0_10),
+                        new Analytical("X2", unif0_10)
+                ),
+                new Analytical("W", unif0_10),
+                new Analytical("Y", unif0_10)
+        );
+
+        DAG pComplex = DAG.empty("P");
+        q.addPrecondition(pComplex.begin());
+        r.addPrecondition(pComplex.begin());
+        s.addPrecondition(pComplex.begin());
+        tu.addPrecondition(q, r);
+        v.addPrecondition(r);
+        wx.addPrecondition(s, r);
+        pComplex.end().addPrecondition(tu, v, wx);
+        // TODO questo va sistemato e hide
+        pComplex.setEFT(pComplex.low());
+        pComplex.setLFT(pComplex.upp());
+
+        MainHelper.ResultWrapper simulation = new MainHelper.ResultWrapper(
+                pComplex.simulate(timeLimit.toString(), step.toString(), simulationRuns), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue()
+        );
+
+        MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(pComplex, timeLimit, step, step), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue());
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }

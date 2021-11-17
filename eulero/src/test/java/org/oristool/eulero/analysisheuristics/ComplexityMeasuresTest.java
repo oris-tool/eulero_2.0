@@ -195,6 +195,20 @@ public class ComplexityMeasuresTest {
 
         Assertions.assertTrue(complexRepeat.simplifiedC().compareTo(C) < 0);
         Assertions.assertEquals(0, complexRepeat.simplifiedC().compareTo(BigInteger.ONE));
+
+        // R
+        Assertions.assertTrue(repeat.R().compareTo(R) < 0);
+        Assertions.assertEquals(0, repeat.R().compareTo(BigInteger.valueOf(2)));
+
+        Assertions.assertTrue(complexRepeat.R().compareTo(R) < 0);
+        Assertions.assertEquals(0, complexRepeat.R().compareTo(BigInteger.valueOf(4)));
+
+        // Simplified R
+        Assertions.assertTrue(repeat.simplifiedR().compareTo(R) < 0);
+        Assertions.assertEquals(0, repeat.simplifiedR().compareTo(BigInteger.valueOf(1)));
+
+        Assertions.assertTrue(complexRepeat.simplifiedR().compareTo(R) < 0);
+        Assertions.assertEquals(0, complexRepeat.simplifiedR().compareTo(BigInteger.valueOf(1)));
     }
 
     @Test
@@ -225,12 +239,20 @@ public class ComplexityMeasuresTest {
         // Simplified C
         Assertions.assertEquals(0, pSimple.simplifiedC().compareTo(C));
         Assertions.assertEquals(0, pSimple.simplifiedC().compareTo(BigInteger.valueOf(3)));
+
+        // R
+        Assertions.assertTrue(pSimple.R().compareTo(R) < 0);
+        Assertions.assertEquals(0, pSimple.R().compareTo(BigInteger.valueOf(8)));
+
+        // Simplified R
+        Assertions.assertTrue(pSimple.R().compareTo(R) < 0);
+        Assertions.assertEquals(0, pSimple.simplifiedR().compareTo(BigInteger.valueOf(8)));
     }
 
     @Test
     void TestComplexDAGComplexityMeasure(){
         StochasticTransitionFeature unif0_10 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(1.0));
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
 
@@ -270,8 +292,15 @@ public class ComplexityMeasuresTest {
         // Simplified C
         Assertions.assertEquals(0, pComplex.simplifiedC().compareTo(C));
         Assertions.assertEquals(0, pComplex.simplifiedC().compareTo(BigInteger.valueOf(3)));
+
+        // R
+        Assertions.assertTrue(pComplex.R().compareTo(R) > 0);
+        Assertions.assertEquals(0, pComplex.R().compareTo(BigInteger.valueOf(14)));
+
+        // Simplified R
+        Assertions.assertTrue(pComplex.R().compareTo(R) > 0);
+        Assertions.assertEquals(0, pComplex.simplifiedR().compareTo(BigInteger.valueOf(9)));
     }
 }
 
-// TODO add DAG ;
 // TODO check also R, SimplifiedR, SimplifiedC

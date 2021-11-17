@@ -1,5 +1,6 @@
 package org.oristool.eulero.analysisheuristics;
 
+import org.checkerframework.checker.units.qual.A;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.state.State;
 import org.oristool.eulero.MainHelper;
@@ -23,10 +24,8 @@ import org.oristool.petrinet.Transition;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AnalysisHeuristicStrategy {
     private final BigInteger CThreshold;
@@ -107,27 +106,30 @@ public abstract class AnalysisHeuristicStrategy {
                         analyze(repeatBody, /* è giusto? -->*/ repeatBody.LFT(), step, error), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step)
                 );
 
+        // TODO Remove
         MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyze(repeatBody, timeLimit, step, error), repeatBody.EFT().divide(step).intValue(), repeatBody.LFT().divide(step).intValue(), step.doubleValue());
         MainHelper.ResultWrapper analysis2 = new MainHelper.ResultWrapper(analyze(replacingBody, timeLimit, step, error), replacingBody.EFT().divide(step).intValue(), replacingBody.LFT().divide(step).intValue(), step.doubleValue());
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("real", "appr"), analysis, analysis2);
         ((Repeat) model).repeatBody().replace(replacingBody);
     }
 
-    public void DAGBlockReplication(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
-        // TO Be Tested
-        ArrayList<DAG> nestedModels = new ArrayList<>();
-        for(Activity activity: ((DAG) model).end().pre()){
-            nestedModels.add(((DAG) model).nest(activity));
-        }
-        nestedModels.sort(Comparator.comparing(act -> act.C().doubleValue() + 0.5 * act.R().doubleValue()));
-        int nestedModelCounter = 0;
 
-        while(model.C().compareTo(CThreshold) > 0 && model.R().compareTo(RThreshold) > 0){
-            DAG theNestedModel = nestedModels.get(nestedModelCounter);
-            theNestedModel.replace(new Analytical(theNestedModel.name() + "_N",
-                    approximator().getApproximatedStochasticTransitionFeature(analyze(theNestedModel, theNestedModel.LFT(), step, error),
-                            theNestedModel.EFT().doubleValue(), theNestedModel.LFT().doubleValue(), step)));
-            nestedModelCounter++;
+
+    public void DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+        // prendo le attività composte con complessità non banale (escludo attività semplici e IMM)
+        ArrayList<Activity> innerActivities = ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())
+                .stream().filter(t -> (t.C().doubleValue() > 1 && t.R().doubleValue() > 1)).distinct().collect(Collectors.toCollection(ArrayList::new));
+        innerActivities.sort(Comparator.comparing(Activity::C).thenComparing(Activity::R));
+        int innerActivitiesCounter = 0;
+
+        while(innerActivitiesCounter < innerActivities.size() && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
+            innerActivities.get(innerActivitiesCounter).replace(
+                    new Analytical(innerActivities.get(innerActivitiesCounter).name() + "_N",
+                            approximator().getApproximatedStochasticTransitionFeature(analyze(innerActivities.get(innerActivitiesCounter), innerActivities.get(innerActivitiesCounter).LFT(), step, error),
+                                    innerActivities.get(innerActivitiesCounter).EFT().doubleValue(), innerActivities.get(innerActivitiesCounter).LFT().doubleValue(), step))
+            );
+
+            innerActivitiesCounter++;
         }
     }
 
