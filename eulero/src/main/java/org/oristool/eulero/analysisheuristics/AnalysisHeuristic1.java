@@ -47,10 +47,10 @@ public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
         }
 
         if(model instanceof DAG){
-            if(model.simplifiedC().compareTo(this.CThreshold()) > 0){
+            if(model.simplifiedC().compareTo(this.CThreshold()) > 0 && model.simplifiedR().compareTo(this.RThreshold()) > 0){
                 // Cosa succede se replicarlo non lo cambia? Farei delle operazioni a vuoto?
                 System.out.println("Performing Block Replication on " + model.name());
-                //DAGBlockReplication(model, timeLimit, step, error);
+                InnerBlockReplicationAnalysis(model, timeLimit, step, error);
                 //DAGINNERBLOCKANALYSIS???
             }
 

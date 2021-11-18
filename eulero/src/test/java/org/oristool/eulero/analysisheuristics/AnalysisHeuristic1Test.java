@@ -187,8 +187,8 @@ class AnalysisHeuristic1Test {
 
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(20);
-        Approximator approximator = new SplineBodyEXPTailApproximation(3);
-        //Approximator approximator = new EXPMixtureApproximation();
+        //Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
         StochasticTransitionFeature unif0_10 =

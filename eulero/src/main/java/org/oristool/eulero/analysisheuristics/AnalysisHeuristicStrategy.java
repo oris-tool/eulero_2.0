@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public abstract class AnalysisHeuristicStrategy {
     private final BigInteger CThreshold;
@@ -113,23 +114,52 @@ public abstract class AnalysisHeuristicStrategy {
         ((Repeat) model).repeatBody().replace(replacingBody);
     }
 
-
-
     public void DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
         // prendo le attività composte con complessità non banale (escludo attività semplici e IMM)
         ArrayList<Activity> innerActivities = ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())
-                .stream().filter(t -> (t.C().doubleValue() > 1 && t.R().doubleValue() > 1)).distinct().collect(Collectors.toCollection(ArrayList::new));
-        innerActivities.sort(Comparator.comparing(Activity::C).thenComparing(Activity::R));
-        int innerActivitiesCounter = 0;
+                .stream().filter(t -> (t.C().doubleValue() > 1 && t.R().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::R)).collect(Collectors.toCollection(ArrayList::new));
+        int innerActivitiesCounter = innerActivities.size() - 1;
 
-        while(innerActivitiesCounter < innerActivities.size() && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
+        while(innerActivitiesCounter >= 0 && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
             innerActivities.get(innerActivitiesCounter).replace(
                     new Analytical(innerActivities.get(innerActivitiesCounter).name() + "_N",
                             approximator().getApproximatedStochasticTransitionFeature(analyze(innerActivities.get(innerActivitiesCounter), innerActivities.get(innerActivitiesCounter).LFT(), step, error),
                                     innerActivities.get(innerActivitiesCounter).EFT().doubleValue(), innerActivities.get(innerActivitiesCounter).LFT().doubleValue(), step))
             );
 
+            innerActivitiesCounter--;
+            model.resetComplexityMeasure();
+        }
+    }
+
+    public void InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+        ArrayList<DAG> innerBlocks = new ArrayList<>();
+        ArrayList<DAG> sortedInnerBlocks = new ArrayList<>();
+        for(Activity activity: ((DAG) model).end().pre()){
+            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_N");
+            innerBlocks.add(innerBlock);
+            sortedInnerBlocks.add(innerBlock);
+        }
+
+        sortedInnerBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::R));
+
+        int innerActivitiesCounter = 0;
+
+        while(innerActivitiesCounter < innerBlocks.size() && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
+            DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(innerActivitiesCounter))));
+            nestedDAG.replace(
+                    new Analytical(nestedDAG.name() + "nested",
+                            approximator().getApproximatedStochasticTransitionFeature(
+                                    analyze(nestedDAG, nestedDAG.LFT(), step, error),
+                                    nestedDAG.EFT().doubleValue(),
+                                    nestedDAG.LFT().doubleValue(),
+                                    step
+                            )
+                    )
+            );
+
             innerActivitiesCounter++;
+            model.resetComplexityMeasure();
         }
     }
 

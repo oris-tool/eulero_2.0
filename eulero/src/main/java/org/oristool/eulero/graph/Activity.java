@@ -131,6 +131,13 @@ public abstract class Activity {
         return !Objects.isNull(simplifiedR) ? simplifiedR : computeR(true);
     }
 
+    public void resetComplexityMeasure(){
+        computeC(true);
+        computeC(false);
+        //computeR(true);
+        //computeR(false);
+    }
+
     public void setEFT(BigDecimal EFT) {
         this.EFT = EFT;
     }
