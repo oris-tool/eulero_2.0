@@ -1,16 +1,13 @@
 package org.oristool.eulero.math.approximation;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.oristool.eulero.math.distribution.continuous.ShiftedExponentialDistribution;
 import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
-import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 
 public class EXPMixtureApproximationTest {
 

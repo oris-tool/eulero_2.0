@@ -1,6 +1,5 @@
 package org.oristool.eulero.math.distribution.discrete;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
