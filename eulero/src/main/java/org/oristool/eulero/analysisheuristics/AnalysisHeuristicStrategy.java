@@ -1,32 +1,18 @@
 package org.oristool.eulero.analysisheuristics;
 
-import org.checkerframework.checker.units.qual.A;
-import org.oristool.analyzer.graph.SuccessionGraph;
-import org.oristool.analyzer.state.State;
 import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.ui.ActivityViewer;
-import org.oristool.math.expression.Variable;
-import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
-import org.oristool.models.stpn.trees.EnablingSyncsFeature;
-import org.oristool.models.tpn.ConcurrencyTransitionFeature;
-import org.oristool.models.tpn.TimedAnalysis;
-import org.oristool.models.tpn.TimedStateFeature;
-import org.oristool.models.tpn.TimedTransitionFeature;
-import org.oristool.petrinet.Marking;
-import org.oristool.petrinet.PetriNet;
-import org.oristool.petrinet.Place;
-import org.oristool.petrinet.Transition;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public abstract class AnalysisHeuristicStrategy {
     private final BigInteger CThreshold;
@@ -112,13 +98,27 @@ public abstract class AnalysisHeuristicStrategy {
         MainHelper.ResultWrapper analysis2 = new MainHelper.ResultWrapper(analyze(replacingBody, timeLimit, step, error), replacingBody.EFT().divide(step).intValue(), replacingBody.LFT().divide(step).intValue(), step.doubleValue());
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("real", "appr"), analysis, analysis2);
         ((Repeat) model).repeatBody().replace(replacingBody);
+
+        //TODO Place Return here
     }
 
-    public void DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+    public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
         // prendo le attività composte con complessità non banale (escludo attività semplici e IMM)
         ArrayList<Activity> innerActivities = ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())
                 .stream().filter(t -> (t.C().doubleValue() > 1 && t.R().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::R)).collect(Collectors.toCollection(ArrayList::new));
-        int innerActivitiesCounter = innerActivities.size() - 1;
+
+        innerActivities.get(innerActivities.size() - 1).replace(
+                new Analytical(innerActivities.get(innerActivities.size() - 1).name() + "_N",
+                        approximator().getApproximatedStochasticTransitionFeature(analyze(innerActivities.get(innerActivities.size() - 1), innerActivities.get(innerActivities.size() - 1).LFT(), step, error),
+                                innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), innerActivities.get(innerActivities.size() - 1).LFT().doubleValue(), step))
+        );
+
+        model.resetComplexityMeasure();
+
+        return this.analyze(model, timeLimit, step, error);
+
+
+        /*int innerActivitiesCounter = innerActivities.size() - 1;
 
         while(innerActivitiesCounter >= 0 && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
             innerActivities.get(innerActivitiesCounter).replace(
@@ -129,42 +129,48 @@ public abstract class AnalysisHeuristicStrategy {
 
             innerActivitiesCounter--;
             model.resetComplexityMeasure();
-        }
+        }*/
     }
 
-    public void InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+    public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
         ArrayList<DAG> innerBlocks = new ArrayList<>();
         ArrayList<DAG> sortedInnerBlocks = new ArrayList<>();
+        int counter = 0;
         for(Activity activity: ((DAG) model).end().pre()){
-            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_N");
+            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_N_act" + counter);
             innerBlocks.add(innerBlock);
+            innerBlock.C();
+            innerBlock.R();
             sortedInnerBlocks.add(innerBlock);
+            counter++;
         }
 
         sortedInnerBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::R));
 
-        int innerActivitiesCounter = 0;
+        //int innerActivitiesCounter = sortedInnerBlocks.size() - 1;
 
-        while(innerActivitiesCounter < innerBlocks.size() && (model.C().compareTo(CThreshold) > 0 || model.R().compareTo(RThreshold) > 0)){
-            DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(innerActivitiesCounter))));
-            nestedDAG.replace(
-                    new Analytical(nestedDAG.name() + "nested",
-                            approximator().getApproximatedStochasticTransitionFeature(
-                                    analyze(nestedDAG, nestedDAG.LFT(), step, error),
-                                    nestedDAG.EFT().doubleValue(),
-                                    nestedDAG.LFT().doubleValue(),
-                                    step
-                            )
-                    )
-            );
+        DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1))));
+        nestedDAG.setEFT(nestedDAG.low());
+        nestedDAG.setLFT(nestedDAG.upp());
+        nestedDAG.replace(
+                new Analytical(nestedDAG.name() + "_from_" + sortedInnerBlocks.get(sortedInnerBlocks.size() - 1).name(),
+                        approximator().getApproximatedStochasticTransitionFeature(
+                                analyze(nestedDAG, nestedDAG.LFT(), step, error),
+                                nestedDAG.EFT().doubleValue(),
+                                nestedDAG.LFT().doubleValue(),
+                                step
+                        )
+                )
+        );
 
-            innerActivitiesCounter++;
-            model.resetComplexityMeasure();
-        }
+        model.resetComplexityMeasure();
+        return this.analyze(model, timeLimit, step, error);
     }
 
     public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+        System.out.println("Analyzing Block: " + model.name());
         TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.toString(), error.toString());
+        System.out.println("Analyzing Block: Done");
         double[] solution = new double[transientSolution.getSolution().length];
         for(int i = 0; i < solution.length; i++){
             solution[i] = transientSolution.getSolution()[i][0][0];
@@ -172,42 +178,4 @@ public abstract class AnalysisHeuristicStrategy {
 
         return solution;
     }
-
-    /*public boolean complexityCheck(Activity model, boolean simplifiedAnalysis){
-        PetriNet pn = new PetriNet();
-        Place in = pn.addPlace("pBEGIN");
-        Place out = pn.addPlace("pEND");
-        model.getTimedPetriBlock(pn, in, out, 1);
-
-        Marking m = new Marking();
-        m.addTokens(in, 1);
-
-        TimedAnalysis.Builder builder = TimedAnalysis.builder();
-        builder.includeAge(true);
-        builder.markRegenerations(true);
-        builder.excludeZeroProb(true);
-
-        TimedAnalysis analysis = builder.build();
-
-        SuccessionGraph graph = analysis.compute(pn, m);
-
-        // Get C
-        int maxC = 0;
-        for (State s: graph.getStates()) {
-            int maximumTestValue = 0;
-            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
-                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
-                    maximumTestValue += !simplifiedAnalysis ? 1 : t.getFeature(ConcurrencyTransitionFeature.class).getC();
-                }
-            }
-
-            if(maximumTestValue > maxC){
-                maxC = maximumTestValue;
-            }
-        }
-
-        return maxC > CThreshold;
-    }
-
-    getC()*/
 }

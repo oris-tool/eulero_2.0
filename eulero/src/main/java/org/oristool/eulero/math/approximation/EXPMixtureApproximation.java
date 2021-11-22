@@ -186,7 +186,7 @@ public class EXPMixtureApproximation extends Approximator {
     @Override
     public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         if(cdf.length < (upp - low)/step.doubleValue()){
-            throw new RuntimeException("cdf has enpugh samples with respect to provided support and time step value");
+            throw new RuntimeException("cdf has not enough samples with respect to provided support and time step value");
         }
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
         ArrayList<GEN> distributionPieces = new ArrayList<>();
@@ -263,7 +263,9 @@ public class EXPMixtureApproximation extends Approximator {
             );
         }
 
-        String bodyDensity = cdf[Q3Index] * bodyLambda * Math.exp(bodyLambda * delta) + " * Exp[-" + bodyLambda + " x]";
+        String bodyDensity =
+                cdf[Q3Index] * bodyLambda * Math.exp(bodyLambda * delta) / (1 - Math.exp(-bodyLambda * (Q3 - delta))) +
+                        " * Exp[-" + bodyLambda + " x]";
         distributionPieces.add(GEN.newExpolynomial(bodyDensity, new OmegaBigDecimal(String.valueOf(delta)), new OmegaBigDecimal(String.valueOf(Q3))));
 
         //tail

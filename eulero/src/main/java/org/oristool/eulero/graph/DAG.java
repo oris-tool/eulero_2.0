@@ -213,6 +213,8 @@ public class DAG extends Activity {
         // recursively add nested activities
         for (int i = act.size() - 1; i >= 0; i--) {
             Activity a = act.get(i);
+            a.setEFT(a.low());
+            a.setLFT(a.upp());
 
             if (a.equals(begin())) {
                 if (useBegin) {

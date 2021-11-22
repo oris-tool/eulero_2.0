@@ -19,6 +19,7 @@ package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
@@ -44,11 +45,13 @@ import org.oristool.petrinet.Transition;
 public class Analytical extends Activity {
 
     private StochasticTransitionFeature pdf;
+    private ArrayList<StochasticTransitionFeature> pdfFeatures;
 
     /**
      * Creates an activity with analytical PDF. 
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
+        // Se funziona meglio co lo XOR di transizioni, questo praticamente non lo cancello, ma mi andrà a creare la lista e ad aggiungere pdf
         super(name);
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
@@ -59,22 +62,17 @@ public class Analytical extends Activity {
         this.pdf = pdf;
     }
 
-    // TODO cancellare?
-    public Analytical(String name, ContinuousDistribution distribution) {
+    public Analytical(String name, ArrayList<StochasticTransitionFeature> pdfFeatures) {
         super(name);
-        this.pdf = StochasticTransitionFeature.newExpolynomial(
-                distribution.getExpolynomialDensityString(),
-                new OmegaBigDecimal(distribution.getLow()),
-                new OmegaBigDecimal(distribution.getUpp())
-        );
-        setEFT(pdf.density().getDomainsLFT().bigDecimalValue());
-        setLFT(pdf.density().getDomainsEFT().bigDecimalValue());
+        setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
+        setLFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).max().orElse(0)));
         setC(BigInteger.ONE);
         setR(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
         setSimplifiedR(BigInteger.ONE);
+        this.pdfFeatures = pdfFeatures;
     }
-    
+
     @Override
     public Analytical copyRecursive(String suffix) {
         return new Analytical(this.name() + suffix, this.pdf());
@@ -118,6 +116,7 @@ public class Analytical extends Activity {
     }
 
     public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step){
+        // Se si trova un modo più furbo di fare questa...
         TransientSolution<DeterministicEnablingState, RewardRate> analysisSolution = this.analyze(timeLimit.toString(), step.toString(), step.toString());
         double[] cdf = new double[analysisSolution.getSolution().length];
         for(int i = 0; i < cdf.length; i++){
@@ -126,13 +125,33 @@ public class Analytical extends Activity {
         return cdf;
     }
     
-    @Override
+    /*@Override
     public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         Transition t = pn.addTransition(this.name());
         t.addFeature(new Priority(prio));
         t.addFeature(pdf);
         pn.addPrecondition(in, t);
         pn.addPostcondition(t, out);
+        return prio + 1;
+    }*/
+
+    @Override
+    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+        for(StochasticTransitionFeature feature: pdfFeatures){
+            Transition immediateT = pn.addTransition("imm_" + pdfFeatures.indexOf(feature));
+            immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, feature.weight()));
+
+            Place p = pn.addPlace("p_" + pdfFeatures.indexOf(feature));
+
+            Transition t = pn.addTransition(this.name() + "_" + pdfFeatures.indexOf(feature));
+            t.addFeature(new Priority(prio));
+            t.addFeature();
+
+            pn.addPrecondition(in, immediateT);
+            pn.addPostcondition(immediateT, p);
+            pn.addPrecondition(p, t);
+            pn.addPostcondition(t, out);
+        }
         return prio + 1;
     }
 

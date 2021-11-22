@@ -28,7 +28,8 @@ class AnalysisHeuristic1Test {
 
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
-        Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        //Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
         StochasticTransitionFeature unif0_10 =
@@ -69,21 +70,22 @@ class AnalysisHeuristic1Test {
 
     @Test
     void TestWellNestedAndSimpleRepetition() throws InterruptedException {
-        BigDecimal timeLimit = BigDecimal.valueOf(80);
-        BigDecimal step = BigDecimal.valueOf(1.0);
-        BigDecimal error = BigDecimal.valueOf(0.1);
+        BigDecimal timeLimit = BigDecimal.valueOf(8.0);
+        BigDecimal step = BigDecimal.valueOf(0.01);
+        BigDecimal error = BigDecimal.valueOf(0.01);
         int simulationRuns = 20000;
 
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        //Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
         StochasticTransitionFeature unif0_10 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(8));
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
 
         StochasticTransitionFeature unif2_10 =
-                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(10));
+                StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(0.2), BigDecimal.valueOf(1.0));
 
         DAG dag = DAG.sequence("S1",
                 new Analytical("A1", unif0_10),
@@ -132,8 +134,8 @@ class AnalysisHeuristic1Test {
 
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(20);
-        Approximator approximator = new SplineBodyEXPTailApproximation(3);
-        //Approximator approximator = new EXPMixtureApproximation();
+        //Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
         StochasticTransitionFeature unif0_10 =
@@ -183,11 +185,11 @@ class AnalysisHeuristic1Test {
     void TestComplexDAG() throws InterruptedException {
         BigDecimal timeLimit = BigDecimal.valueOf(4.8);
         BigDecimal step = BigDecimal.valueOf(0.01);
-        int simulationRuns = 200;
+        int simulationRuns = 30000;
 
         BigInteger C =  BigInteger.valueOf(3);
-        BigInteger R =  BigInteger.valueOf(20);
-        //Approximator approximator = new SplineBodyEXPTailApproximation(3);
+        BigInteger R =  BigInteger.valueOf(8);
+        //Approximator approximator = new SplineBodyEXPTailApproximation(1);
         Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
@@ -235,9 +237,4 @@ class AnalysisHeuristic1Test {
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
-
-
-
-    // TODO add DAG test;
-    // TODO check also R, SimplifiedR, SimplifiedC
 }

@@ -134,8 +134,8 @@ public abstract class Activity {
     public void resetComplexityMeasure(){
         computeC(true);
         computeC(false);
-        //computeR(true);
-        //computeR(false);
+        computeR(true);
+        computeR(false);
     }
 
     public void setEFT(BigDecimal EFT) {
@@ -242,8 +242,8 @@ public abstract class Activity {
         BigInteger simplifiedMaxR = BigInteger.ZERO;
         while (!regenerativeStack.isEmpty()) {
             // Ogni volta che re-itero, sto verificando una rigenerazione di partenza diversa
-
             Node n = regenerativeStack.pop();
+            //System.out.println("new regenerative node: " + n.toString());
             if (n != null) {
                 BigInteger nodePathLength = computeMaximumPathLength(graph, n, regenerativeStack, false);
                 BigInteger nodeSimplifiedPathLength = computeMaximumPathLength(graph, n, regenerativeStack, true);
