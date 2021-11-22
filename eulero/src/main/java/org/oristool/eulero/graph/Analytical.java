@@ -28,6 +28,7 @@ import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
 import org.oristool.models.pn.Priority;
+import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
@@ -46,6 +47,7 @@ public class Analytical extends Activity {
 
     private StochasticTransitionFeature pdf;
     private ArrayList<StochasticTransitionFeature> pdfFeatures;
+    private ArrayList<BigDecimal> pdfWeights;
 
     /**
      * Creates an activity with analytical PDF. 
@@ -59,10 +61,13 @@ public class Analytical extends Activity {
         setR(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
         setSimplifiedR(BigInteger.ONE);
-        this.pdf = pdf;
+        this.pdfFeatures = new ArrayList<>();
+        this.pdfFeatures.add(pdf);
+        this.pdfWeights = new ArrayList<>();
+        this.pdfWeights.add(BigDecimal.ONE);
     }
 
-    public Analytical(String name, ArrayList<StochasticTransitionFeature> pdfFeatures) {
+    public Analytical(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
         super(name);
         setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
         setLFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).max().orElse(0)));
@@ -71,6 +76,7 @@ public class Analytical extends Activity {
         setSimplifiedC(BigInteger.ONE);
         setSimplifiedR(BigInteger.ONE);
         this.pdfFeatures = pdfFeatures;
+        this.pdfWeights = pdfWeights;
     }
 
     @Override
@@ -138,14 +144,14 @@ public class Analytical extends Activity {
     @Override
     public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         for(StochasticTransitionFeature feature: pdfFeatures){
-            Transition immediateT = pn.addTransition("imm_" + pdfFeatures.indexOf(feature));
-            immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, feature.weight()));
+            Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdfFeatures.indexOf(feature));
+            immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdfWeights.get(pdfFeatures.indexOf(feature)).doubleValue())));
 
             Place p = pn.addPlace("p_" + pdfFeatures.indexOf(feature));
 
             Transition t = pn.addTransition(this.name() + "_" + pdfFeatures.indexOf(feature));
             t.addFeature(new Priority(prio));
-            t.addFeature();
+            t.addFeature(feature);
 
             pn.addPrecondition(in, immediateT);
             pn.addPostcondition(immediateT, p);

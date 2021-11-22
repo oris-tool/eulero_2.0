@@ -6,10 +6,15 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public abstract class Approximator {
-    public Approximator(){ };
+    private ArrayList<BigDecimal> stochasticTransitionFeatureWeights;
+
+    public Approximator(){
+        stochasticTransitionFeatureWeights = new ArrayList<>();
+    };
 
     public abstract Map<String, Map<String, BigDecimal>> getApproximationSupports(double[] cdf, double low, double upp, BigDecimal step);
 
@@ -22,6 +27,12 @@ public abstract class Approximator {
     public abstract Map<String, Map<String, BigDecimal>> getApproximationParameters(double[] cdf, double low, double upp, BigDecimal step);
 
     public abstract StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step);
+
+    public abstract ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step);
+
+    public ArrayList<BigDecimal> stochasticTransitionFeatureWeights() {
+        return stochasticTransitionFeatureWeights;
+    }
 
     public static class ApproximationSupportSetup {
         private final BigDecimal weight;
