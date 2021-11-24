@@ -2,7 +2,7 @@ package org.oristool.eulero.models.onthefly;
 
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
-import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DifferentUniformModelBuilder extends ModelBuilder {
+public class DifferentUniformModelBuilderDeprecated extends ModelBuilder_Deprecated {
     private ArrayList<Map<String, Double>> features;
 
-    public DifferentUniformModelBuilder(ArrayList<Map<String, Double>> features, Approximator approximator) {
+    public DifferentUniformModelBuilderDeprecated(ArrayList<Map<String, Double>> features, Approximator approximator) {
         super(null, approximator);
         this.features = features;
     }

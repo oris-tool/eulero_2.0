@@ -1,28 +1,27 @@
-package org.oristool.eulero.models.qest21;
+package org.oristool.eulero.models.qest21_deprecated;
 
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
-import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
-public class TestDBuilder extends ModelBuilder {
-    public TestDBuilder(StochasticTransitionFeature feature, Approximator approximator) {
+public class TestBBuilderDeprecated extends ModelBuilder_Deprecated {
+    public TestBBuilderDeprecated(StochasticTransitionFeature feature, Approximator approximator) {
         super(feature, approximator);
     }
+
 
     /* DAG dependency breaking */
     public Activity buildModelForAnalysis_Heuristic1(BigDecimal timeBound, BigDecimal timeTick) {
         StochasticTransitionFeature feature = this.getFeature();
         Approximator approximator = this.getApproximator();
 
-        // Computing P, M', N' and K
         // Computing P, M', N' and K
         Analytical q_0 = new Analytical("Q", feature);
         Analytical r_0 = new Analytical("R", feature);
@@ -73,8 +72,8 @@ public class TestDBuilder extends ModelBuilder {
         }
 
         Numerical numericalP = Numerical.and(List.of(
-                new Numerical("PUp_numerical", timeTick, getLowIndex(pUpCdf_0), getUppIndex(pUpCdf_0), cutCDF(pUpCdf_0), approximator),
-                new Numerical("PDown_numerical", timeTick, getLowIndex(pDownCdf_0), getUppIndex(pDownCdf_0), cutCDF(pDownCdf_0), approximator)
+            new Numerical("PUp_numerical", timeTick, getLowIndex(pUpCdf_0), getUppIndex(pUpCdf_0), cutCDF(pUpCdf_0), approximator),
+            new Numerical("PDown_numerical", timeTick, getLowIndex(pDownCdf_0), getUppIndex(pDownCdf_0), cutCDF(pDownCdf_0), approximator)
         ));
 
         Analytical q_1 = new Analytical("Q'", feature);
@@ -92,7 +91,6 @@ public class TestDBuilder extends ModelBuilder {
         m_1.end().addPrecondition(t_1, u_1);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("3", timeTick.toString(), "0.001");
-        m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for(int count = 0; count < m1Analysis.getSolution().length; count++){
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
@@ -115,7 +113,6 @@ public class TestDBuilder extends ModelBuilder {
         m_2.end().addPrecondition(t_2, u_2);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("3", timeTick.toString(), "0.001");
-        m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for(int count = 0; count < m2Analysis.getSolution().length; count++){
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
@@ -177,39 +174,6 @@ public class TestDBuilder extends ModelBuilder {
                 new Numerical("M3Down_Numerical", timeTick, getLowIndex(m3DownCdf), getUppIndex(m3DownCdf), cutCDF(m3DownCdf), approximator)
         ));
 
-        // Gestisco E
-        Numerical oNumerical = Numerical.and(List.of(
-            Numerical.seq(List.of(
-                Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                Numerical.and(List.of(
-                    Numerical.uniform("I'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                    Numerical.uniform("J'", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
-                ))
-            ),
-            Numerical.seq(List.of(
-                Numerical.uniform("K'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                Numerical.and(List.of(numericalM1, numericalM2)))
-            ))
-        );
-        oNumerical.setApproximator(approximator);
-
-        Repeat m = new Repeat("M", 0.2, numericalP);
-        Analytical n = new Analytical("N", feature);
-        Numerical o = new Numerical("O", timeTick, oNumerical.min(), oNumerical.max(), oNumerical.getCdf(), approximator);
-
-        Repeat e = new Repeat("E", 0.3,
-                DAG.sequence("L", m, n, o)
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze(timeBound.toString(), timeTick.toString(), "0.001");
-        double[] eCdf = new double[eAnalysis.getSolution().length];
-        for(int count = 0; count < eAnalysis.getSolution().length; count++){
-            eCdf[count] = eAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
-
-        // Gestione Main
         Numerical main = Numerical.and(List.of(
             Numerical.and(List.of(
                 Numerical.seq(List.of(
@@ -218,8 +182,23 @@ public class TestDBuilder extends ModelBuilder {
                     Numerical.uniform("C", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
                     Numerical.uniform("D", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
                 ),
-                numericalE
-            )),
+                Numerical.seq(List.of(
+                    numericalP, Numerical.uniform("N", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                    Numerical.and(List.of(
+                        Numerical.seq(List.of(
+                            Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                            Numerical.and(List.of(
+                                Numerical.uniform("I'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                                Numerical.uniform("J'", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
+                            ))
+                        ),
+                        Numerical.seq(List.of(
+                            Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                            Numerical.and(List.of(numericalM1, numericalM2)))
+                        ))
+                    ))
+                ))
+            ),
             Numerical.seq(List.of(
                 Numerical.and(List.of(
                     Numerical.uniform("F", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -313,7 +292,6 @@ public class TestDBuilder extends ModelBuilder {
         m_1.end().addPrecondition(t_1, u_1);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("3", timeTick.toString(), "0.001");
-        m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for(int count = 0; count < m1Analysis.getSolution().length; count++){
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
@@ -336,7 +314,6 @@ public class TestDBuilder extends ModelBuilder {
         m_2.end().addPrecondition(t_2, u_2);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("3", timeTick.toString(), "0.001");
-        m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for(int count = 0; count < m2Analysis.getSolution().length; count++){
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
@@ -385,39 +362,6 @@ public class TestDBuilder extends ModelBuilder {
         // M3
         Numerical numericalM3 = new Numerical("M3Numerical", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
 
-        // Gestisco E
-        Numerical oNumerical = Numerical.and(List.of(
-                Numerical.seq(List.of(
-                        Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                        Numerical.and(List.of(
-                                Numerical.uniform("I'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                                Numerical.uniform("J'", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
-                        ))
-                ),
-                Numerical.seq(List.of(
-                        Numerical.uniform("K'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
-                        Numerical.and(List.of(numericalM1, numericalM2)))
-                ))
-        );
-        oNumerical.setApproximator(approximator);
-
-        Repeat m = new Repeat("M", 0.2, numericalP);
-        Analytical n = new Analytical("N", feature);
-        Numerical o = new Numerical("O", timeTick, oNumerical.min(), oNumerical.max(), oNumerical.getCdf(), approximator);
-
-        Repeat e = new Repeat("E", 0.3,
-                DAG.sequence("L", m, n, o)
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze(timeBound.toString(), timeTick.toString(), "0.001");
-        double[] eCdf = new double[eAnalysis.getSolution().length];
-        for(int count = 0; count < eAnalysis.getSolution().length; count++){
-            eCdf[count] = eAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
-
-        // Gestione Main
         Numerical main = Numerical.and(List.of(
                 Numerical.and(List.of(
                         Numerical.seq(List.of(
@@ -426,8 +370,23 @@ public class TestDBuilder extends ModelBuilder {
                                 Numerical.uniform("C", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
                                 Numerical.uniform("D", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
                         ),
-                        numericalE
-                )),
+                        Numerical.seq(List.of(
+                                numericalP, Numerical.uniform("N", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                                Numerical.and(List.of(
+                                        Numerical.seq(List.of(
+                                                Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                                                Numerical.and(List.of(
+                                                        Numerical.uniform("I'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                                                        Numerical.uniform("J'", BigDecimal.ZERO, BigDecimal.ONE, timeTick))
+                                                ))
+                                        ),
+                                        Numerical.seq(List.of(
+                                                Numerical.uniform("G'", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
+                                                Numerical.and(List.of(numericalM1, numericalM2)))
+                                        ))
+                                ))
+                        ))
+                ),
                 Numerical.seq(List.of(
                         Numerical.and(List.of(
                                 Numerical.uniform("F", BigDecimal.ZERO, BigDecimal.ONE, timeTick),
@@ -455,6 +414,7 @@ public class TestDBuilder extends ModelBuilder {
                         ))
                 ))
         );
+
         main.setApproximator(approximator);
 
         return main;
@@ -534,7 +494,6 @@ public class TestDBuilder extends ModelBuilder {
         m_1.end().addPrecondition(t_1, u_1);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("3", timeTick.toString(), "0.001");
-        m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for(int count = 0; count < m1Analysis.getSolution().length; count++){
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
@@ -557,7 +516,6 @@ public class TestDBuilder extends ModelBuilder {
         m_2.end().addPrecondition(t_2, u_2);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("3", timeTick.toString(), "0.001");
-        m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for(int count = 0; count < m2Analysis.getSolution().length; count++){
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
@@ -619,78 +577,6 @@ public class TestDBuilder extends ModelBuilder {
                 new Numerical("M3Down_Numerical", timeTick, getLowIndex(m3DownCdf), getUppIndex(m3DownCdf), cutCDF(m3DownCdf), approximator)
         ));
 
-        // Gestisco E
-        DAG o1 = DAG.sequence("O1",
-                new Analytical("G'", feature),
-                DAG.forkJoin("I'1J'",
-                        new Analytical("I'", feature),
-                        new Analytical("J'", feature)
-                )
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("2", timeTick.toString(), "0.001");
-        double[] o1Cdf = new double[o1Analysis.getSolution().length];
-        for(int count = 0; count < o1Analysis.getSolution().length; count++){
-            o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
-        }
-
-        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, getLowIndex(o1Cdf), getUppIndex(o1Cdf), cutCDF(o1Cdf), approximator);
-
-        DAG o2 = DAG.sequence("O2",
-                new Analytical("K", feature),
-                DAG.forkJoin("M1M2", numericalM1, numericalM2)
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze("3", timeTick.toString(), "0.001");
-        double[] o2Cdf = new double[o2Analysis.getSolution().length];
-        for(int count = 0; count < o2Analysis.getSolution().length; count++){
-            o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
-        }
-
-        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, getLowIndex(o2Cdf), getUppIndex(o2Cdf), cutCDF(o2Cdf), approximator);
-
-        DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
-
-        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze("3", timeTick.toString(), "0.001");
-        double[] oCdf = new double[oAnalysis.getSolution().length];
-        for(int count = 0; count < oAnalysis.getSolution().length; count++){
-            oCdf[count] = oAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical oNumerical = new Numerical("O_Numerical", timeTick, getLowIndex(oCdf), getUppIndex(oCdf), cutCDF(oCdf), approximator);
-        Repeat m = new Repeat("M", 0.2, numericalP);
-        Analytical n = new Analytical("N", feature);
-
-        Repeat e = new Repeat("E", 0.3,
-                DAG.sequence("L", m, n, oNumerical)
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze(timeBound.toString(), timeTick.toString(), "0.001");
-        double[] eCdf = new double[eAnalysis.getSolution().length];
-        for(int count = 0; count < eAnalysis.getSolution().length; count++){
-            eCdf[count] = eAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
-
-        // Gestione Main - E questo?
-        DAG main_left = DAG.forkJoin("M1",
-                DAG.sequence("M1A",
-                        new Analytical("A", feature),
-                        new Analytical("B", feature),
-                        new Analytical("C", feature),
-                        new Analytical("D", feature)
-                ), numericalE
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> mainLeftAnalysis = main_left.analyze(timeBound.add(BigDecimal.valueOf(5)).toString(), timeTick.toString(), "0.001");
-        double[] mainLeftCdf = new double[mainLeftAnalysis.getSolution().length];
-        for(int count = 0; count < mainLeftAnalysis.getSolution().length; count++){
-            mainLeftCdf[count] = mainLeftAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, getLowIndex(mainLeftCdf), getUppIndex(mainLeftCdf), cutCDF(mainLeftCdf), approximator);
-
         DAG main_right = DAG.sequence("M2",
                 DAG.forkJoin("M2A",
                         new Analytical("F", feature),
@@ -726,6 +612,84 @@ public class TestDBuilder extends ModelBuilder {
         }
 
         Numerical mainRightNumerical = new Numerical("MainRightNumerical", timeTick, getLowIndex(mainRightCdf), getUppIndex(mainRightCdf), cutCDF(mainRightCdf), approximator);
+
+        // Left part
+        DAG o1 = DAG.sequence("O1",
+                new Analytical("G'", feature),
+                DAG.forkJoin("I'1J'",
+                        new Analytical("I'", feature),
+                        new Analytical("J'", feature)
+                )
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("3", timeTick.toString(), "0.001");
+        double[] o1Cdf = new double[o1Analysis.getSolution().length];
+        for(int count = 0; count < o1Analysis.getSolution().length; count++){
+            o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
+        }
+
+        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, getLowIndex(o1Cdf), getUppIndex(o1Cdf), cutCDF(o1Cdf), approximator);
+
+        DAG o2 = DAG.sequence("O2",
+                new Analytical("K", feature),
+                DAG.forkJoin("M1M2", numericalM1, numericalM2)
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> o2Analysis = o2.analyze("3", timeTick.toString(), "0.001");
+        double[] o2Cdf = new double[o2Analysis.getSolution().length];
+        for(int count = 0; count < o2Analysis.getSolution().length; count++){
+            o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
+        }
+
+        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, getLowIndex(o2Cdf), getUppIndex(o2Cdf), cutCDF(o2Cdf), approximator);
+
+        DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
+
+        TransientSolution<DeterministicEnablingState, RewardRate> oAnalysis = o.analyze("5", timeTick.toString(), "0.001");
+        double[] oCdf = new double[oAnalysis.getSolution().length];
+        for(int count = 0; count < oAnalysis.getSolution().length; count++){
+            oCdf[count] = oAnalysis.getSolution()[count][0][0];
+        }
+
+        Numerical oNumerical = new Numerical("O_Numerical", timeTick, getLowIndex(oCdf), getUppIndex(oCdf), cutCDF(oCdf), approximator);
+
+        DAG main_left_up = DAG.sequence("MLU",
+                new Analytical("A", feature),
+                new Analytical("B", feature),
+                new Analytical("C", feature),
+                new Analytical("D", feature)
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> MLUAnalysis = main_left_up.analyze(timeBound.toString(), timeTick.toString(), "0.001");
+        double[] mluCdf = new double[MLUAnalysis.getSolution().length];
+        for(int count = 0; count < MLUAnalysis.getSolution().length; count++){
+            mluCdf[count] = MLUAnalysis.getSolution()[count][0][0];
+        }
+
+        DAG main_left_down = DAG.sequence("MLD",
+                numericalP,
+                new Analytical("N", feature),
+                oNumerical
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> MLDAnalysis = main_left_down.analyze(timeBound.toString(), timeTick.toString(), "0.001");
+        double[] mldCdf = new double[MLDAnalysis.getSolution().length];
+        for(int count = 0; count < MLDAnalysis.getSolution().length; count++){
+            mldCdf[count] = MLDAnalysis.getSolution()[count][0][0];
+        }
+
+        DAG main_left = DAG.forkJoin("M1",
+                new Numerical("MLU_Numerical", timeTick, getLowIndex(mluCdf), getUppIndex(mluCdf), cutCDF(mluCdf), approximator),
+                new Numerical("MLD_Numerical", timeTick, getLowIndex(mldCdf), getUppIndex(mldCdf), cutCDF(mldCdf), approximator)
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> mainLeftAnalysis = main_left.analyze(timeBound.toString(), timeTick.toString(), "0.001");
+        double[] mainLeftCdf = new double[mainLeftAnalysis.getSolution().length];
+        for(int count = 0; count < mainLeftAnalysis.getSolution().length; count++){
+            mainLeftCdf[count] = mainLeftAnalysis.getSolution()[count][0][0];
+        }
+
+        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, getLowIndex(mainLeftCdf), getUppIndex(mainLeftCdf), cutCDF(mainLeftCdf), approximator);
 
         DAG main = DAG.forkJoin("MAIN", mainLeftNumerical, mainRightNumerical);
 
@@ -757,7 +721,7 @@ public class TestDBuilder extends ModelBuilder {
         for(int count = 0; count < tu0Analysis_0.getSolution().length; count++){
             tu0Cdf[count] = tu0Analysis_0.getSolution()[count][0][0];
         }
-        Numerical tu0Numerical = new Numerical("TU0Numerical", timeTick, getLowIndex(tu0Cdf), getUppIndex(tu0Cdf), cutCDF(tu0Cdf), approximator);
+        Numerical tu0Numerical = new Numerical("TU0Numerical", timeTick, 0, tu0Cdf.length, tu0Cdf, approximator);
 
         DAG wx_0 = DAG.forkJoin("WX",
                 DAG.sequence("X",
@@ -771,7 +735,7 @@ public class TestDBuilder extends ModelBuilder {
         for(int count = 0; count < wx0Analysis_0.getSolution().length; count++){
             twx0Cdf[count] = wx0Analysis_0.getSolution()[count][0][0];
         }
-        Numerical wx0Numerical = new Numerical("WX0Numerical", timeTick, getLowIndex(twx0Cdf), getUppIndex(twx0Cdf), cutCDF(twx0Cdf), approximator);
+        Numerical wx0Numerical = new Numerical("WX0Numerical", timeTick, 0, twx0Cdf.length, twx0Cdf, approximator);
 
         DAG p = DAG.empty("P");
         q_0.addPrecondition(p.begin());
@@ -788,7 +752,7 @@ public class TestDBuilder extends ModelBuilder {
             pCDF[count] = pAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalP = new Numerical("P_numerical", timeTick, getLowIndex(pCDF), getUppIndex(pCDF), cutCDF(pCDF), approximator);
+        Numerical numericalP = new Numerical("P_numerical", timeTick, 0, pCDF.length, pCDF, approximator);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -805,13 +769,12 @@ public class TestDBuilder extends ModelBuilder {
         m_1.end().addPrecondition(t_1, u_1);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("3", timeTick.toString(), "0.001");
-        m1Analysis.getSolution();
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for(int count = 0; count < m1Analysis.getSolution().length; count++){
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
+        Numerical numericalM1 = new Numerical("m1", timeTick, 0,  m1Cdf.length, m1Cdf, approximator);
 
         Analytical q_2 = new Analytical("Q''", feature);
         Analytical r_2 = new Analytical("R''", feature);
@@ -828,13 +791,12 @@ public class TestDBuilder extends ModelBuilder {
         m_2.end().addPrecondition(t_2, u_2);
 
         TransientSolution<DeterministicEnablingState, RewardRate> m2Analysis = m_2.analyze("3", timeTick.toString(), "0.001");
-        m2Analysis.getSolution();
         double[] m2Cdf = new double[m2Analysis.getSolution().length];
         for(int count = 0; count < m2Analysis.getSolution().length; count++){
             m2Cdf[count] = m2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM2 = new Numerical("m2", timeTick, getLowIndex(m2Cdf), getUppIndex(m2Cdf), cutCDF(m2Cdf), approximator);
+        Numerical numericalM2 = new Numerical("m2", timeTick, 0,  m2Cdf.length, m2Cdf, approximator);
 
         Analytical q_3 = new Analytical("Q'''", feature);
         Analytical r_3 = new Analytical("R''''", feature);
@@ -856,14 +818,14 @@ public class TestDBuilder extends ModelBuilder {
             tu3Cdf_0[count] = tu3Analysis.getSolution()[count][0][0];
         }
 
-        Numerical tu3Numerical = new Numerical("TU3Numerical", timeTick, getLowIndex(tu3Cdf_0), getUppIndex(tu3Cdf_0), cutCDF(tu3Cdf_0), approximator);
+        Numerical tu3Numerical = new Numerical("TU3Numerical", timeTick, 0, tu3Cdf_0.length, tu3Cdf_0, approximator);
 
         DAG wx_3 = DAG.forkJoin("WX'''",
-                DAG.sequence("X'''",
-                        new Analytical("X1'''", feature),
-                        new Analytical("X2'''", feature)
-                ),
-                w_3
+            DAG.sequence("X'''",
+                new Analytical("X1'''", feature),
+                new Analytical("X2'''", feature)
+            ),
+            w_3
         );
 
         TransientSolution<DeterministicEnablingState, RewardRate> wx3Analysis = wx_3.analyze("3", timeTick.toString(), "0.001");
@@ -872,7 +834,7 @@ public class TestDBuilder extends ModelBuilder {
             wx3Cdf_0[count] = wx3Analysis.getSolution()[count][0][0];
         }
 
-        Numerical wx3Numerical = new Numerical("WX3Numerical", timeTick, getLowIndex(wx3Cdf_0), getUppIndex(wx3Cdf_0), cutCDF(wx3Cdf_0), approximator);
+        Numerical wx3Numerical = new Numerical("WX3Numerical", timeTick, 0, wx3Cdf_0.length, wx3Cdf_0, approximator);
 
         DAG m_3 = DAG.empty("M'''");
         q_3.addPrecondition(m_3.begin());
@@ -889,9 +851,45 @@ public class TestDBuilder extends ModelBuilder {
             m3Cdf[count] = m3Analysis.getSolution()[count][0][0];
         }
 
-        Numerical numericalM3 = new Numerical("M3_Numerical", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
+        Numerical numericalM3 = new Numerical("M3_Numerical", timeTick, 0, m3Cdf.length, m3Cdf, approximator);
 
-        // Gestisco E
+        DAG main_right = DAG.sequence("M2",
+            DAG.forkJoin("M2A",
+                new Analytical("F", feature),
+                DAG.sequence("G",
+                    new Analytical("X", feature),
+                    new Analytical("Y", feature)
+                )
+            ),
+            DAG.forkJoin("M2B",
+                new Xor("I" , List.of(
+                    new Analytical("B'", feature),
+                    new Analytical("C'", feature)
+                ), List.of(0.3, 0.7)),
+                DAG.sequence("H",
+                    new Analytical("Z", feature),
+                    new Analytical("A'", feature)
+                )
+            ),
+            DAG.forkJoin("M2C",
+                numericalM3,
+                DAG.sequence("J",
+                    new Analytical("Y'", feature),
+                    new Analytical("Z'", feature),
+                    new Analytical("A''", feature)
+                )
+            )
+        );
+
+        TransientSolution<DeterministicEnablingState, RewardRate> mainRightAnalysis = main_right.analyze(timeBound.toString(), timeTick.toString(), "0.001");
+        double[] mainRightCdf = new double[mainRightAnalysis.getSolution().length];
+        for(int count = 0; count < mainRightAnalysis.getSolution().length; count++){
+            mainRightCdf[count] = mainRightAnalysis.getSolution()[count][0][0];
+        }
+
+        Numerical mainRightNumerical = new Numerical("MainRightNumerical", timeTick, 0, mainRightCdf.length, mainRightCdf, approximator);
+
+        // Left part
         DAG o1 = DAG.sequence("O1",
                 new Analytical("G'", feature),
                 DAG.forkJoin("I'1J'",
@@ -903,10 +901,10 @@ public class TestDBuilder extends ModelBuilder {
         TransientSolution<DeterministicEnablingState, RewardRate> o1Analysis = o1.analyze("2", timeTick.toString(), "0.001");
         double[] o1Cdf = new double[o1Analysis.getSolution().length];
         for(int count = 0; count < o1Analysis.getSolution().length; count++){
-            m3Cdf[count] = o1Analysis.getSolution()[count][0][0];
+            o1Cdf[count] = o1Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, getLowIndex(m3Cdf), getUppIndex(m3Cdf), cutCDF(m3Cdf), approximator);
+        Numerical o1Numerical = new Numerical("O1_Numerical", timeTick, 0, o1Cdf.length, o1Cdf, approximator);
 
         DAG o2 = DAG.sequence("O2",
                 new Analytical("K", feature),
@@ -919,7 +917,7 @@ public class TestDBuilder extends ModelBuilder {
             o2Cdf[count] = o2Analysis.getSolution()[count][0][0];
         }
 
-        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, getLowIndex(o2Cdf), getUppIndex(o2Cdf), cutCDF(o2Cdf), approximator);
+        Numerical o2Numerical = new Numerical("O2_Numerical", timeTick, 0, o2Cdf.length, o2Cdf, approximator);
 
         DAG o = DAG.forkJoin("O", o1Numerical, o2Numerical);
 
@@ -929,84 +927,41 @@ public class TestDBuilder extends ModelBuilder {
             oCdf[count] = oAnalysis.getSolution()[count][0][0];
         }
 
-        Numerical oNumerical = new Numerical("O_Numerical", timeTick, getLowIndex(oCdf), getUppIndex(oCdf), cutCDF(oCdf), approximator);
-        Repeat m = new Repeat("M", 0.2, numericalP);
-        Analytical n = new Analytical("N", feature);
+        Numerical oNumerical = new Numerical("O_Numerical", timeTick, 0, oCdf.length, oCdf, approximator);
 
-        Repeat e = new Repeat("E", 0.3,
-                DAG.sequence("L", m, n, oNumerical)
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> eAnalysis = e.analyze(timeBound.toString(), timeTick.toString(), "0.001");
-        double[] eCdf = new double[eAnalysis.getSolution().length];
-        for(int count = 0; count < eAnalysis.getSolution().length; count++){
-            eCdf[count] = eAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical numericalE = new Numerical("e", timeTick, getLowIndex(eCdf), getUppIndex(eCdf), cutCDF(eCdf), approximator);
-
-        // Gestione Main - E questo?
         DAG main_left = DAG.forkJoin("M1",
-                DAG.sequence("M1A",
-                        new Analytical("A", feature),
-                        new Analytical("B", feature),
-                        new Analytical("C", feature),
-                        new Analytical("D", feature)
-                ), numericalE
+            DAG.sequence("M1A",
+                new Analytical("A", feature),
+                new Analytical("B", feature),
+                new Analytical("C", feature),
+                new Analytical("D", feature)
+            ),
+            DAG.sequence("E",
+                numericalP,
+                new Analytical("N", feature),
+                oNumerical
+            )
         );
 
-        TransientSolution<DeterministicEnablingState, RewardRate> mainLeftAnalysis = main_left.analyze(timeBound.add(BigDecimal.valueOf(5)).toString(), timeTick.toString(), "0.001");
+        TransientSolution<DeterministicEnablingState, RewardRate> mainLeftAnalysis = main_left.analyze(timeBound.toString(), timeTick.toString(), "0.001");
         double[] mainLeftCdf = new double[mainLeftAnalysis.getSolution().length];
         for(int count = 0; count < mainLeftAnalysis.getSolution().length; count++){
             mainLeftCdf[count] = mainLeftAnalysis.getSolution()[count][0][0];
         }
-        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, getLowIndex(mainLeftCdf), getUppIndex(mainLeftCdf), cutCDF(mainLeftCdf), approximator);
 
-        DAG main_right = DAG.sequence("M2",
-                DAG.forkJoin("M2A",
-                        new Analytical("F", feature),
-                        DAG.sequence("G",
-                                new Analytical("X", feature),
-                                new Analytical("Y", feature)
-                        )
-                ),
-                DAG.forkJoin("M2B",
-                        new Xor("I" , List.of(
-                                new Analytical("B'", feature),
-                                new Analytical("C'", feature)
-                        ), List.of(0.3, 0.7)),
-                        DAG.sequence("H",
-                                new Analytical("Z", feature),
-                                new Analytical("A'", feature)
-                        )
-                ),
-                DAG.forkJoin("M2C",
-                        numericalM3,
-                        DAG.sequence("J",
-                                new Analytical("Y'", feature),
-                                new Analytical("Z'", feature),
-                                new Analytical("A''", feature)
-                        )
-                )
-        );
-
-        TransientSolution<DeterministicEnablingState, RewardRate> mainRightAnalysis = main_right.analyze(timeBound.toString(), timeTick.toString(), "0.001");
-        double[] mainRightCdf = new double[mainRightAnalysis.getSolution().length];
-        for(int count = 0; count < mainRightAnalysis.getSolution().length; count++){
-            mainRightCdf[count] = mainRightAnalysis.getSolution()[count][0][0];
-        }
-
-        Numerical mainRightNumerical = new Numerical("MainRightNumerical", timeTick, getLowIndex(mainRightCdf), getUppIndex(mainRightCdf), cutCDF(mainRightCdf), approximator);
+        Numerical mainLeftNumerical = new Numerical("MainLeftNumerical", timeTick, 0, mainLeftCdf.length, mainLeftCdf, approximator);
 
         DAG main = DAG.forkJoin("MAIN", mainLeftNumerical, mainRightNumerical);
 
         return main;
     }
 
+
+
     public Activity buildModelForSimulation() {
         StochasticTransitionFeature feature = this.getFeature();
 
-        // Computing M, M', N' and K
+        // Computing P, M', N' and K
         Analytical q_0 = new Analytical("Q", feature);
         Analytical r_0 = new Analytical("R", feature);
         Analytical s_0 = new Analytical("S", feature);
@@ -1015,16 +970,17 @@ public class TestDBuilder extends ModelBuilder {
         Analytical w_0 = new Analytical("W", feature);
 
         DAG tu_0 = DAG.forkJoin("TU",
-            DAG.sequence("T",
-                new Analytical("T1", feature),
-                new Analytical("T2", feature)
-            ), u_0
+                DAG.sequence("T",
+                        new Analytical("T1", feature),
+                        new Analytical("T2", feature)
+                ), u_0
         );
+
         DAG wx_0 = DAG.forkJoin("WX",
-            DAG.sequence("X",
-                new Analytical("X1", feature),
-                new Analytical("X2", feature)
-            ), w_0
+                DAG.sequence("X",
+                        new Analytical("X1", feature),
+                        new Analytical("X2", feature)
+                ), w_0
         );
 
         DAG p = DAG.empty("P");
@@ -1035,8 +991,6 @@ public class TestDBuilder extends ModelBuilder {
         v_0.addPrecondition(r_0);
         wx_0.addPrecondition(r_0, s_0);
         p.end().addPrecondition(tu_0, v_0, wx_0);
-
-        Repeat m = new Repeat("M", 0.2, p);
 
         Analytical q_1 = new Analytical("Q'", feature);
         Analytical r_1 = new Analytical("R'", feature);
@@ -1073,16 +1027,18 @@ public class TestDBuilder extends ModelBuilder {
         Analytical v_3 = new Analytical("V'''", feature);
         Analytical w_3 = new Analytical("W'''", feature);
 
-        DAG t_3 = DAG.sequence("T3'''",
+        DAG tu_3 = DAG.forkJoin("TU'''",
+            DAG.sequence("T3'''",
                 new Analytical("T1'''", feature),
-                new Analytical("T2'''", feature));
-
-        DAG x_3 = DAG.sequence("X'''",
+                new Analytical("T2'''", feature)
+            ), u_3
+        );
+        DAG wx_3 = DAG.forkJoin("WX'''",
+            DAG.sequence("X'''",
                 new Analytical("X1'''", feature),
-                new Analytical("X2'''", feature));
-
-        DAG tu_3 = DAG.forkJoin("TU'''", t_3, u_3);
-        DAG wx_3 = DAG.forkJoin("WX'''", w_3, x_3);
+                new Analytical("X2'''", feature)
+            ), w_3
+        );
 
         DAG m_3 = DAG.empty("M'''");
         q_3.addPrecondition(m_3.begin());
@@ -1093,34 +1049,30 @@ public class TestDBuilder extends ModelBuilder {
         wx_3.addPrecondition(r_3, s_3);
         m_3.end().addPrecondition(tu_3, v_3, wx_3);
 
-        Repeat e = new Repeat("E", 0.15,
-            DAG.sequence("L",
-                m, new Analytical("N", feature),
-                DAG.forkJoin("O",
-                    DAG.sequence("E'",
-                        new Analytical("G'", feature),
-                        DAG.forkJoin("H'",
-                            new Analytical("I'", feature),
-                            new Analytical("J'", feature)
-                        )
-                    ),
-                    DAG.sequence("F'",
-                        new Analytical("K'", feature),
-                        DAG.forkJoin("L'", m_1, m_2)
-                    )
-                )
-            )
-        );
-
         DAG main = DAG.forkJoin("MAIN",
             DAG.forkJoin("M1",
-                    DAG.sequence("M1A",
-                            new Analytical("A", feature),
-                            new Analytical("B", feature),
-                            new Analytical("C", feature),
-                            new Analytical("D", feature)
-                    ),
-                    e
+                DAG.sequence("M1A",
+                    new Analytical("A", feature),
+                    new Analytical("B", feature),
+                    new Analytical("C", feature),
+                    new Analytical("D", feature)
+                ),
+                DAG.sequence("E",
+                    p, new Analytical("N", feature),
+                    DAG.forkJoin("O",
+                        DAG.sequence("E'",
+                            new Analytical("G'", feature),
+                            DAG.forkJoin("H'",
+                                new Analytical("I'", feature),
+                                new Analytical("J'", feature)
+                            )
+                        ),
+                        DAG.sequence("F'",
+                            new Analytical("K'", feature),
+                            DAG.forkJoin("L'", m_1, m_2)
+                        )
+                    )
+                )
             ),
             DAG.sequence("M2",
                 DAG.forkJoin("M2A",
@@ -1148,7 +1100,8 @@ public class TestDBuilder extends ModelBuilder {
                         new Analytical("Y'", feature),
                         new Analytical("Z'", feature),
                         new Analytical("A''", feature)
-                    ), m_3
+                    ),
+                    m_3
                 )
             )
         );

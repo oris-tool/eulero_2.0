@@ -70,7 +70,10 @@ public class Analytical extends Activity {
     public Analytical(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
         super(name);
         setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
-        setLFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).max().orElse(0)));
+        setLFT(BigDecimal.valueOf(
+                Double.isInfinite(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble()) ? Double.MAX_VALUE :
+                pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
+        );
         setC(BigInteger.ONE);
         setR(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
@@ -81,7 +84,7 @@ public class Analytical extends Activity {
 
     @Override
     public Analytical copyRecursive(String suffix) {
-        return new Analytical(this.name() + suffix, this.pdf());
+        return new Analytical(this.name() + suffix, this.pdfFeatures, this.pdfWeights);
     }
 
     @Override
@@ -147,7 +150,7 @@ public class Analytical extends Activity {
             Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdfFeatures.indexOf(feature));
             immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdfWeights.get(pdfFeatures.indexOf(feature)).doubleValue())));
 
-            Place p = pn.addPlace("p_" + pdfFeatures.indexOf(feature));
+            Place p = pn.addPlace("p_" + this.name() + "_" + pdfFeatures.indexOf(feature));
 
             Transition t = pn.addTransition(this.name() + "_" + pdfFeatures.indexOf(feature));
             t.addFeature(new Priority(prio));

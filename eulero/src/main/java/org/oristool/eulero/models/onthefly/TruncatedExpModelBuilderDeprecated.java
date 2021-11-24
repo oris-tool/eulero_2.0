@@ -3,7 +3,7 @@ package org.oristool.eulero.models.onthefly;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.distribution.continuous.ShiftedTruncatedExponentialDistribution;
-import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TruncatedExpModelBuilder extends ModelBuilder {
+public class TruncatedExpModelBuilderDeprecated extends ModelBuilder_Deprecated {
     private ArrayList<Map<String, Double>> features;
 
-    public TruncatedExpModelBuilder(ArrayList<Map<String, Double>> features, Approximator approximator) {
+    public TruncatedExpModelBuilderDeprecated(ArrayList<Map<String, Double>> features, Approximator approximator) {
         super(null, approximator);
         this.features = features;
     }

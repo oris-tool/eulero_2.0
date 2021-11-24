@@ -380,7 +380,7 @@ public class EXPMixtureApproximation extends Approximator {
                 new OmegaBigDecimal(String.valueOf(Q3))
         ));
 
-        //tail
+        //tail --> TODO errore: mi mette Q3 index = cdf-length - 1 e quindi il lambda non va mai bene
         double tailLambda = Double.MAX_VALUE;
         for(int i = Q3Index ; i < cdf.length; i++){
             double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
@@ -393,9 +393,6 @@ public class EXPMixtureApproximation extends Approximator {
                 );
             }
         }
-
-        String tailDensity = (1 - cdf[Q3Index]) * tailLambda * Math.exp(tailLambda * Q3) + " * Exp[-" + tailLambda + " x]";
-        distributionPieces.add(GEN.newExpolynomial(tailDensity, new OmegaBigDecimal(String.valueOf(Q3)), OmegaBigDecimal.POSITIVE_INFINITY));
 
         features.add(StochasticTransitionFeature.newShiftedExp(BigDecimal.valueOf(Q3), BigDecimal.valueOf(tailLambda)));
 

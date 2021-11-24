@@ -4,7 +4,7 @@ import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.models.*;
-import org.oristool.eulero.models.qest21.*;
+import org.oristool.eulero.models.qest21_deprecated.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class SimulationSensitivityAnalysis {
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
             System.out.println("Starting Sensitivity Analysis - Test 1.");
-            ModelBuilder testABuilder = new TestABuilder(feature, approximator);
+            ModelBuilder_Deprecated testABuilder = new TestABuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("1", testABuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -39,7 +39,7 @@ public class SimulationSensitivityAnalysis {
         // Test B
         if(Arrays.asList(testToRun).contains("B")){
             System.out.println("Starting Sensitivity Analysis - Test 2.");
-            ModelBuilder testBBuilder = new TestBBuilder(feature, approximator);
+            ModelBuilder_Deprecated testBBuilder = new TestBBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("2", testBBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -47,7 +47,7 @@ public class SimulationSensitivityAnalysis {
         // Test C
         if(Arrays.asList(testToRun).contains("C")){
             System.out.println("Starting Sensitivity Analysis - Test 3.");
-            ModelBuilder testCBuilder = new TestCBuilder(feature, approximator);
+            ModelBuilder_Deprecated testCBuilder = new TestCBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("3", testCBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -55,7 +55,7 @@ public class SimulationSensitivityAnalysis {
         // Test D
         if(Arrays.asList(testToRun).contains("D")){
             System.out.println("Starting Sensitivity Analysis - Test 4.");
-            ModelBuilder testDBuilder = new TestDBuilder(feature, approximator);
+            ModelBuilder_Deprecated testDBuilder = new TestDBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("4", testDBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -63,7 +63,7 @@ public class SimulationSensitivityAnalysis {
         // Test E
         if(Arrays.asList(testToRun).contains("E")){
             System.out.println("Starting Sensitivity Analysis - Test 5.");
-            ModelBuilder testEBuilder = new TestEBuilder(feature, approximator);
+            ModelBuilder_Deprecated testEBuilder = new TestEBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("5", testEBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -71,7 +71,7 @@ public class SimulationSensitivityAnalysis {
         // Test F
         if(Arrays.asList(testToRun).contains("F")){
             System.out.println("Starting Sensitivity Analysis - Test 6.");
-            ModelBuilder testFBuilder = new TestFBuilder(feature, approximator);
+            ModelBuilder_Deprecated testFBuilder = new TestFBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("6", testFBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -79,7 +79,7 @@ public class SimulationSensitivityAnalysis {
         // Test G
         if(Arrays.asList(testToRun).contains("G")){
             System.out.println("Starting Sensitivity Analysis - Test 7.");
-            ModelBuilder testGBuilder = new TestGBuilder(feature, approximator);
+            ModelBuilder_Deprecated testGBuilder = new TestGBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("7", testGBuilder, timeLimit, timeTick, runs, runStep));
         }
@@ -87,7 +87,7 @@ public class SimulationSensitivityAnalysis {
         // Test H
         if(Arrays.asList(testToRun).contains("H")){
             System.out.println("Starting Sensitivity Analysis - Test 8.");
-            ModelBuilder testHBuilder = new TestHBuilder(feature, approximator);
+            ModelBuilder_Deprecated testHBuilder = new TestHBuilderDeprecated(feature, approximator);
             myStringBuilder.append(
                     MainHelper.simulationSensitivityAnalysis("8", testHBuilder, timeLimit, timeTick, runs, runStep));
         }

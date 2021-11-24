@@ -1,85 +1,46 @@
 package org.oristool.eulero.mains.qest21;
 
-import org.oristool.eulero.analysisheuristics.AnalysisHeuristic1;
-import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
-import org.oristool.eulero.graph.Activity;
-import org.oristool.eulero.mains.TestCaseHandler;
-import org.oristool.eulero.mains.TestCaseResult;
+import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
-import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.SplineBodyEXPTailApproximation;
-import org.oristool.eulero.models.ModelBuilder;
-import org.oristool.eulero.models.ModelBuilder_Deprecated;
-import org.oristool.eulero.models.qest21.TestABuilder;
-import org.oristool.eulero.models.qest21.TestBBuilder;
+import org.oristool.eulero.models.*;
 import org.oristool.eulero.models.qest21_deprecated.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class Experimentation {
+public class ExperimentationDeprecated {
     public static void main(String[] args) {
         String GTPathPrefix = System.getProperty("user.dir") + "/results/XORSplineTest/Test";
         String GTCDF = "/CDF";
         String GTtimes = "/times";
         String GTPathSuffix = "/GroundTruth.txt";
-        //Approximator approximator = new SplineBodyEXPTailApproximation(2);
-        Approximator approximator = new EXPMixtureApproximation();
+        Approximator approximator = new SplineBodyEXPTailApproximation(3);//new EXPMixtureApproximation();
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         BigDecimal timeLimit = BigDecimal.valueOf(8);
         BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
-        BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(10));
-        int groundTruthRuns = 10000;
-        boolean save = false;
-        boolean plot = true;
+        BigDecimal timeError = BigDecimal.valueOf(0.001);
+        int groundTruthRuns = 500000;
+        boolean save = true;
         boolean GTFromFile = true;
 
-        BigInteger C = BigInteger.valueOf(3);
-        BigInteger R = BigInteger.valueOf(3);
-        AnalysisHeuristicStrategy strategy1 = new AnalysisHeuristic1(C, R, approximator);
-
-
-        String[] testToRun = {"A", "B"/*, "C", "D", "E", "F", "G","H"*/};
+        String[] testToRun = {/*"A", "B", "C", "D", "E",*/ "F",/* "G","H"*/};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
-            System.out.println("Starting Test A.");
-            ModelBuilder testABuilder = new TestABuilder(feature);
-
-            TestCaseHandler testCaseHandlerA = new TestCaseHandler("Test A", testABuilder, List.of(strategy1) , groundTruthRuns, 161, "", false);
-            ArrayList<TestCaseResult> resultsA = testCaseHandlerA.runTestCase(timeLimit, timeTick, timeError);
-
-            if(save){
-                testCaseHandlerA.storeResults(resultsA, GTPathPrefix);
-            }
-            if(plot){
-                testCaseHandlerA.plotResults(resultsA);
-            }
-        }
-
-        // Test A
-        if(Arrays.asList(testToRun).contains("B")){
-            System.out.println("Starting Test B.");
-            ModelBuilder testBBuilder = new TestBBuilder(feature);
-
-            TestCaseHandler testCaseHandlerB = new TestCaseHandler("Test B", testBBuilder, List.of(strategy1) , groundTruthRuns, 185, "", false);
-            ArrayList<TestCaseResult> resultsB = testCaseHandlerB.runTestCase(timeLimit, timeTick, timeError);
-
-            if(save){
-                testCaseHandlerB.storeResults(resultsB, GTPathPrefix);
-            }
-            if(plot){
-                testCaseHandlerB.plotResults(resultsB);
+            System.out.println("Starting Test 1.");
+            ModelBuilder_Deprecated testABuilder = new TestABuilderDeprecated(feature, approximator);
+            if(!GTFromFile){
+                MainHelper.test("1", testABuilder, timeLimit, timeTick, timeError, groundTruthRuns, 161, save);
+            } else {
+                MainHelper.test("1", testABuilder, timeLimit, timeTick, timeError, GTPathPrefix + "1" + GTCDF + GTPathSuffix, GTPathPrefix + "1" + GTtimes + GTPathSuffix, 161, save);
             }
 
         }
 
         // Test B
-        /*if(Arrays.asList(testToRun).contains("B")){
+        if(Arrays.asList(testToRun).contains("B")){
             System.out.println("Starting Test 2.");
             ModelBuilder_Deprecated testBBuilder = new TestBBuilderDeprecated(feature, approximator);
             if(!GTFromFile){
@@ -153,6 +114,6 @@ public class Experimentation {
             } else {
                 MainHelper.test("8", testHBuilder, timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError, GTPathPrefix + "8" + GTCDF + GTPathSuffix, GTPathPrefix + "8" + GTtimes + GTPathSuffix, 500, save);
             }
-        }*/
+        }
     }
 }

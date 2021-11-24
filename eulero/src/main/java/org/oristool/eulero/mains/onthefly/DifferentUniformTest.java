@@ -3,8 +3,8 @@ package org.oristool.eulero.mains.onthefly;
 import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.models.ModelBuilder;
-import org.oristool.eulero.models.onthefly.DifferentUniformModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
+import org.oristool.eulero.models.onthefly.DifferentUniformModelBuilderDeprecated;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -33,7 +33,7 @@ public class DifferentUniformTest {
         featureParameters.add(Map.ofEntries(Map.entry("low", 0.9), Map.entry("upp", 1.15)));
 
         System.out.println("Starting Test.");
-        ModelBuilder builder = new DifferentUniformModelBuilder(featureParameters, approximator);
+        ModelBuilder_Deprecated builder = new DifferentUniformModelBuilderDeprecated(featureParameters, approximator);
         BigDecimal timeLimit = builder.buildModelForSimulation().upp().add(BigDecimal.valueOf(2)); // TODO spostare dentro MainHelper.test?
         MainHelper.test("4Uniform-Distributions", builder, timeLimit, timeTick, timeError, groundTruthRuns, 171, save);
     }

@@ -52,7 +52,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.oristool.eulero.MainHelper;
+import org.oristool.eulero.mains.TestCaseResult;
 import org.oristool.models.stpn.TransientSolution;
 
 /**
@@ -202,20 +202,20 @@ public class ActivityViewer extends JFrame {
     }
 
     @SafeVarargs
-    public static void CompareResults(String savePath, boolean save, String title, List<String> stringList, MainHelper.ResultWrapper... results) {
+    public static void CompareResults(String savePath, boolean save, String title, List<String> stringList, TestCaseResult... results) {
         // TODO check dimension of step and upper
 
         ActivityViewer v = new ActivityViewer();
 
         double[][] cdfs = new double[results.length][];
         double[][] pdfs = new double[results.length][];
-        double step = results[0].getStep();
-        double upper = results[0].getPdf().length * step;
+        double step = results[0].step();
+        double upper = results[0].pdf().length * step;
 
         List<String> labels = new ArrayList<>();
         for (int i = 0; i < results.length; i++) {
-            cdfs[i] = results[i].getCdf();
-            pdfs[i] = results[i].getPdf();
+            cdfs[i] = results[i].cdf();
+            pdfs[i] = results[i].pdf();
 
             // JS divergence
             labels.add(stringList.get(i) + String.format(" (JS %.6f)",
@@ -262,6 +262,43 @@ public class ActivityViewer extends JFrame {
             }
         }
 
+    }
+
+
+    public static void CompareResults(String title, List<String> stringList, ArrayList<TestCaseResult> results) {
+        // TODO check dimension of step and upper
+
+        ActivityViewer v = new ActivityViewer();
+
+        double[][] cdfs = new double[results.size()][];
+        double[][] pdfs = new double[results.size()][];
+        double step = results.get(0).step();
+        double upper = results.get(0).pdf().length * step;
+
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            cdfs[i] = results.get(i).cdf();
+            pdfs[i] = results.get(i).pdf();
+
+            // JS divergence
+            labels.add(stringList.get(i) + String.format(" (JS %.6f)",
+                    results.get(i).jsDistance(pdfs[0])));
+        }
+
+        ChartPanel cdf = solutionChart("CDF - " + title, labels, step, upper, cdfs);
+        ChartPanel pdf = solutionChart("PDF - " + title, labels, step, upper, pdfs);
+
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.add("CDF", cdf);
+        tabs.add("PDF", pdf);
+
+
+        v.setTitle("Activity Viewer");
+        v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        v.add(tabs);
+        v.pack();
+        v.setLocationRelativeTo(null);
+        v.setVisible(true);
     }
 
 

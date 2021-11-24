@@ -18,21 +18,13 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
-import org.oristool.eulero.MainHelper;
-import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.approximation.Approximator;
-import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.eulero.solver.CostEstimator;
 import org.oristool.eulero.ui.ActivityViewer;
-import org.oristool.math.OmegaBigDecimal;
-import org.oristool.math.function.GEN;
-import org.oristool.math.function.PartitionedGEN;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.TransientSolutionViewer;

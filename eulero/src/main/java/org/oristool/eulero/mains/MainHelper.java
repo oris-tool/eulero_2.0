@@ -1,11 +1,13 @@
-package org.oristool.eulero;
+package org.oristool.eulero.mains;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
 import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
@@ -158,7 +160,7 @@ public class MainHelper {
     }
 
     // TODO si può fare meglio e più componibile
-    public static void test_OLD(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int runs){
+    public static void test_OLD(String name, ModelBuilder_Deprecated builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int runs){
         // Simulation
         Activity simulationModel = builder.buildModelForSimulation();
         TransientSolution<DeterministicEnablingState, RewardRate> simulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
@@ -216,13 +218,16 @@ public class MainHelper {
         System.out.println("");
     }
 
-    public static void test(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int groundTruthRuns, int runs, boolean save){
+    public static void test(String name, ModelBuilder builder, ArrayList<AnalysisHeuristicStrategy> heuristics, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int groundTruthRuns, int runs, boolean save){
         ArrayList<Double> computationTimes = new ArrayList<>();
+        Activity groundTruthModel = builder.buildModel();
+        Activity simulationModel = builder.buildModel();
 
         // Ground Truth
         System.out.println("GROUND_TRUTH\n");
         double time = System.currentTimeMillis();
-        Activity simulationModel = builder.buildModelForSimulation();
+        Activity simulationModel = builder.buildModel();
+
         TransientSolution<DeterministicEnablingState, RewardRate> groundTruth = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), groundTruthRuns);
         double[] numericalGroundTruth = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
 
@@ -328,7 +333,7 @@ public class MainHelper {
         System.out.println("");
     }
 
-    public static void test(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, String groundTruthPath, String groundTruthTimePath, int runs, boolean save){
+    public static void test(String name, ModelBuilder_Deprecated builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, String groundTruthPath, String groundTruthTimePath, int runs, boolean save){
         ArrayList<Double> computationTimes = new ArrayList<>();
 
         // Ground Truth
@@ -545,7 +550,337 @@ public class MainHelper {
 
     }
 
-    public static String simulationSensitivityAnalysis(String name, ModelBuilder builder, BigDecimal timeLimit, BigDecimal timeTick, int runs, int runStep){
+
+    /*public static void test(String name, ModelBuilder_Deprecated builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, int groundTruthRuns, int runs, boolean save){
+        ArrayList<Double> computationTimes = new ArrayList<>();
+
+        // Ground Truth
+        System.out.println("GROUND_TRUTH\n");
+        double time = System.currentTimeMillis();
+        Activity simulationModel = builder.buildModelForSimulation();
+        TransientSolution<DeterministicEnablingState, RewardRate> groundTruth = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), groundTruthRuns);
+        double[] numericalGroundTruth = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalGroundTruth.length; i++){
+            numericalGroundTruth[i] = groundTruth.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        MainHelper.ResultWrapper groundTruthResult = new MainHelper.ResultWrapper(numericalGroundTruth, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Simulation Test
+        System.out.println("SHORT_SIMULATION\n");
+
+        time = System.currentTimeMillis();
+        TransientSolution<DeterministicEnablingState, RewardRate> shortSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
+        double[] numericalShortSimulation = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalShortSimulation.length; i++){
+            numericalShortSimulation[i] = shortSimulation.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        MainHelper.ResultWrapper shortTimeResult = new MainHelper.ResultWrapper(numericalShortSimulation, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Analysis
+        time = System.currentTimeMillis();
+        Activity analysisModel = builder.buildModelForAnalysis_Heuristic1(timeLimit, timeTick);
+        double[] numericalAnalysis = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = ((Numerical) analysisModel).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = analysis.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with first Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        MainHelper.ResultWrapper analysisResult = new MainHelper.ResultWrapper(numericalAnalysis, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        System.out.println("");
+
+        // Analysis 2
+        time = System.currentTimeMillis();
+        Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+        double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(!name.equals("7") && !name.equals("8")){
+            if(analysisModel2 instanceof Numerical){
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+                }
+            } else {
+                TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+                }
+            }
+            computationTimes.add(System.currentTimeMillis() - time);
+            System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        } else {
+            System.out.println("troppo difficile per noi");
+            computationTimes.add(0.0);
+        }
+
+        MainHelper.ResultWrapper analysisResult2 = new MainHelper.ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+
+        System.out.println("");
+
+        // Analysis 3
+        time = System.currentTimeMillis();
+        Activity analysisModel3 = builder.buildModelForAnalysis_Heuristic3(timeLimit, timeTick);
+        double[] numericalAnalysis3 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel3 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = ((Numerical) analysisModel3).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis3 = analysisModel3.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = analysis3.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with third Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        MainHelper.ResultWrapper analysisResult3 = new MainHelper.ResultWrapper(numericalAnalysis3, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        try{
+            ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        } catch (Exception e){
+            System.out.println(e);
+            System.out.println("Impossible to plot images...");
+        }
+
+        if(save){
+            storeResults(SAVE_PATH, "Test" + name, List.of("GroundTruth", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), computationTimes, groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        }
+        System.out.println("");
+    }
+
+    public static void test(String name, ModelBuilder_Deprecated builder, BigDecimal timeLimit, BigDecimal timeTick, BigDecimal error, String groundTruthPath, String groundTruthTimePath, int runs, boolean save){
+        ArrayList<Double> computationTimes = new ArrayList<>();
+
+        // Ground Truth
+        System.out.println("Loading Ground truth simulation\n");
+        FileReader f = null;
+        try {
+            f = new FileReader(groundTruthPath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader b = new BufferedReader(f);
+        ArrayList<Double> extractedValues = new ArrayList<>();
+        boolean stringRead = false;
+        while(!stringRead){
+            try {
+                String groundTruthString = b.readLine();
+                extractedValues.add(Double.valueOf(groundTruthString.split(", ")[1]));
+            } catch (Exception e) {
+                System.out.println("String Read!!");
+                stringRead = true;
+            }
+        }
+
+        double[] numericalGroundTruth = new double[extractedValues.size()];
+        for(int i = 0; i < numericalGroundTruth.length; i++){
+            numericalGroundTruth[i] = extractedValues.get(i).doubleValue();
+        }
+
+        FileReader fComputationTimes = null;
+        try {
+            fComputationTimes = new FileReader(groundTruthTimePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        BufferedReader bComputationTimes = new BufferedReader(fComputationTimes);
+        String gtTime = null;
+        try {
+            gtTime = bComputationTimes.readLine();
+        } catch (Exception e) {
+            System.out.println("String Read!!");
+            stringRead = true;
+        }
+
+        computationTimes.add(Double.valueOf(gtTime.split("s")[0]).doubleValue() * 1000);
+        ResultWrapper groundTruthResult = new ResultWrapper(numericalGroundTruth, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        // Simulation Test
+        System.out.println("SHORT_SIMULATION\n");
+
+        double time = System.currentTimeMillis();
+        Activity simulationModel = builder.buildModelForSimulation();
+        TransientSolution<DeterministicEnablingState, RewardRate> shortSimulation = simulationModel.simulate(timeLimit.toString(), timeTick.toString(), runs);
+        double[] numericalShortSimulation = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        for(int i = 0; i < numericalShortSimulation.length; i++){
+            numericalShortSimulation[i] = shortSimulation.getSolution()[i][0][0];
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        ResultWrapper shortTimeResult = new ResultWrapper(numericalShortSimulation, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+        System.out.println("");
+
+        // Analysis
+        time = System.currentTimeMillis();
+        Activity analysisModel = builder.buildModelForAnalysis_Heuristic1(timeLimit, timeTick);
+        double[] numericalAnalysis = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = ((Numerical) analysisModel).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis = analysisModel.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis.length; i++){
+                numericalAnalysis[i] = analysis.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with first Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult = new ResultWrapper(numericalAnalysis, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        System.out.println("");
+
+        // Analysis 2
+        time = System.currentTimeMillis();
+        Activity analysisModel2 = builder.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+        double[] numericalAnalysis2 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(!name.equals("7") && !name.equals("8")){
+            if(analysisModel2 instanceof Numerical){
+                for(int i = 0; i < numericalAnalysis2.length; i++){
+                    numericalAnalysis2[i] = ((Numerical) analysisModel2).CDF(i);
+                }
+            } else {
+                TransientSolution<DeterministicEnablingState, RewardRate> analysis2 = analysisModel2.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+                for (int i = 0; i < numericalAnalysis2.length; i++) {
+                    numericalAnalysis2[i] = analysis2.getSolution()[i][0][0];
+                }
+            }
+            computationTimes.add(System.currentTimeMillis() - time);
+
+        } else {
+            System.out.println("No Maria io esco..");
+            System.out.println("troppo difficile per noi");
+            computationTimes.add(0.0);
+        }
+        System.out.println("Analysis of " + name + " with second Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult2 = new ResultWrapper(numericalAnalysis2, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        // Analysis 3
+        time = System.currentTimeMillis();
+        Activity analysisModel3 = builder.buildModelForAnalysis_Heuristic3(timeLimit, timeTick);
+        double[] numericalAnalysis3 = new double[timeLimit.divide(timeTick, RoundingMode.HALF_UP).intValue()];
+
+        if(analysisModel3 instanceof Numerical){
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = ((Numerical) analysisModel3).CDF(i);
+            }
+        } else {
+            TransientSolution<DeterministicEnablingState, RewardRate> analysis3 = analysisModel3.analyze(timeLimit.toString(), timeTick.toString(), error.toString());
+            for(int i = 0; i < numericalAnalysis3.length; i++){
+                numericalAnalysis3[i] = analysis3.getSolution()[i][0][0];
+            }
+        }
+        computationTimes.add(System.currentTimeMillis() - time);
+        System.out.println("Analysis of " + name + " with third Heuristics took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
+        ResultWrapper analysisResult3 = new ResultWrapper(numericalAnalysis3, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());
+
+        try{
+            ActivityViewer.CompareResults(SAVE_PATH, false, "Test " + name, List.of("GT", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        } catch (Exception e){
+            System.out.println(e);
+            System.out.println("Impossible to plot images...");
+        }
+
+        if(save){
+            storeResults(SAVE_PATH, "Test" + name, List.of("GroundTruth", "Simulation", "Heuristic1", "Heuristic2", "Heuristic3"), computationTimes, groundTruthResult, shortTimeResult, analysisResult, analysisResult2, analysisResult3);
+        }
+        System.out.println("");
+    }
+
+    public static void storeResults(String savePath, String testTitle, List<String> stringList, List<Double> computationTimes, ResultWrapper... results){
+        File pdfFile = new File(savePath + "/" + testTitle + "/PDF/");
+        if(!pdfFile.exists()){
+            pdfFile.mkdirs();
+        }
+
+        File cdfFile = new File(savePath + "/" + testTitle + "/CDF/");
+        if(!cdfFile.exists()){
+            cdfFile.mkdirs();
+        }
+
+        File timesFile = new File(savePath + "/" + testTitle + "/times/");
+        if(!timesFile.exists()){
+            timesFile.mkdirs();
+        }
+
+        File jsFile = new File(savePath + "/" + testTitle + "/jensenShannon/");
+        if(!jsFile.exists()){
+            jsFile.mkdirs();
+        }
+
+        double[] groundTruth = results[0].getPdf();
+
+        for (int i = 0; i < results.length; i++) {
+            // Handle cdf
+            double[] cdf = results[i].getCdf();
+            StringBuilder cdfString = new StringBuilder();
+            for(int j = 0; j < cdf.length; j++){
+                BigDecimal x = BigDecimal.valueOf((results[i].getMin() + j) * results[i].step)
+                        .setScale(BigDecimal.valueOf(results[i].step).scale(), RoundingMode.HALF_DOWN);
+                cdfString.append(x.toString()).append(", ").append(cdf[j]).append("\n");
+            }
+
+            //handle pdf
+            double[] pdf = results[i].getPdf();
+            StringBuilder pdfString = new StringBuilder();
+            for(int j = 0; j < cdf.length; j++){
+                BigDecimal x = BigDecimal.valueOf((results[i].getMin() + j) * results[i].step)
+                        .setScale(BigDecimal.valueOf(results[i].step).scale(), RoundingMode.HALF_DOWN);
+                pdfString.append(x.toString()).append(", ").append(pdf[j]).append("\n");
+            }
+
+            double time = computationTimes.get(i) / 1000;
+            double js = results[i].jsDistance(groundTruth);
+
+            try {
+                FileWriter cdfWriter = new FileWriter(savePath + "/" + testTitle + "/CDF/" + stringList.get(i) + ".txt");
+                FileWriter pdfWriter = new FileWriter(savePath + "/" + testTitle + "/PDF/" + stringList.get(i) + ".txt");
+                FileWriter timeWriter = new FileWriter(savePath + "/" + testTitle + "/times/" + stringList.get(i) + ".txt");
+                FileWriter jsWriter = new FileWriter(savePath + "/" + testTitle + "/jensenShannon/" + stringList.get(i) + ".txt");
+
+                if((!testTitle.contains("7") && !testTitle.contains("8")) || i != 3){
+                    timeWriter.write(time + "s");
+                    timeWriter.close();
+                    jsWriter.write(String.valueOf(js));
+                    jsWriter.close();
+                } else {
+                    timeWriter.write("n.a.");
+                    timeWriter.close();
+                    jsWriter.write("n.a.");
+                    jsWriter.close();
+                }
+
+                cdfWriter.write(cdfString.toString());
+                cdfWriter.close();
+                pdfWriter.write(pdfString.toString());
+                pdfWriter.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+        }
+
+    }*/
+
+    public static String simulationSensitivityAnalysis(String name, ModelBuilder_Deprecated builder, BigDecimal timeLimit, BigDecimal timeTick, int runs, int runStep){
         int previousRun = runStep;
         Activity simulationModel = builder.buildModelForSimulation();
 

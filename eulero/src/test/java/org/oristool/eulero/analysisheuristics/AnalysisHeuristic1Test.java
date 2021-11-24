@@ -1,12 +1,11 @@
 package org.oristool.eulero.analysisheuristics;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.graph.Analytical;
 import org.oristool.eulero.graph.DAG;
 import org.oristool.eulero.graph.Repeat;
 import org.oristool.eulero.graph.Xor;
+import org.oristool.eulero.mains.TestCaseResult;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.math.approximation.SplineBodyEXPTailApproximation;
@@ -59,12 +58,12 @@ class AnalysisHeuristic1Test {
         );
 
         // Todo, fai ritornare il risultato dalla classe AnalysisHeuristic
-        MainHelper.ResultWrapper simulation = new MainHelper.ResultWrapper(
-                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue()
+        TestCaseResult simulation = new TestCaseResult("Simulation",
+                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
-        ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
+        ActivityViewer.CompareResults("XOR-TEST", false, "XOR-TEST", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
 
@@ -117,11 +116,11 @@ class AnalysisHeuristic1Test {
         );
 
         // Todo, fai ritornare il risultato dalla classe AnalysisHeuristic
-        MainHelper.ResultWrapper simulation = new MainHelper.ResultWrapper(
-                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue()
+        TestCaseResult simulation = new TestCaseResult("Simulation",
+                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
@@ -172,11 +171,11 @@ class AnalysisHeuristic1Test {
                 )
         );
 
-        MainHelper.ResultWrapper simulation = new MainHelper.ResultWrapper(
-                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue()
+        TestCaseResult simulation = new TestCaseResult("Simulation",
+                dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(dag, timeLimit, step, step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue());
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
@@ -187,10 +186,10 @@ class AnalysisHeuristic1Test {
         BigDecimal step = BigDecimal.valueOf(0.01);
         int simulationRuns = 30000;
 
-        BigInteger C =  BigInteger.valueOf(3);
+        BigInteger C =  BigInteger.valueOf(2);
         BigInteger R =  BigInteger.valueOf(8);
-        //Approximator approximator = new SplineBodyEXPTailApproximation(1);
-        Approximator approximator = new EXPMixtureApproximation();
+        Approximator approximator = new SplineBodyEXPTailApproximation(1);
+        //Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
 
         StochasticTransitionFeature unif0_10 =
@@ -213,8 +212,7 @@ class AnalysisHeuristic1Test {
                         new Analytical("X1", unif0_10),
                         new Analytical("X2", unif0_10)
                 ),
-                new Analytical("W", unif0_10),
-                new Analytical("Y", unif0_10)
+                new Analytical("W", unif0_10)
         );
 
         DAG pComplex = DAG.empty("P");
@@ -229,11 +227,11 @@ class AnalysisHeuristic1Test {
         pComplex.setEFT(pComplex.low());
         pComplex.setLFT(pComplex.upp());
 
-        MainHelper.ResultWrapper simulation = new MainHelper.ResultWrapper(
-                pComplex.simulate(timeLimit.toString(), step.toString(), simulationRuns), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue()
+        TestCaseResult simulation = new TestCaseResult("Simul",
+                pComplex.simulate(timeLimit.toString(), step.toString(), simulationRuns), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        MainHelper.ResultWrapper analysis = new MainHelper.ResultWrapper(analyzer.analyze(pComplex, timeLimit, step, step), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue());
+        TestCaseResult analysis = new TestCaseResult("Analysi", analyzer.analyze(pComplex, timeLimit, step, step), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }

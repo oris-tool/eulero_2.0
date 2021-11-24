@@ -3,8 +3,8 @@ package org.oristool.eulero.mains.onthefly;
 import org.oristool.eulero.MainHelper;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.models.ModelBuilder;
-import org.oristool.eulero.models.onthefly.TruncatedExpModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
+import org.oristool.eulero.models.onthefly.TruncatedExpModelBuilderDeprecated;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -34,7 +34,7 @@ public class TruncatedExpTest {
 
 
         System.out.println("Starting Test.");
-        ModelBuilder builder = new TruncatedExpModelBuilder(featureParameters, approximator);
+        ModelBuilder_Deprecated builder = new TruncatedExpModelBuilderDeprecated(featureParameters, approximator);
         BigDecimal timeLimit = builder.buildModelForSimulation().upp().add(BigDecimal.valueOf(2)); // TODO spostare dentro MainHelper.test?
         MainHelper.test("4TrExp-Distributions", builder, timeLimit, timeTick, timeError, groundTruthRuns, 171, save);
     }

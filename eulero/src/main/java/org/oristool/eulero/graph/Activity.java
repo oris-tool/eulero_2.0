@@ -594,8 +594,8 @@ public abstract class Activity {
         long start = System.nanoTime(); 
         TransientSolution<DeterministicEnablingState, Marking> probs =
                 analysis.compute(pn, m);
-        System.out.println(String.format("Analysis took %.3f seconds",
-                (System.nanoTime() - start)/1e9));
+        /*System.out.println(String.format("Analysis took %.3f seconds",
+                (System.nanoTime() - start)/1e9));*/
 
         // evaluate reward
         return TransientSolution.computeRewards(false, probs, 
@@ -647,8 +647,7 @@ public abstract class Activity {
         m.addTokens(in, 1);
         
         // simulate
-        System.out.println("Starting Simulation...");
-        Sequencer s = new Sequencer(pn, m, 
+        Sequencer s = new Sequencer(pn, m,
                 new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
         TransientMarkingConditionProbability reward = 
                 new TransientMarkingConditionProbability(s, 
