@@ -1,6 +1,5 @@
 package org.oristool.eulero.mains;
 
-import org.checkerframework.checker.units.qual.A;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
 import org.oristool.eulero.graph.Activity;
 import org.oristool.eulero.models.ModelBuilder;
@@ -22,17 +21,17 @@ public class TestCaseHandler {
     private final List<AnalysisHeuristicStrategy> heuristics;
     private final int groundTruthRuns;
     private final int runs;
-    private final String groundTruthPath;
+    private final String testCasePath;
     private final boolean saveResults;
 
 
-    public TestCaseHandler(String testCaseName, ModelBuilder modelBuilder, List<AnalysisHeuristicStrategy> heuristics, int groundTruthRuns, int runs, String groundTruthPath, boolean saveResults){
+    public TestCaseHandler(String testCaseName, ModelBuilder modelBuilder, List<AnalysisHeuristicStrategy> heuristics, int groundTruthRuns, int runs, String testCasePath, boolean saveResults){
         this.testCaseName = testCaseName;
         this.heuristics = heuristics;
         this.modelBuilder = modelBuilder;
         this.groundTruthRuns = groundTruthRuns;
         this.runs = runs;
-        this.groundTruthPath = groundTruthPath;
+        this.testCasePath = testCasePath;
         this.saveResults = saveResults;
     }
 
@@ -40,9 +39,61 @@ public class TestCaseHandler {
         ArrayList<TestCaseResult> results = new ArrayList<>();
         // GroundTruth
         System.out.println("\nGT Simulation starts...");
-        File f = new File(groundTruthPath);
+
+        File f = new File(testCasePath + "/CDF/GroundTruth.txt");
         if(f.exists() && !f.isDirectory()) {
-            // do something TODO
+            System.out.println("Ground Truth already computed... Loading...");
+            FileReader fr = null;
+            try {
+                fr = new FileReader(testCasePath + "/CDF/GroundTruth.txt");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            BufferedReader b = new BufferedReader(fr);
+            ArrayList<Double> extractedValues = new ArrayList<>();
+            boolean stringRead = false;
+            while(!stringRead){
+                try {
+                    String groundTruthString = b.readLine();
+                    extractedValues.add(Double.valueOf(groundTruthString.split(", ")[1]));
+                } catch (Exception e) {
+                    System.out.println("String Read!!");
+                    stringRead = true;
+                }
+            }
+
+            double[] numericalGroundTruth = new double[extractedValues.size()];
+            for(int i = 0; i < numericalGroundTruth.length; i++){
+                numericalGroundTruth[i] = extractedValues.get(i).doubleValue();
+            }
+
+            FileReader fComputationTimes = null;
+            try {
+                fComputationTimes = new FileReader(testCasePath + "/times/GroundTruth.txt");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            BufferedReader bComputationTimes = new BufferedReader(fComputationTimes);
+            String gtTime = null;
+            try {
+                gtTime = bComputationTimes.readLine();
+            } catch (Exception e) {
+                System.out.println("String Read!!");
+                stringRead = true;
+            }
+
+            long GTTime = Long.parseLong(gtTime.split("s")[0]);
+
+            TestCaseResult GTSimulation = new TestCaseResult(
+                    "GroundTruth",
+                    numericalGroundTruth,
+                    0,
+                    numericalGroundTruth.length,
+                    step.doubleValue(),
+                    GTTime
+            );
+            results.add(GTSimulation);
         } else {
             TestCaseResult GTSimulation = runSimulation(timeLimit, step, groundTruthRuns);
             results.add(GTSimulation);
@@ -80,6 +131,7 @@ public class TestCaseHandler {
     }
 
     public void storeResults(ArrayList<TestCaseResult> results, String savePath) {
+        System.out.println("\nStoring Results...");
         String pathPrefix = savePath + "/" + testCaseName;
         File pdfFile = new File(pathPrefix + "/PDF/");
         if(!pdfFile.exists()){
@@ -115,7 +167,7 @@ public class TestCaseHandler {
                 pdfString.append(x.toString()).append(", ").append(pdf[j]).append("\n");
             }
 
-            double time = results.get(i).computationTime() / 1e9;
+            long time = results.get(i).computationTime();// / 1e9;
             double js = results.get(i).jsDistance(groundTruth);
 
 
@@ -127,7 +179,7 @@ public class TestCaseHandler {
                 FileWriter timeWriter = new FileWriter(pathPrefix + "/times/" + results.get(i).title() + ".txt");
                 FileWriter jsWriter = new FileWriter(pathPrefix + "/jensenShannon/" + results.get(i).title() + ".txt");
 
-                timeWriter.write(time + "s");
+                timeWriter.write(String.valueOf(time));
                 timeWriter.close();
                 jsWriter.write(String.valueOf(js));
                 jsWriter.close();
@@ -140,6 +192,8 @@ public class TestCaseHandler {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("\nResults Stored");
     }
 
     private TestCaseResult runSimulation(BigDecimal timeLimit, BigDecimal step, int runs){

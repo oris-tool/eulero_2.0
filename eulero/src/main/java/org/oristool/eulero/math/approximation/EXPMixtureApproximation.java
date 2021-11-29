@@ -296,6 +296,11 @@ public class EXPMixtureApproximation extends Approximator {
     public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
         ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
 
+        // TODO trova modo per rendere il valore soglia adattivo con l'errore... o con lo step.
+        if(cdf[cdf.length - 1] < BigDecimal.ONE.subtract(step.multiply(BigDecimal.valueOf(5))).doubleValue()){
+            throw new RuntimeException("Time Limit is not large enough...");
+        }
+
         if(cdf.length < (upp - low)/step.doubleValue()){
             throw new RuntimeException("cdf has not enough samples with respect to provided support and time step value");
         }

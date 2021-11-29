@@ -50,6 +50,8 @@ public class TestBBuilder extends ModelBuilder {
         wx_0.addPrecondition(s_0, r_0);
 
         simDag_0.end().addPrecondition(tu_0, v_0, wx_0);
+        simDag_0.setEFT(simDag_0.low());
+        simDag_0.setLFT(simDag_0.upp());
 
         Analytical q_1 = new Analytical("SimDAG_1_Q", feature);
         Analytical r_1 = new Analytical("SimDAG_1_R", feature);
@@ -82,6 +84,8 @@ public class TestBBuilder extends ModelBuilder {
         wx_1.addPrecondition(s_1, r_1);
 
         simDag_1.end().addPrecondition(tu_1, v_1, wx_1);
+        simDag_1.setEFT(simDag_1.low());
+        simDag_1.setLFT(simDag_1.upp());
 
         Analytical q_2 = new Analytical("SimDAG_2_Q", feature);
         Analytical r_2 = new Analytical("SimDAG_2_R", feature);
@@ -114,6 +118,8 @@ public class TestBBuilder extends ModelBuilder {
         wx_2.addPrecondition(s_2, r_2);
 
         simDag_2.end().addPrecondition(tu_2, v_2, wx_2);
+        simDag_2.setEFT(simDag_2.low());
+        simDag_2.setLFT(simDag_2.upp());
 
         Analytical q_3 = new Analytical("SimDAG_3_Q", feature);
         Analytical r_3 = new Analytical("SimDAG_3_R", feature);
@@ -146,6 +152,8 @@ public class TestBBuilder extends ModelBuilder {
         wx_3.addPrecondition(s_3, r_3);
 
         simDag_3.end().addPrecondition(tu_3, v_3, wx_3);
+        simDag_3.setEFT(simDag_3.low());
+        simDag_3.setLFT(simDag_3.upp());
 
         return DAG.forkJoin("Main",
                 DAG.forkJoin("A",

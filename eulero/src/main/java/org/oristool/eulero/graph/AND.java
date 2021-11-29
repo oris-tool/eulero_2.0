@@ -3,6 +3,7 @@ package org.oristool.eulero.graph;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AND extends DAG {
     private final List<Activity> activities;
@@ -31,6 +32,17 @@ public class AND extends DAG {
         return isWellNested;
     }
 
+    @Override
+    public DAG copyRecursive(String suffix){
+        DAG copy = DAG.forkJoin(this.name() + "_" + suffix, this.activities.stream()
+                .map(a -> a.copyRecursive(suffix)).toArray(Activity[]::new));
+        copy.setEFT(copy.low());
+        copy.setLFT(copy.upp());
+        copy.C();
+        copy.R();
+        return copy;
+
+    }
     /*@Override
     public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
         double[] cdf = activities.get(0).getNumericalCDF(timeLimit, step);

@@ -18,6 +18,7 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.oristool.math.OmegaBigDecimal;
@@ -125,6 +126,8 @@ public class Repeat extends Activity {
         t.addFeature(new RegenerationEpochLengthTransitionFeature(repeatBody().R()));
         pn.addPrecondition(in, t);
         pn.addPostcondition(t, choose);
+
+        //repeatBody.addStochasticPetriBlock(pn, in, choose, prio);
     }
 
     // TODO: here must be understood how to handle upper bound. In principle is Infinity, but in practice we don't use it.
@@ -141,5 +144,12 @@ public class Repeat extends Activity {
     @Override
     public boolean isWellNested() {
         return false;
+    }
+
+    /**
+     * Replaces this activity with another in all pre/post.
+     */
+    public final void replaceBody(Activity withOther) {
+        this.repeatBody = withOther;
     }
 }

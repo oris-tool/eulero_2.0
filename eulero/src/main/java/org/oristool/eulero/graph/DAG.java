@@ -242,6 +242,8 @@ public class DAG extends Activity {
                 t.addFeature(new RegenerationEpochLengthTransitionFeature(a.R()));
                 pn.addPostcondition(t, aOut);
                 pn.addPrecondition(aIn, t);
+
+                //a.buildTimedPetriNet(pn, in, out, prio);
             }
         };
     }
@@ -623,7 +625,9 @@ public class DAG extends Activity {
                 ax.setPost(apostx);
             }
         }
-        
+
+        copy.setEFT(copy.low());
+        copy.setLFT(copy.upp());
         return copy;
     }
     

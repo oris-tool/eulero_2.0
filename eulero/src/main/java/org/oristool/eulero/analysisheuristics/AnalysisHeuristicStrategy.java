@@ -102,16 +102,38 @@ public abstract class AnalysisHeuristicStrategy {
         return solution;
     }
 
-    public void REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
+    public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         Activity repeatBody = ((Repeat) model).repeatBody();
         Analytical replacingBody = new Analytical(repeatBody.name() + "_new",
                 approximator().getApproximatedStochasticTransitionFeature(
-                        analyze(repeatBody, /* è giusto? -->*/ repeatBody.LFT(), step, error), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step)
+                        analyze(repeatBody, /* è giusto? -->*/ repeatBody.LFT(), step, error, tabSpaceChars + "---" ), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step)
                 );
 
-        ((Repeat) model).repeatBody().replace(replacingBody);
+        //((Repeat) model).repeatBody().replace(replacingBody);
+        ((Repeat) model).replaceBody(replacingBody);
 
-        //TODO Place Return here
+        model.resetComplexityMeasure();
+
+        return this.analyze(model, timeLimit, step, error, tabSpaceChars);
+    }
+
+    public void checkREPinDAG(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
+        for(Activity act: ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())){
+            if(act instanceof Repeat){
+                System.out.println(tabSpaceChars + " Repetition found! It's " + act.name());
+
+                Analytical replacingActivity = new Analytical(act.name() + "_new",
+                        approximator().getApproximatedStochasticTransitionFeature(
+                                analyze(act, timeLimit, step, error, tabSpaceChars + "---"), act.EFT().doubleValue(), timeLimit.min(act.LFT()).doubleValue(), step)
+                );
+
+                act.replace(replacingActivity);
+
+                System.out.println(tabSpaceChars + " Block " + act.name() + " replaced...");
+            }
+        }
+
+        model.resetComplexityMeasure();
     }
 
     public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
@@ -134,12 +156,11 @@ public abstract class AnalysisHeuristicStrategy {
     }
 
     public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-
         ArrayList<DAG> innerBlocks = new ArrayList<>();
         ArrayList<DAG> sortedInnerBlocks = new ArrayList<>();
         int counter = 0;
         for(Activity activity: ((DAG) model).end().pre()){
-            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_N_act_" + counter);
+            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "before_" + activity.name());
             innerBlocks.add(innerBlock);
             innerBlock.C();
             innerBlock.R();
@@ -153,12 +174,14 @@ public abstract class AnalysisHeuristicStrategy {
         System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose nested block of " + nestedDAG.end().pre().get(0));
         nestedDAG.setEFT(nestedDAG.low());
         nestedDAG.setLFT(nestedDAG.upp());
+
+
         nestedDAG.replace(
                 new Analytical(nestedDAG.name() + "_from_" + sortedInnerBlocks.get(sortedInnerBlocks.size() - 1).name(),
                         approximator().getApproximatedStochasticTransitionFeatures(
-                                analyze(nestedDAG, nestedDAG.LFT(), step, error, tabSpaceChars + "---"  ),
+                                analyze(nestedDAG, nestedDAG.LFT().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 ? timeLimit : nestedDAG.LFT(), step, error, tabSpaceChars + "---"  ),
                                 nestedDAG.EFT().doubleValue(),
-                                nestedDAG.LFT().doubleValue(),
+                                (nestedDAG.LFT().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 ? timeLimit : nestedDAG.LFT()).doubleValue(),
                                 step
                         ),
                         approximator.stochasticTransitionFeatureWeights()
@@ -170,7 +193,7 @@ public abstract class AnalysisHeuristicStrategy {
     }
 
     public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        System.out.println(tabSpaceChars + " Regenerative Analysis of the selected block");
+        System.out.println(tabSpaceChars + " Regenerative Analysis of the chosen inner block");
         TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.toString(), error.toString());
         System.out.println(tabSpaceChars +  " Analysis done...");
         double[] solution = new double[transientSolution.getSolution().length];

@@ -55,4 +55,15 @@ public class SEQ extends DAG{
 
         return cdf;
     }*/
+
+    @Override
+    public DAG copyRecursive(String suffix){
+        DAG copy = DAG.sequence(this.name() + "_" + suffix, this.activities.stream()
+                .map(a -> a.copyRecursive(suffix)).toArray(Activity[]::new));
+        copy.setEFT(copy.low());
+        copy.setLFT(copy.upp());
+        copy.C();
+        copy.R();
+        return copy;
+    }
 }
