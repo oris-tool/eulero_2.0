@@ -682,17 +682,23 @@ public class DAG extends Activity {
      */
     public DAG nest(Activity end) {
         
-        DAG copy = this.copyRecursive(this.begin(), end, "_N");
+        DAG copy = this.copyRecursive(this.begin(), end, "_nested");
         
         List<Activity> endPost = new ArrayList<>(end.post());
         this.removeBetween(this.begin(), end, false);
-        
-        copy.addPrecondition(this.begin());
+
+        DAG restOfDAG = this.copyRecursive("_nonnested");
+
+        /*copy.addPrecondition(this.begin());
         for (Activity p : endPost) {
             p.addPrecondition(copy);
-        }
+        }*/
 
-        return copy;
+        //return copy;
+        return DAG.forkJoin(this.name() + "_N",
+                restOfDAG,
+                copy
+        );
     }
 
     @Override

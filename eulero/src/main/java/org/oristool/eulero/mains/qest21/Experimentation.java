@@ -2,6 +2,7 @@ package org.oristool.eulero.mains.qest21;
 
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristic1;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristic2;
+import org.oristool.eulero.analysisheuristics.AnalysisHeuristic3;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
 import org.oristool.eulero.mains.TestCaseHandler;
 import org.oristool.eulero.mains.TestCaseResult;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class Experimentation {
     public static void main(String[] args) {
-        String savePathPrefix = System.getProperty("user.dir") + "/results/AutomatedTest/";
+        String savePathPrefix = System.getProperty("user.dir") + "/results/AutomatedTest/ExpMixture";
         String GTCDF = "/CDF";
         String GTtimes = "/times";
         String GTPathSuffix = "/GroundTruth.txt";
@@ -29,18 +30,19 @@ public class Experimentation {
         BigDecimal timeLimit = BigDecimal.valueOf(8);
         BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
         BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(10));
-        int groundTruthRuns = 100;
+        int groundTruthRuns = 500000;
         boolean save = true;
         boolean plot = true;
         boolean GTFromFile = true;
 
         BigInteger C = BigInteger.valueOf(2);
         BigInteger R = BigInteger.valueOf(8);
-        //AnalysisHeuristicStrategy strategy1 = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy strategy1 = new AnalysisHeuristic1(C, R, approximator);
         AnalysisHeuristicStrategy strategy2 = new AnalysisHeuristic2(C, R, approximator);
+        AnalysisHeuristicStrategy strategy3 = new AnalysisHeuristic3(C, R, approximator);
 
 
-        String[] testToRun = {"A", "B", "C", "D", "E", "F", "G","H"};
+        String[] testToRun = {"A","B", "C", "D", "E",  "F", "G", "H"};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
@@ -48,7 +50,7 @@ public class Experimentation {
             String testCaseName = "Test A";
 
             ModelBuilder testABuilder = new TestABuilder(feature);
-            TestCaseHandler testCaseHandlerA = new TestCaseHandler(testCaseName, testABuilder, List.of(strategy2) , groundTruthRuns, 161, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerA = new TestCaseHandler(testCaseName, testABuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 161, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsA = testCaseHandlerA.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
@@ -63,10 +65,10 @@ public class Experimentation {
         if(Arrays.asList(testToRun).contains("B")){
             System.out.println("Starting Test B.");
             ModelBuilder testBBuilder = new TestBBuilder(feature);
-            String testCaseName = "Test b";
+            String testCaseName = "Test B";
 
-            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy2) , groundTruthRuns, 185, savePathPrefix + testCaseName, false);
-            ArrayList<TestCaseResult> resultsB = testCaseHandlerB.runTestCase(timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError);
+            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 185, savePathPrefix + testCaseName, false);
+            ArrayList<TestCaseResult> resultsB = testCaseHandlerB.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
                 testCaseHandlerB.storeResults(resultsB, savePathPrefix);
@@ -82,7 +84,7 @@ public class Experimentation {
             ModelBuilder testCBuilder = new TestCBuilder(feature);
             String testCaseName = "Test C";
 
-            TestCaseHandler testCaseHandlerC = new TestCaseHandler(testCaseName, testCBuilder, List.of(strategy2) , groundTruthRuns, 221, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerC = new TestCaseHandler(testCaseName, testCBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 221, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsC = testCaseHandlerC.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
@@ -100,7 +102,7 @@ public class Experimentation {
             ModelBuilder testDBuilder = new TestDBuilder(feature);
             String testCaseName = "Test D";
 
-            TestCaseHandler testCaseHandlerD = new TestCaseHandler(testCaseName, testDBuilder, List.of(strategy2) , groundTruthRuns, 229, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerD = new TestCaseHandler(testCaseName, testDBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 229, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsD = testCaseHandlerD.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
@@ -117,7 +119,7 @@ public class Experimentation {
             ModelBuilder testEBuilder = new TestEBuilder(feature);
             String testCaseName = "Test E";
 
-            TestCaseHandler testCaseHandlerE = new TestCaseHandler(testCaseName, testEBuilder, List.of(strategy2) , groundTruthRuns, 647, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerE = new TestCaseHandler(testCaseName, testEBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 647, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsE = testCaseHandlerE.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
@@ -134,7 +136,7 @@ public class Experimentation {
             ModelBuilder testFBuilder = new TestFBuilder(feature);
             String testCaseName = "Test F";
 
-            TestCaseHandler testCaseHandlerF = new TestCaseHandler(testCaseName, testFBuilder, List.of(strategy2) , groundTruthRuns, 647, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerF = new TestCaseHandler(testCaseName, testFBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 647, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsF = testCaseHandlerF.runTestCase(timeLimit, timeTick, timeError);
 
             if(save){
@@ -151,7 +153,7 @@ public class Experimentation {
             ModelBuilder testGBuilder = new TestGBuilder(feature);
             String testCaseName = "Test G";
 
-            TestCaseHandler testCaseHandlerG = new TestCaseHandler(testCaseName, testGBuilder, List.of(strategy2) , groundTruthRuns, 470, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerG = new TestCaseHandler(testCaseName, testGBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 470, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsG = testCaseHandlerG.runTestCase(timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError);
 
             if(save){
@@ -168,7 +170,7 @@ public class Experimentation {
             ModelBuilder testHBuilder = new TestHBuilder(feature);
             String testCaseName = "Test H";
 
-            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy2) , groundTruthRuns, 500, savePathPrefix + testCaseName, false);
+            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 500, savePathPrefix + testCaseName, false);
             ArrayList<TestCaseResult> resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError);
 
             if(save){

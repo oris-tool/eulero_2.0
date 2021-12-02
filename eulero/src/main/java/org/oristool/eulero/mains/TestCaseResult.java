@@ -68,6 +68,7 @@ public class TestCaseResult {
 
     public double jsDistance(double[] otherPDF) {
         double[] pdf = pdf();
+
         if (pdf.length != otherPDF.length)
             throw new IllegalArgumentException("Should have the same number of samples");
 

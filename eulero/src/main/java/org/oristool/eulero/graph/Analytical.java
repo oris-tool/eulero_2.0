@@ -126,23 +126,13 @@ public class Analytical extends Activity {
 
     public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step){
         // Se si trova un modo più furbo di fare questa...
-        TransientSolution<DeterministicEnablingState, RewardRate> analysisSolution = this.analyze(timeLimit.toString(), step.toString(), step.toString());
+        TransientSolution<DeterministicEnablingState, RewardRate> analysisSolution = this.analyze(timeLimit.toString(), step.toString(), "0.001");
         double[] cdf = new double[analysisSolution.getSolution().length];
         for(int i = 0; i < cdf.length; i++){
             cdf[i] = analysisSolution.getSolution()[i][0][0];
         }
         return cdf;
     }
-    
-    /*@Override
-    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        Transition t = pn.addTransition(this.name());
-        t.addFeature(new Priority(prio));
-        t.addFeature(pdf);
-        pn.addPrecondition(in, t);
-        pn.addPostcondition(t, out);
-        return prio + 1;
-    }*/
 
     @Override
     public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {

@@ -145,10 +145,13 @@ public abstract class AnalysisHeuristicStrategy {
 
         innerActivities.get(innerActivities.size() - 1).replace(
                 new Analytical(innerActivities.get(innerActivities.size() - 1).name() + "_N",
-                        approximator().getApproximatedStochasticTransitionFeatures(analyze(innerActivities.get(innerActivities.size() - 1), innerActivities.get(innerActivities.size() - 1).LFT(), step, error, tabSpaceChars + "---"  ),
-                                innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), innerActivities.get(innerActivities.size() - 1).LFT().doubleValue(), step),
+                        approximator().getApproximatedStochasticTransitionFeatures(
+                                analyze(innerActivities.get(innerActivities.size() - 1), innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT(), step, error, tabSpaceChars + "---"  ),
+                                innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).doubleValue(), step),
                         approximator().stochasticTransitionFeatureWeights())
         );
+
+        System.out.println(tabSpaceChars + "---"  + " Approximated inner block " + innerActivities.get(innerActivities.size() - 1).name());
 
         model.resetComplexityMeasure();
 
@@ -171,25 +174,28 @@ public abstract class AnalysisHeuristicStrategy {
         sortedInnerBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::R));
 
         DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1))));
+        model.replace(nestedDAG);
         System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose nested block of " + nestedDAG.end().pre().get(0));
         nestedDAG.setEFT(nestedDAG.low());
         nestedDAG.setLFT(nestedDAG.upp());
 
 
-        nestedDAG.replace(
-                new Analytical(nestedDAG.name() + "_from_" + sortedInnerBlocks.get(sortedInnerBlocks.size() - 1).name(),
+        /*nestedDAG.replace(
+                new Analytical(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1).name(),
                         approximator().getApproximatedStochasticTransitionFeatures(
-                                analyze(nestedDAG, nestedDAG.LFT().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 ? timeLimit : nestedDAG.LFT(), step, error, tabSpaceChars + "---"  ),
+                                analyze(nestedDAG, nestedDAG.LFT().precision() >= 309 ? timeLimit : nestedDAG.LFT(), step, error, tabSpaceChars + "---"  ),
                                 nestedDAG.EFT().doubleValue(),
-                                (nestedDAG.LFT().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 ? timeLimit : nestedDAG.LFT()).doubleValue(),
+                                (nestedDAG.LFT().precision() >= 309 ? timeLimit : nestedDAG.LFT()).doubleValue(),
                                 step
                         ),
                         approximator.stochasticTransitionFeatureWeights()
                 )
-        );
+        );*/
 
+
+        //model.checkWellNesting();
         model.resetComplexityMeasure();
-        return this.analyze(model, timeLimit, step, error, tabSpaceChars);
+        return this.analyze(nestedDAG, timeLimit, step, error, tabSpaceChars);
     }
 
     public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
