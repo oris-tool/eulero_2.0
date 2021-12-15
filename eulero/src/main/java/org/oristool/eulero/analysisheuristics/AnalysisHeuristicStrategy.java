@@ -1,17 +1,20 @@
 package org.oristool.eulero.analysisheuristics;
 
 import org.oristool.eulero.graph.*;
+import org.oristool.eulero.mains.TestCaseResult;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
-import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.petrinet.Marking;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public abstract class AnalysisHeuristicStrategy {
     private final String heuristicName;
@@ -104,12 +107,12 @@ public abstract class AnalysisHeuristicStrategy {
 
     public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         Activity repeatBody = ((Repeat) model).repeatBody();
+
         Analytical replacingBody = new Analytical(repeatBody.name() + "_new",
                 approximator().getApproximatedStochasticTransitionFeature(
-                        analyze(repeatBody, /* è giusto? -->*/ repeatBody.LFT(), step, error, tabSpaceChars + "---" ), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step)
+                        analyze(repeatBody, repeatBody.LFT(), step, error, tabSpaceChars + "---" ), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step)
                 );
 
-        //((Repeat) model).repeatBody().replace(replacingBody);
         ((Repeat) model).replaceBody(replacingBody);
 
         model.resetComplexityMeasure();
@@ -122,10 +125,22 @@ public abstract class AnalysisHeuristicStrategy {
             if(act instanceof Repeat){
                 System.out.println(tabSpaceChars + " Repetition found! It's " + act.name());
 
+                double[] analysis = analyze(act, timeLimit, step, error, tabSpaceChars + "---");
+                int cut = IntStream.range(0, analysis.length)
+                        .filter(t -> analysis[t] >= 0.99)
+                        .findFirst()
+                        .orElse(analysis.length);
+
+                /*Analytical replacingActivity = new Analytical(act.name() + "_new",
+                        approximator().getApproximatedStochasticTransitionFeature(
+                                Arrays.copyOfRange(analysis, 0, cut) , act.EFT().doubleValue(), act.EFT().doubleValue() + cut * step.doubleValue(), step)
+                );*/
                 Analytical replacingActivity = new Analytical(act.name() + "_new",
                         approximator().getApproximatedStochasticTransitionFeature(
-                                analyze(act, timeLimit, step, error, tabSpaceChars + "---"), act.EFT().doubleValue(), timeLimit.min(act.LFT()).doubleValue(), step)
-                );
+                                analyze(act, timeLimit, step, error, tabSpaceChars + "---"),
+                                act.EFT().doubleValue(), timeLimit.min(act.LFT()).doubleValue(), step));
+
+
 
                 act.replace(replacingActivity);
 
@@ -134,6 +149,7 @@ public abstract class AnalysisHeuristicStrategy {
         }
 
         model.resetComplexityMeasure();
+        //return this.analyze(model, timeLimit, step, error, tabSpaceChars);
     }
 
     public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
@@ -142,6 +158,24 @@ public abstract class AnalysisHeuristicStrategy {
                 .stream().filter(t -> (t.C().doubleValue() > 1 && t.R().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::R)).collect(Collectors.toCollection(ArrayList::new));
 
         System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + innerActivities.get(innerActivities.size() - 1).name());
+
+        /*BigDecimal cic = (innerActivities.get(innerActivities.size() - 1).LFT().precision() > 309) ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT();
+        double[] real = analyze(innerActivities.get(innerActivities.size() - 1),  cic, step, error, tabSpaceChars + "---"  );
+        Activity test = new Analytical(innerActivities.get(innerActivities.size() - 1).name() + "_N",
+                approximator().getApproximatedStochasticTransitionFeatures(
+                        real,
+                        innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).doubleValue(), step),  approximator().stochasticTransitionFeatureWeights());
+        double[] an = analyze(test, cic, step, error, tabSpaceChars);
+        ActivityViewer.CompareResults(innerActivities.get(innerActivities.size() - 1).name(), List.of("Real", "appr"), List.of(
+                new TestCaseResult("Real", real,
+                        innerActivities.get(innerActivities.size() - 1).EFT().divide(step, 3, RoundingMode.HALF_DOWN).intValue(),
+                        (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).divide(step, 3, RoundingMode.HALF_DOWN).intValue(),
+                        step.doubleValue(), System.nanoTime()),
+                new TestCaseResult("AN", an,
+                        test.EFT().divide(step, 3, RoundingMode.HALF_DOWN).intValue(),
+                        test.LFT().divide(step, 3, RoundingMode.HALF_DOWN).intValue(),
+                        step.doubleValue(), System.nanoTime()))
+        );*/
 
         innerActivities.get(innerActivities.size() - 1).replace(
                 new Analytical(innerActivities.get(innerActivities.size() - 1).name() + "_N",
@@ -175,7 +209,7 @@ public abstract class AnalysisHeuristicStrategy {
 
         DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1))));
         model.replace(nestedDAG);
-        System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose nested block of " + nestedDAG.end().pre().get(0));
+        System.out.println(tabSpaceChars + "---"  + " Replicated block before " + nestedDAG.end().pre().get(1).name().replace(model.name()+"_nestingOf__", ""));
         nestedDAG.setEFT(nestedDAG.low());
         nestedDAG.setLFT(nestedDAG.upp());
 
@@ -198,10 +232,26 @@ public abstract class AnalysisHeuristicStrategy {
         return this.analyze(nestedDAG, timeLimit, step, error, tabSpaceChars);
     }
 
-    public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
+    public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal sampleFactor, BigDecimal error, String tabSpaceChars){
         System.out.println(tabSpaceChars + " Regenerative Analysis of the chosen inner block");
-        TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.toString(), error.toString());
-        System.out.println(tabSpaceChars +  " Analysis done...");
+        long time = System.nanoTime();
+        TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.divide(sampleFactor, RoundingMode.HALF_DOWN).toString(), error.toString());
+        System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
+        double[] solution = new double[timeLimit.divide(step, RoundingMode.HALF_DOWN).intValue()];
+        for(int i = 0; i < solution.length; i++){
+            solution[i] = transientSolution.getSolution()[i * sampleFactor.intValue()][0][0];
+        }
+
+        return solution;
+    }
+
+    public double[] forwardAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
+        System.out.println(tabSpaceChars + " Forward Analysis of the chosen inner block");
+        long time = System.nanoTime();
+        TransientSolution<Marking, RewardRate> transientSolution = model.forwardAnalyze(timeLimit.toString(), step.toString(), error.toString());
+        System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
         double[] solution = new double[transientSolution.getSolution().length];
         for(int i = 0; i < solution.length; i++){
             solution[i] = transientSolution.getSolution()[i][0][0];

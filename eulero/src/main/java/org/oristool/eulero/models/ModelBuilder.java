@@ -13,6 +13,10 @@ public abstract class ModelBuilder {
         this.feature = feature;
     }
 
+    public ModelBuilder() {
+
+    }
+
     public StochasticTransitionFeature getFeature() {
         return feature;
     }

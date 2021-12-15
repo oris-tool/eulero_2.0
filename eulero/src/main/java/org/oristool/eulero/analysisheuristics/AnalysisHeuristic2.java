@@ -5,6 +5,7 @@ import org.oristool.eulero.math.approximation.Approximator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
     public AnalysisHeuristic2(BigInteger CThreshold, BigInteger RThreshold, Approximator approximator) {
@@ -13,10 +14,10 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
 
     @Override
     public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars) {
-        if(model instanceof Analytical){
+        /*if(model instanceof Analytical){
             // Nota che volendo se è annalytical può andare in fondo fino a regenerativeTransientAnalysis, senza che si necessario scrivere questa..
             return ((Analytical) model).getNumericalCDF(timeLimit, step);
-        }
+        }*/
 
         if(model instanceof Xor){
             return numericalXOR(model, timeLimit, step, error, tabSpaceChars);
@@ -36,6 +37,7 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
                     System.out.println(tabSpaceChars + " Performing REP Inner Block Analysis on " + model.name());
                     return REPInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
+                return regenerativeTransientAnalysis(model, timeLimit, step, BigDecimal.valueOf(10), error, tabSpaceChars);
             }
         }
 
@@ -66,6 +68,6 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
             // (Che poi sono le azioni di sopra, ma cambiano le guardie degli IF THEN)
         }
 
-        return regenerativeTransientAnalysis(model, timeLimit, step, error, tabSpaceChars);
+        return forwardAnalysis(model, timeLimit, step, error, tabSpaceChars);
     }
 }

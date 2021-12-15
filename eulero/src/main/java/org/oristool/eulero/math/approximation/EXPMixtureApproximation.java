@@ -382,7 +382,11 @@ public class EXPMixtureApproximation extends Approximator {
 
         //tail --> TODO errore: mi mette Q3 index = cdf-length - 1 e quindi il lambda non va mai bene
         double tailLambda = Double.MAX_VALUE;
-        for(int i = Q3Index ; i < cdf.length; i++){
+        int index = IntStream.range(Q3Index, cdf.length)
+                .filter(t -> cdf[t] >= 0.999)
+                .findFirst()
+                .orElse(cdf.length);
+        for(int i = Q3Index ; i < index; i++){
             double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
 
             //Discard bad conditioned values

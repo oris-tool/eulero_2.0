@@ -34,6 +34,7 @@ import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trans.RegTransient;
+import org.oristool.models.stpn.trans.TreeTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.Regeneration;
 import org.oristool.models.stpn.trees.StochasticStateFeature;
@@ -54,6 +55,7 @@ import org.oristool.simulator.Sequencer;
 import org.oristool.simulator.TimeSeriesRewardResult;
 import org.oristool.simulator.rewards.ContinuousRewardTime;
 import org.oristool.simulator.rewards.RewardEvaluator;
+import org.oristool.simulator.rewards.RewardEvaluatorTimeout;
 import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
 import org.oristool.util.Pair;
@@ -601,6 +603,43 @@ public abstract class Activity {
         return TransientSolution.computeRewards(false, probs, 
                 RewardRate.fromString(cond));
     }
+
+    public TransientSolution<Marking, RewardRate>
+    forwardAnalyze(String timeBound, String timeStep, String error) {
+
+        // input data
+        BigDecimal bound = new BigDecimal(timeBound);
+        BigDecimal step = new BigDecimal(timeStep);
+        BigDecimal epsilon = new BigDecimal(error);
+        String cond = "pEND > 0";
+
+        // build STPN
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addStochasticPetriBlock(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        // analyze
+        TreeTransient.Builder builder = TreeTransient.builder();
+        builder.timeBound(bound);
+        builder.timeStep(step);
+        builder.greedyPolicy(bound, epsilon);
+        builder.markingFilter(MarkingCondition.fromString(cond));
+
+        TreeTransient analysis = builder.build();
+        long start = System.nanoTime();
+        TransientSolution<Marking, Marking> probs =
+                analysis.compute(pn, m);
+        /*System.out.println(String.format("Analysis took %.3f seconds",
+                (System.nanoTime() - start)/1e9));*/
+
+        // evaluate reward
+        return TransientSolution.computeRewards(false, probs,
+                RewardRate.fromString(cond));
+    }
     
     public Pair<SuccessionGraph, PetriNet> classGraph() {
         
@@ -666,6 +705,53 @@ public abstract class Activity {
                 new TransientSolution<>(bound, step, List.of(initialReg), 
                         List.of(RewardRate.fromString(cond)), initialReg);
         
+        for (int t = 0; t < result.getSolution().length; t++) {
+            for (Marking x : probs.getMarkings()) {
+                result.getSolution()[t][0][0] += probs.getTimeSeries(x)[t].doubleValue();
+            }
+        }
+
+        return result;
+    }
+
+    public TransientSolution<DeterministicEnablingState, RewardRate>
+    simulate(String timeBound, String timeStep, long timeout) {
+
+        // input data
+        BigDecimal bound = new BigDecimal(timeBound);
+        BigDecimal step = new BigDecimal(timeStep);
+        int samples = bound.divide(step).intValue() + 1;
+        String cond = "pEND > 0";
+
+        // build STPN
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        this.addStochasticPetriBlock(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        // simulate
+        Sequencer s = new Sequencer(pn, m,
+                new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
+        TransientMarkingConditionProbability reward =
+                new TransientMarkingConditionProbability(s,
+                        new ContinuousRewardTime(step), samples,
+                        MarkingCondition.fromString(cond));
+        RewardEvaluatorTimeout rewardEvaluator = new RewardEvaluatorTimeout(reward, timeout);
+        long start = System.nanoTime();
+        s.simulate();
+        System.out.println(String.format("Simulation took %.3f seconds",
+                (System.nanoTime() - start)/1e9));
+
+        // evaluate reward
+        TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
+        DeterministicEnablingState initialReg = new DeterministicEnablingState(m, pn);
+        TransientSolution<DeterministicEnablingState, RewardRate> result =
+                new TransientSolution<>(bound, step, List.of(initialReg),
+                        List.of(RewardRate.fromString(cond)), initialReg);
+
         for (int t = 0; t < result.getSolution().length; t++) {
             for (Marking x : probs.getMarkings()) {
                 result.getSolution()[t][0][0] += probs.getTimeSeries(x)[t].doubleValue();

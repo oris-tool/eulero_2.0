@@ -12,6 +12,8 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,26 +99,28 @@ public class TestCaseHandler {
         } else {
             TestCaseResult GTSimulation = runSimulation(timeLimit, step, groundTruthRuns);
             results.add(GTSimulation);
-            System.out.println(String.format("Simulation took %.3f seconds",
+            System.out.println(String.format("GT Simulation took %.3f seconds",
                     GTSimulation.computationTime()/1e9));
         }
 
-
-        // Simulation
-        System.out.println("\nShort Simulation starts...");
-        TestCaseResult shortSimulation = runSimulation(timeLimit, step, runs);
-        results.add(shortSimulation);
-        System.out.println(String.format("Simulation took %.3f seconds",
-                shortSimulation.computationTime()/1e9));
-
         // Heuristics
+        long[] heuristicTimes = new long[heuristics.size()];
         for(AnalysisHeuristicStrategy heuristic: heuristics){
             System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
             TestCaseResult heuristicResult = runHeuristic(heuristic, timeLimit, step, error);
             results.add(heuristicResult);
             System.out.println(String.format("Evaluation took %.3f seconds",
                     heuristicResult.computationTime()/1e9));
+
+            heuristicTimes[heuristics.indexOf(heuristic)] = (long) (heuristicResult.computationTime()/1e9);
         }
+
+        // Simulation
+        System.out.println("\nShort Simulation starts...");
+        TestCaseResult shortSimulation = runSimulation(timeLimit, step, Arrays.stream(heuristicTimes).min().orElse(0));
+        results.add(shortSimulation);
+        System.out.println(String.format("Simulation took %.3f seconds",
+                shortSimulation.computationTime()/1e9));
 
         return results;
     }
@@ -148,7 +152,7 @@ public class TestCaseHandler {
             timesFile.mkdirs();
         }
 
-        File jsFile = new File(pathPrefix + "/jensenShannon/");
+        File jsFile = new File(pathPrefix + "/accuracyMeasure/");
         if(!jsFile.exists()){
             jsFile.mkdirs();
         }
@@ -168,7 +172,8 @@ public class TestCaseHandler {
             }
 
             long time = results.get(i).computationTime();// / 1e9;
-            double js = results.get(i).jsDistance(groundTruth);
+            //double js = results.get(i).jsDistance(groundTruth);
+            double js = results.get(i).cdfAreaDifference(results.get(0).cdf());
 
 
             // TODO ADD matplotlib code
@@ -177,7 +182,7 @@ public class TestCaseHandler {
                 FileWriter cdfWriter = new FileWriter(pathPrefix + "/CDF/" + results.get(i).title() + ".txt");
                 FileWriter pdfWriter = new FileWriter(pathPrefix + "/PDF/" + results.get(i).title() + ".txt");
                 FileWriter timeWriter = new FileWriter(pathPrefix + "/times/" + results.get(i).title() + ".txt");
-                FileWriter jsWriter = new FileWriter(pathPrefix + "/jensenShannon/" + results.get(i).title() + ".txt");
+                FileWriter jsWriter = new FileWriter(pathPrefix + "/accuracyMeasure/" + results.get(i).title() + ".txt");
 
                 timeWriter.write(String.valueOf(time));
                 timeWriter.close();
@@ -201,6 +206,22 @@ public class TestCaseHandler {
         String caseTitle = runs == this.runs ? "Shorted Simulation" : "GroundTruth";
         Activity model = modelBuilder.buildModel();
         TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = model.simulate(timeLimit.toString(), step.toString(), runs);
+        long computationTime = System.nanoTime() - start;
+
+        return new TestCaseResult(
+                caseTitle,
+                simulationCDF,
+                model.EFT().divide(step).intValue(),
+                model.LFT().divide(step).intValue(),
+                step.doubleValue(),
+                computationTime);
+    }
+
+    private TestCaseResult runSimulation(BigDecimal timeLimit, BigDecimal step, long timeout){
+        long start = System.nanoTime();
+        String caseTitle = runs == this.runs ? "Shorted Simulation" : "GroundTruth";
+        Activity model = modelBuilder.buildModel();
+        TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = model.simulate(timeLimit.toString(), step.toString(), timeout);
         long computationTime = System.nanoTime() - start;
 
         return new TestCaseResult(

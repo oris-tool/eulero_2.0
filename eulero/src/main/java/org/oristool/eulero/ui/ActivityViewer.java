@@ -265,7 +265,7 @@ public class ActivityViewer extends JFrame {
     }
 
 
-    public static void CompareResults(String title, List<String> stringList, ArrayList<TestCaseResult> results) {
+    public static void CompareResults(String title, List<String> stringList, List<TestCaseResult> results) {
         // TODO check dimension of step and upper
 
         ActivityViewer v = new ActivityViewer();

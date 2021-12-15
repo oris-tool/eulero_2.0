@@ -91,6 +91,28 @@ public class TestCaseResult {
         }
     }
 
+    public double cdfAreaDifference(double[] otherCDF) {
+        double[] cdf = cdf();
+
+        if (cdf.length != otherCDF.length)
+            throw new IllegalArgumentException("Should have the same number of samples");
+
+        double result = 0.0;
+        for (int t = 0; t < otherCDF.length; ++t) {
+            double x = cdf[t];
+            double y = otherCDF[t];
+            double m = (x + y)/2.0;
+            result += Math.pow(x - y, 2) * step;
+        }
+
+        return result * step;
+    }
+
+    public double wassersteinDistance(double[] otherCDF) {
+        //TODO
+        return 0;
+    }
+
     public long computationTime(){
         return computationTime;
     }
