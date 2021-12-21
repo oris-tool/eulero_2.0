@@ -25,8 +25,6 @@ public class EXPMixtureApproximation extends Approximator {
 
     public EXPMixtureApproximation(){
         super();
-        stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.75));
-        stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));
     }
 
     @Override
@@ -314,91 +312,121 @@ public class EXPMixtureApproximation extends Approximator {
         double[] pdf = new double[cdf.length];
         double[] x = new double[cdf.length];
         for(int i = 0; i < cdf.length - 1; i++){
-            pdf[i + 1] = (cdf[i+1] - cdf[i]) / timeTick;
+            pdf[i + 1] = BigDecimal.valueOf((cdf[i+1] - cdf[i]) / timeTick).setScale(3, RoundingMode.HALF_DOWN).doubleValue();
             x[i] = /*low +*/ i * timeTick;
         }
 
         double pdfMax = Arrays.stream(pdf, 0, Q3Index).max().getAsDouble();
         int xMaxIndex = IntStream.range(0, Q3Index)
                 .filter(i ->  pdf[i] == pdfMax)
-                .findFirst() // first occurrence
-                .orElse(-1);
-        double xMax = /*low +*/ timeTick * xMaxIndex;
-        double cdfMax = cdf[xMaxIndex];
+                /*.findFirst() // first occurrence
+                .orElse(-1);*/
+                .reduce((first, second) -> second).orElse(-1);
 
-        double delta = (pdfMax * xMax - cdfMax) / pdfMax;
+        if(xMaxIndex == Q3Index - 1){
+            //tail
+            double tailLambda = Double.MAX_VALUE;
+            int index = IntStream.range(Q3Index, cdf.length)
+                    .filter(t -> cdf[t] >= 0.999)
+                    .findFirst()
+                    .orElse(cdf.length);
+            for(int i = Q3Index ; i < index; i++){
+                //double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
 
-        int deltaIndex = IntStream.range(0, Q3Index)
-                .filter(i ->  x[i] >= delta)
-                .findFirst() // first occurrence
-                .orElse(-1);
+                //Discard bad conditioned values
+                if(cdf[i] > 0  &&  cdf[i] < 1 && /*low +*/ (i * step.doubleValue()) > Q3) {
+                    tailLambda = Math.min(
+                            tailLambda,
+                            -Math.log(1 - cdf[i]) / (/*low +*/ (i * step.doubleValue()) - Q3)
+                    );
+                }
+            }
 
-        // Body
-        double bodyLambda = Double.MAX_VALUE;
+            features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
 
-        double[] test = new double[cdf.length];
-        for(int i = deltaIndex; i < Q3Index; i++){
-            double cdfValue = cdf[i] / cdf[Q3Index];
-            test[i] = cdfValue;
-            bodyLambda = Math.min(
-                    bodyLambda,
-                    zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
-                        private double delta;
-                        private double b;
-                        private double time;
-                        private double histogram;
+            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(1.));
+        } else {
+            double xMax = /*low +*/ timeTick * xMaxIndex;
+            double cdfMax = cdf[xMaxIndex];
 
-                        @Override
-                        public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
-                            // t should be our lambda
-                            DerivativeStructure p = t.multiply(delta - time).expm1();
-                            DerivativeStructure q = t.multiply(delta - b).expm1();
+            double delta = (pdfMax * xMax - cdfMax) / pdfMax;
 
-                            return p.divide(q).subtract(histogram);
-                        }
+            int deltaIndex = IntStream.range(0, Q3Index)
+                    .filter(i ->  x[i] >= delta)
+                    .findFirst() // first occurrence
+                    .orElse(-1);
 
-                        @Override
-                        public double value(double x) {
-                            // Here x is the lambda of the function
-                            return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
-                        }
+            // Body
+            double bodyLambda = Double.MAX_VALUE;
 
-                        public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram){
-                            this.delta = delta;
-                            this.b = b;
-                            this.time = time;
-                            this.histogram = histogram;
-                            return this;
-                        }
-                    }.init(delta, Q3, x[i], cdfValue), 0.0001)
-            );
-        }
+            double[] test = new double[cdf.length];
+            for(int i = deltaIndex; i < Q3Index; i++){
+                double cdfValue = cdf[i] / cdf[Q3Index];
+                test[i] = cdfValue;
+                bodyLambda = Math.min(
+                        bodyLambda,
+                        zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
+                            private double delta;
+                            private double b;
+                            private double time;
+                            private double histogram;
 
-        features.add(StochasticTransitionFeature.newExpolynomial(
-                bodyLambda * Math.exp(bodyLambda * delta) / (1 - Math.exp(-bodyLambda * (Q3 - delta))) + " * Exp[-" + bodyLambda + " x]",
-                new OmegaBigDecimal(String.valueOf(delta)),
-                new OmegaBigDecimal(String.valueOf(Q3))
-        ));
+                            @Override
+                            public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
+                                // t should be our lambda
+                                DerivativeStructure p = t.multiply(delta - time).expm1();
+                                DerivativeStructure q = t.multiply(delta - b).expm1();
 
-        //tail --> TODO errore: mi mette Q3 index = cdf-length - 1 e quindi il lambda non va mai bene
-        double tailLambda = Double.MAX_VALUE;
-        int index = IntStream.range(Q3Index, cdf.length)
-                .filter(t -> cdf[t] >= 0.999)
-                .findFirst()
-                .orElse(cdf.length);
-        for(int i = Q3Index ; i < index; i++){
-            double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
+                                return p.divide(q).subtract(histogram);
+                            }
 
-            //Discard bad conditioned values
-            if(cdfValue > 0  &&  cdfValue < 1 && /*low +*/ (i * step.doubleValue()) > Q3) {
-                tailLambda = Math.min(
-                        tailLambda,
-                        -Math.log(1 - cdfValue) / (/*low +*/ (i * step.doubleValue()) - Q3)
+                            @Override
+                            public double value(double x) {
+                                // Here x is the lambda of the function
+                                return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
+                            }
+
+                            public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram){
+                                this.delta = delta;
+                                this.b = b;
+                                this.time = time;
+                                this.histogram = histogram;
+                                return this;
+                            }
+                        }.init(delta, Q3, x[i], cdfValue), 0.0001)
                 );
             }
-        }
 
-        features.add(StochasticTransitionFeature.newShiftedExp(BigDecimal.valueOf(Q3), BigDecimal.valueOf(tailLambda)));
+            features.add(StochasticTransitionFeature.newExpolynomial(
+                    bodyLambda * Math.exp(bodyLambda * delta) / (1 - Math.exp(-bodyLambda * (Q3 - delta))) + " * Exp[-" + bodyLambda + " x]",
+                    new OmegaBigDecimal(String.valueOf(delta)),
+                    new OmegaBigDecimal(String.valueOf(Q3))
+            ));
+
+            //tail
+            double tailLambda = Double.MAX_VALUE;
+            int index = IntStream.range(Q3Index, cdf.length)
+                    .filter(t -> cdf[t] >= 0.999)
+                    .findFirst()
+                    .orElse(cdf.length);
+            for(int i = Q3Index ; i < index; i++){
+                double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
+
+                //Discard bad conditioned values
+                if(cdfValue > 0  &&  cdfValue < 1 && /*low +*/ (i * step.doubleValue()) > Q3) {
+                    tailLambda = Math.min(
+                            tailLambda,
+                            -Math.log(1 - cdfValue) / (/*low +*/ (i * step.doubleValue()) - Q3)
+                    );
+                }
+            }
+
+            //features.add(StochasticTransitionFeature.newShiftedExp(BigDecimal.valueOf(Q3), BigDecimal.valueOf(tailLambda)));
+            features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
+
+            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.75));
+            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));
+        }
 
         return features;
     }

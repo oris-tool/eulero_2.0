@@ -269,6 +269,7 @@ public class TestBBuilderDeprecated extends ModelBuilder_Deprecated {
         v_0.addPrecondition(r_0);
         p.end().addPrecondition(tu_0, v_0, wx_0);
 
+        long time = System.nanoTime();
         TransientSolution<DeterministicEnablingState, RewardRate> pAnalysis = p.analyze("3", timeTick.toString(), "0.001");
         double[] pCDF = new double[pAnalysis.getSolution().length];
         for(int count = 0; count < pAnalysis.getSolution().length; count++){
@@ -291,11 +292,13 @@ public class TestBBuilderDeprecated extends ModelBuilder_Deprecated {
         u_1.addPrecondition(s_1, r_1);
         m_1.end().addPrecondition(t_1, u_1);
 
+        time = System.nanoTime();
         TransientSolution<DeterministicEnablingState, RewardRate> m1Analysis = m_1.analyze("3", timeTick.toString(), "0.001");
         double[] m1Cdf = new double[m1Analysis.getSolution().length];
         for(int count = 0; count < m1Analysis.getSolution().length; count++){
             m1Cdf[count] = m1Analysis.getSolution()[count][0][0];
         }
+
 
         Numerical numericalM1 = new Numerical("m1", timeTick, getLowIndex(m1Cdf), getUppIndex(m1Cdf), cutCDF(m1Cdf), approximator);
 

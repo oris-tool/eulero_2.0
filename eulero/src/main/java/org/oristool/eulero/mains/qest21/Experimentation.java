@@ -4,13 +4,18 @@ import org.oristool.eulero.analysisheuristics.AnalysisHeuristic1;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristic2;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristic3;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
+import org.oristool.eulero.graph.Activity;
 import org.oristool.eulero.mains.TestCaseHandler;
 import org.oristool.eulero.mains.TestCaseResult;
 import org.oristool.eulero.math.approximation.Approximator;
 import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.approximation.SplineBodyEXPTailApproximation;
 import org.oristool.eulero.models.ModelBuilder;
+import org.oristool.eulero.models.ModelBuilder_Deprecated;
 import org.oristool.eulero.models.qest21.*;
+import org.oristool.eulero.models.qest21_deprecated.TestABuilderDeprecated;
+import org.oristool.eulero.models.qest21_deprecated.TestBBuilderDeprecated;
+import org.oristool.eulero.models.qest21_deprecated.TestDBuilderDeprecated;
+import org.oristool.eulero.models.qest21_deprecated.TestHBuilderDeprecated;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -22,7 +27,7 @@ import java.util.List;
 
 public class Experimentation {
     public static void main(String[] args) {
-        String savePathPrefix = System.getProperty("user.dir") + "/results/AutomatedTest/ExpMixture/NonUniformInput";
+        String savePathPrefix = System.getProperty("user.dir") + "/results/AutomatedTest/ExpMixture/Regenerative+Uniform_C3";
         String GTCDF = "/CDF";
         String GTtimes = "/times";
         String GTPathSuffix = "/GroundTruth.txt";
@@ -33,23 +38,23 @@ public class Experimentation {
         //StochasticTransitionFeature feature = StochasticTransitionFeature.newExpolynomial("1.35820981381836543 * 3 * Exp[-4 x]", new OmegaBigDecimal("0"), new OmegaBigDecimal("1"));
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         BigDecimal timeLimit = BigDecimal.valueOf(8);
-        BigDecimal timeTick = BigDecimal.valueOf(0.1) ;
+        BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
         BigDecimal forwardReductionFactor = BigDecimal.valueOf(10) ; // TODO passalo come parametro... magari si possono fare ulteriori estensioni
-        BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(100));
-        int groundTruthRuns = 1000;
+        BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(10));
+        int groundTruthRuns = 10000;
         boolean save = true;
         boolean plot = true;
         boolean GTFromFile = true;
 
-        BigInteger C = BigInteger.valueOf(2);
-        BigInteger R = BigInteger.valueOf(8);
+        BigInteger C = BigInteger.valueOf(3);
+        BigInteger R = BigInteger.valueOf(1000000009);
         AnalysisHeuristicStrategy strategy1 = new AnalysisHeuristic1(C, R, approximator);
         AnalysisHeuristicStrategy strategy2 = new AnalysisHeuristic2(C, R, approximator);
         AnalysisHeuristicStrategy strategy3 = new AnalysisHeuristic3(C, R, approximator);
 
 
-        //String[] testToRun = {"A","B", "C", "D", "E",  "F", "G",  "H"};
-        String[] testToRun = {"H"};
+        //String[] testToRun = {"A","B", "C", "D", "E", "F", "G",  "H"};
+        String[] testToRun = {"Caso"};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
@@ -186,6 +191,52 @@ public class Experimentation {
             if(plot){
                 testCaseHandlerH.plotResults(resultsH);
             }
+        }
+
+        if(Arrays.asList(testToRun).contains("Caso")){
+            System.out.println("Starting Test Caso.");
+            String testCaseName = "Test Caso";
+            ModelBuilder_Deprecated testBuilder1 = new TestBBuilderDeprecated(feature, approximator);
+            long time = System.currentTimeMillis();
+            Activity test = testBuilder1.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+            test.analyze(timeLimit.toString(), timeTick.toString(), timeError.toString());
+            System.out.println("Analysis done in " +
+                    (System.currentTimeMillis() - time) + "...");
+
+            System.out.println("\n\nStarting Test Caso.");
+            ModelBuilder_Deprecated testBuilder2 = new TestDBuilderDeprecated(feature, approximator);
+            time = System.currentTimeMillis();
+            Activity test2 = testBuilder2.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+            test2.analyze(timeLimit.toString(), timeTick.toString(), timeError.toString());
+            System.out.println("Analysis done in " +
+                    (System.currentTimeMillis() - time) + "...");
+
+            System.out.println("\n\nStarting Test Caso.");
+            ModelBuilder_Deprecated testBuilder3 = new TestABuilderDeprecated(feature, approximator);
+            time = System.currentTimeMillis();
+            Activity test3 = testBuilder3.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+            test3.analyze(timeLimit.toString(), timeTick.toString(), timeError.toString());
+            System.out.println("Analysis done in " +
+                    (System.currentTimeMillis() - time) + "...");
+
+            System.out.println("\n\nStarting Test Caso.");
+            ModelBuilder_Deprecated testBuilder4 = new TestHBuilderDeprecated(feature, approximator);
+            time = System.currentTimeMillis();
+            Activity test4 = testBuilder4.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
+            test4.analyze(timeLimit.toString(), timeTick.toString(), timeError.toString());
+            System.out.println("Analysis done in " +
+                    (System.currentTimeMillis() - time) + "...");
+
+
+
+            /*ModelBuilder testBuilder = new TestBBuilder(feature);
+
+            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testBuilder, List.of(strategy2) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
+            ArrayList<TestCaseResult> resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);
+
+            if(plot){
+                testCaseHandlerH.plotResults(resultsH);
+            }*/
         }
     }
 }

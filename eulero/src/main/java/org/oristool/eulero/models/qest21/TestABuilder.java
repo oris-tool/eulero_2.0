@@ -43,6 +43,7 @@ public class TestABuilder extends ModelBuilder {
         t_1.addPrecondition(q_1, r_1);
         u_1.addPrecondition(s_1, r_1);
         simDag_1.end().addPrecondition(t_1, u_1);
+
         simDag_1.setEFT(simDag_1.low());
         simDag_1.setLFT(simDag_1.upp());
 

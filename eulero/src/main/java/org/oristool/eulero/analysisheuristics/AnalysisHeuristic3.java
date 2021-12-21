@@ -25,7 +25,7 @@ public class AnalysisHeuristic3 extends AnalysisHeuristicStrategy{
                     System.out.println(tabSpaceChars + " Performing REP Inner Block Analysis on " + model.name());
                     return REPInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
-                return regenerativeTransientAnalysis(model, timeLimit, step, BigDecimal.valueOf(10), error, tabSpaceChars);
+                return regenerativeTransientAnalysis(model, timeLimit, step, BigDecimal.valueOf(1), error, tabSpaceChars);
             }
         }
 
@@ -36,12 +36,12 @@ public class AnalysisHeuristic3 extends AnalysisHeuristicStrategy{
 
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedR().compareTo(model.R()) == 0)) {
-                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedR().compareTo(this.RThreshold()) > 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedR().compareTo(this.RThreshold()) >= 0) {
                     System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
 
-                if(model.C().compareTo(this.CThreshold()) > 0 || model.R().compareTo(this.RThreshold()) > 0){
+                if(model.C().compareTo(this.CThreshold()) >= 0 || model.R().compareTo(this.RThreshold()) >= 0){
                     System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
                     return DAGInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }

@@ -391,7 +391,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
             test[i - Q3Index] = cdfValue;
         }
 
-        features.add(StochasticTransitionFeature.newShiftedExp(BigDecimal.valueOf(Q3), BigDecimal.valueOf(tailLambda)));
+        features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
         stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));
         return features;
     }

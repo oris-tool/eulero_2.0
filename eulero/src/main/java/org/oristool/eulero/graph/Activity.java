@@ -55,7 +55,6 @@ import org.oristool.simulator.Sequencer;
 import org.oristool.simulator.TimeSeriesRewardResult;
 import org.oristool.simulator.rewards.ContinuousRewardTime;
 import org.oristool.simulator.rewards.RewardEvaluator;
-import org.oristool.simulator.rewards.RewardEvaluatorTimeout;
 import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
 import org.oristool.util.Pair;
@@ -739,23 +738,23 @@ public abstract class Activity {
                 new TransientMarkingConditionProbability(s,
                         new ContinuousRewardTime(step), samples,
                         MarkingCondition.fromString(cond));
-        RewardEvaluatorTimeout rewardEvaluator = new RewardEvaluatorTimeout(reward, timeout);
+        //RewardEvaluatorTimeout rewardEvaluator = new RewardEvaluatorTimeout(reward, timeout);
         long start = System.nanoTime();
         s.simulate();
         System.out.println(String.format("Simulation took %.3f seconds",
                 (System.nanoTime() - start)/1e9));
 
         // evaluate reward
-        TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
+        //TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
         DeterministicEnablingState initialReg = new DeterministicEnablingState(m, pn);
         TransientSolution<DeterministicEnablingState, RewardRate> result =
                 new TransientSolution<>(bound, step, List.of(initialReg),
                         List.of(RewardRate.fromString(cond)), initialReg);
 
         for (int t = 0; t < result.getSolution().length; t++) {
-            for (Marking x : probs.getMarkings()) {
+            /*for (Marking x : probs.getMarkings()) {
                 result.getSolution()[t][0][0] += probs.getTimeSeries(x)[t].doubleValue();
-            }
+            }*/
         }
 
         return result;

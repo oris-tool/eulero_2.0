@@ -137,17 +137,28 @@ public class Analytical extends Activity {
     @Override
     public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
         for(StochasticTransitionFeature feature: pdfFeatures){
+
             Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdfFeatures.indexOf(feature));
             immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdfWeights.get(pdfFeatures.indexOf(feature)).doubleValue())));
-
             Place p = pn.addPlace("p_" + this.name() + "_" + pdfFeatures.indexOf(feature));
-
             Transition t = pn.addTransition(this.name() + "_" + pdfFeatures.indexOf(feature));
             t.addFeature(new Priority(prio));
             t.addFeature(feature);
 
+            if(feature.isEXP()){
+                Place pDet = pn.addPlace("p_" + this.name() + "_" + pdfFeatures.indexOf(feature) + "DET");
+                Transition tDet = pn.addTransition(this.name() + "_DET");
+                tDet.addFeature(new Priority(prio));
+                tDet.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.valueOf(pdfFeatures.stream().filter(feat -> !feat.isEXP()).mapToDouble(feat -> feat.density().getDomainsLFT().doubleValue()).max().orElse(0)), MarkingExpr.ONE));
+
+                pn.addPostcondition(immediateT, pDet);
+                pn.addPrecondition(pDet, tDet);
+                pn.addPostcondition(tDet, p);
+            } else {
+                pn.addPostcondition(immediateT, p);
+            }
+
             pn.addPrecondition(in, immediateT);
-            pn.addPostcondition(immediateT, p);
             pn.addPrecondition(p, t);
             pn.addPostcondition(t, out);
         }

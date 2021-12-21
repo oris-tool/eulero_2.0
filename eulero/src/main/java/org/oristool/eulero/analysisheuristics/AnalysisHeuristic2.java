@@ -37,7 +37,7 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
                     System.out.println(tabSpaceChars + " Performing REP Inner Block Analysis on " + model.name());
                     return REPInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
-                return regenerativeTransientAnalysis(model, timeLimit, step, BigDecimal.valueOf(10), error, tabSpaceChars);
+                return regenerativeTransientAnalysis(model, timeLimit, step, BigDecimal.valueOf(1), error, tabSpaceChars);
             }
         }
 
@@ -45,6 +45,8 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
             // Check for Cycles and analyze them --> altrimenti complessità sarà sempre infinito
             System.out.println(tabSpaceChars + " Searching Repetitions in DAG " + model.name());
             checkREPinDAG(model, timeLimit, step, error, "---" + tabSpaceChars);
+            //System.out.println(tabSpaceChars + " Searching Well Nested blocks in DAG " + model.name());
+            //checkWellNestedInDAG(model, timeLimit, step, error, "---" + tabSpaceChars);
 
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedR().compareTo(model.R()) == 0)) {
@@ -58,14 +60,11 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
             } else {
-                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 && model.simplifiedR().compareTo(this.RThreshold()) > 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedR().compareTo(this.RThreshold()) > 0) {
                     System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
             }
-
-            // TODO serve un'azione per quando c'è qualcosa che è già in versione semplificata, ma ancora complessa.
-            // (Che poi sono le azioni di sopra, ma cambiano le guardie degli IF THEN)
         }
 
         return forwardAnalysis(model, timeLimit, step, error, tabSpaceChars);
