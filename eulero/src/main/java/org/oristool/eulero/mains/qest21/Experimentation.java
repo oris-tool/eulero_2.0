@@ -19,6 +19,7 @@ import org.oristool.eulero.models.qest21_deprecated.TestHBuilderDeprecated;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class Experimentation {
         BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
         BigDecimal forwardReductionFactor = BigDecimal.valueOf(10) ; // TODO passalo come parametro... magari si possono fare ulteriori estensioni
         BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(10));
-        int groundTruthRuns = 10000;
+        int groundTruthRuns = 1000;
         boolean save = true;
         boolean plot = true;
         boolean GTFromFile = true;
@@ -54,7 +55,7 @@ public class Experimentation {
 
 
         //String[] testToRun = {"A","B", "C", "D", "E", "F", "G",  "H"};
-        String[] testToRun = {"Caso"};
+        String[] testToRun = {"H"};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
@@ -63,7 +64,12 @@ public class Experimentation {
 
             ModelBuilder testABuilder = new TestABuilder(feature);
             TestCaseHandler testCaseHandlerA = new TestCaseHandler(testCaseName, testABuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 1575, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsA = testCaseHandlerA.runTestCase(timeLimit, timeTick, timeError);
+            ArrayList<TestCaseResult> resultsA = null;
+            try {
+                resultsA = testCaseHandlerA.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerA.storeResults(resultsA, savePathPrefix);
@@ -79,8 +85,13 @@ public class Experimentation {
             ModelBuilder testBBuilder = new TestBBuilder(feature);
             String testCaseName = "Test B";
 
-            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 498, savePathPrefix + '/' +  testCaseName, false);
-            ArrayList<TestCaseResult> resultsB = testCaseHandlerB.runTestCase(timeLimit, timeTick, timeError);
+            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy2) , groundTruthRuns, 498, savePathPrefix + '/' +  testCaseName, false);
+            ArrayList<TestCaseResult> resultsB = null;
+            try {
+                resultsB = testCaseHandlerB.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerB.storeResults(resultsB, savePathPrefix);
@@ -97,7 +108,12 @@ public class Experimentation {
             String testCaseName = "Test C";
 
             TestCaseHandler testCaseHandlerC = new TestCaseHandler(testCaseName, testCBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 577, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsC = testCaseHandlerC.runTestCase(timeLimit, timeTick, timeError);
+            ArrayList<TestCaseResult> resultsC = null;
+            try {
+                resultsC = testCaseHandlerC.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerC.storeResults(resultsC, savePathPrefix);
@@ -115,7 +131,12 @@ public class Experimentation {
             String testCaseName = "Test D";
 
             TestCaseHandler testCaseHandlerD = new TestCaseHandler(testCaseName, testDBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 588, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsD = testCaseHandlerD.runTestCase(timeLimit, timeTick, timeError);
+            ArrayList<TestCaseResult> resultsD = null;
+            try {
+                resultsD = testCaseHandlerD.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerD.storeResults(resultsD, savePathPrefix);
@@ -132,7 +153,12 @@ public class Experimentation {
             String testCaseName = "Test E";
 
             TestCaseHandler testCaseHandlerE = new TestCaseHandler(testCaseName, testEBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 1142, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsE = testCaseHandlerE.runTestCase(timeLimit, timeTick, timeError);
+            ArrayList<TestCaseResult> resultsE = null;
+            try {
+                resultsE = testCaseHandlerE.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerE.storeResults(resultsE, savePathPrefix);
@@ -149,7 +175,12 @@ public class Experimentation {
             String testCaseName = "Test F";
 
             TestCaseHandler testCaseHandlerF = new TestCaseHandler(testCaseName, testFBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 987, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsF = testCaseHandlerF.runTestCase(timeLimit, timeTick, timeError);
+            ArrayList<TestCaseResult> resultsF = null;
+            try {
+                resultsF = testCaseHandlerF.runTestCase(timeLimit, timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerF.storeResults(resultsF, savePathPrefix);
@@ -166,7 +197,12 @@ public class Experimentation {
             String testCaseName = "Test G";
 
             TestCaseHandler testCaseHandlerG = new TestCaseHandler(testCaseName, testGBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 573, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsG = testCaseHandlerG.runTestCase(timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError);
+            ArrayList<TestCaseResult> resultsG = null;
+            try {
+                resultsG = testCaseHandlerG.runTestCase(timeLimit.add(BigDecimal.valueOf(4)), timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerG.storeResults(resultsG, savePathPrefix);
@@ -183,7 +219,12 @@ public class Experimentation {
             String testCaseName = "Test H";
 
             TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);
+            ArrayList<TestCaseResult> resultsH = null;
+            try {
+                resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(save){
                 testCaseHandlerH.storeResults(resultsH, savePathPrefix);

@@ -12,6 +12,7 @@ import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
 import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -105,7 +106,12 @@ public class RunningCase {
             }
         };
         TestCaseHandler testCaseHandler = new TestCaseHandler("RunningExample", modelBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 1575, "", false);
-        ArrayList<TestCaseResult> results = testCaseHandler.runTestCase(timeLimit, timeTick, timeError);
+        ArrayList<TestCaseResult> results = null;
+        try {
+            results = testCaseHandler.runTestCase(timeLimit, timeTick, timeError);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         testCaseHandler.plotResults(results);
     }
 }

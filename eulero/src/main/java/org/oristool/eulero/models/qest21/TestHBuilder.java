@@ -56,33 +56,16 @@ public class TestHBuilder extends ModelBuilder {
         Analytical r_1 = new Analytical("SimDAG_1_R", feature);
         Analytical s_1 = new Analytical("SimDAG_1_S", feature);
         Analytical u_1 = new Analytical("SimDAG_1_U", feature);
-        Analytical v_1 = new Analytical("SimDAG_1_V", feature);
-        Analytical w_1 = new Analytical("SimDAG_1_W", feature);
-
-        DAG tu_1 = DAG.forkJoin("SimDAG_1_TU",
-                DAG.sequence("SimDAG_1_T",
-                        new Analytical("SimDAG_1_T1", feature),
-                        new Analytical("SimDAG_1_T2", feature)
-                ), u_1
-        );
-
-        DAG wx_1 = DAG.forkJoin("SimDAG_1_WX",
-                DAG.sequence("SimDAG_1_X",
-                        new Analytical("SimDAG_1_X1", feature),
-                        new Analytical("SimDAG_1_X2", feature)
-                ),
-                w_1
-        );
+        Analytical t_1 = new Analytical("SimDAG_1_T", feature);
 
         DAG simDag_1 = DAG.empty("SimDAG_1");
         q_1.addPrecondition(simDag_1.begin());
         r_1.addPrecondition(simDag_1.begin());
         s_1.addPrecondition(simDag_1.begin());
-        tu_1.addPrecondition(q_1, r_1);
-        v_1.addPrecondition(r_1);
-        wx_1.addPrecondition(s_1, r_1);
+        t_1.addPrecondition(q_1, r_1);
+        u_1.addPrecondition(s_1, r_1);
 
-        simDag_1.end().addPrecondition(tu_1, v_1, wx_1);
+        simDag_1.end().addPrecondition(t_1, u_1);
         simDag_1.setEFT(simDag_1.low());
         simDag_1.setLFT(simDag_1.upp());
 
@@ -90,33 +73,16 @@ public class TestHBuilder extends ModelBuilder {
         Analytical r_2 = new Analytical("SimDAG_2_R", feature);
         Analytical s_2 = new Analytical("SimDAG_2_S", feature);
         Analytical u_2 = new Analytical("SimDAG_2_U", feature);
-        Analytical v_2 = new Analytical("SimDAG_2_V", feature);
-        Analytical w_2 = new Analytical("SimDAG_2_W", feature);
-
-        DAG tu_2 = DAG.forkJoin("SimDAG_2_TU",
-                DAG.sequence("SimDAG_2_T",
-                        new Analytical("SimDAG_2_T1", feature),
-                        new Analytical("SimDAG_2_T2", feature)
-                ), u_2
-        );
-
-        DAG wx_2 = DAG.forkJoin("SimDAG_2_WX",
-                DAG.sequence("SimDAG_2_X",
-                        new Analytical("SimDAG_2_X1", feature),
-                        new Analytical("SimDAG_2_X2", feature)
-                ),
-                w_2
-        );
+        Analytical t_2 = new Analytical("SimDAG_2_T", feature);
 
         DAG simDag_2 = DAG.empty("SimDAG_2");
         q_2.addPrecondition(simDag_2.begin());
         r_2.addPrecondition(simDag_2.begin());
         s_2.addPrecondition(simDag_2.begin());
-        tu_2.addPrecondition(q_2, r_2);
-        v_2.addPrecondition(r_2);
-        wx_2.addPrecondition(s_2, r_2);
+        t_2.addPrecondition(q_2, r_2);
+        u_2.addPrecondition(s_2, r_2);
 
-        simDag_2.end().addPrecondition(tu_2, v_2, wx_2);
+        simDag_2.end().addPrecondition(t_2, u_2);
         simDag_2.setEFT(simDag_2.low());
         simDag_2.setLFT(simDag_2.upp());
 

@@ -282,7 +282,7 @@ public class ActivityViewer extends JFrame {
 
             // JS divergence
             labels.add(stringList.get(i) + String.format(" (JS %.6f)",
-                    results.get(i).jsDistance(pdfs[0])));
+                    results.get(i).cdfAreaDifference(cdfs[0])));
         }
 
         ChartPanel cdf = solutionChart("CDF - " + title, labels, step, upper, cdfs);

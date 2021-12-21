@@ -37,13 +37,24 @@ public class TestCaseHandler {
         this.saveResults = saveResults;
     }
 
-    public ArrayList<TestCaseResult> runTestCase(BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+    public ArrayList<TestCaseResult> runTestCase(BigDecimal timeLimit, BigDecimal step, BigDecimal error) throws FileNotFoundException {
         ArrayList<TestCaseResult> results = new ArrayList<>();
+        File logFile = new File(testCasePath + "/log/");
+        if(!logFile.exists()){
+            logFile.mkdirs();
+        }
+        PrintStream systemOut = System.out;
         // GroundTruth
+        System.out.println("\nGT Simulation starts...");
+        PrintStream printWriterGT = new PrintStream(new FileOutputStream(testCasePath + "/log/GroundTruth.txt", false));
+        System.setOut(printWriterGT);
         System.out.println("\nGT Simulation starts...");
 
         File f = new File(testCasePath + "/CDF/GroundTruth.txt");
         if(f.exists() && !f.isDirectory()) {
+            System.out.println("Ground Truth already computed... Loading...");
+
+            System.setOut(systemOut);
             System.out.println("Ground Truth already computed... Loading...");
             FileReader fr = null;
             try {
@@ -97,8 +108,12 @@ public class TestCaseHandler {
             );
             results.add(GTSimulation);
         } else {
+
             TestCaseResult GTSimulation = runSimulation(timeLimit, step, groundTruthRuns);
             results.add(GTSimulation);
+            System.out.println(String.format("GT Simulation took %.3f seconds",
+                    GTSimulation.computationTime()/1e9));
+            System.setOut(systemOut);
             System.out.println(String.format("GT Simulation took %.3f seconds",
                     GTSimulation.computationTime()/1e9));
         }
@@ -106,9 +121,16 @@ public class TestCaseHandler {
         // Heuristics
         long[] heuristicTimes = new long[heuristics.size()];
         for(AnalysisHeuristicStrategy heuristic: heuristics){
+            PrintStream printWriter = new PrintStream(new FileOutputStream(testCasePath + "/log/Heuristic" + heuristics.indexOf(heuristic) + ".txt", false));
             System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
+            System.setOut(printWriter);
+            System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
+
             TestCaseResult heuristicResult = runHeuristic(heuristic, timeLimit, step, error);
             results.add(heuristicResult);
+            System.out.println(String.format("Evaluation took %.3f seconds",
+                    heuristicResult.computationTime()/1e9));
+            System.setOut(systemOut);
             System.out.println(String.format("Evaluation took %.3f seconds",
                     heuristicResult.computationTime()/1e9));
 
@@ -116,9 +138,16 @@ public class TestCaseHandler {
         }
 
         // Simulation
+        PrintStream printWriter = new PrintStream(new FileOutputStream(testCasePath + "/log/simulation.txt", false));
         System.out.println("\nShort Simulation starts...");
+        System.setOut(printWriter);
+
         TestCaseResult shortSimulation = runSimulation(timeLimit, step, Arrays.stream(heuristicTimes).min().orElse(0));
         results.add(shortSimulation);
+        System.out.println(String.format("Simulation took %.3f seconds",
+                shortSimulation.computationTime()/1e9));
+
+        System.setOut(systemOut);
         System.out.println(String.format("Simulation took %.3f seconds",
                 shortSimulation.computationTime()/1e9));
 
@@ -135,6 +164,10 @@ public class TestCaseHandler {
     }
 
     public void storeResults(ArrayList<TestCaseResult> results, String savePath) {
+        final boolean append = true, autoflush = true;
+        PrintStream printStream = new PrintStream(System.out, autoflush); // to write to console
+        System.setOut(printStream);
+
         System.out.println("\nStoring Results...");
         String pathPrefix = savePath + "/" + testCaseName;
         File pdfFile = new File(pathPrefix + "/PDF/");
@@ -156,8 +189,6 @@ public class TestCaseHandler {
         if(!jsFile.exists()){
             jsFile.mkdirs();
         }
-
-        double[] groundTruth = results.get(0).pdf();
 
         for (int i = 0; i < results.size(); i++) {
             double[] cdf = results.get(i).cdf();
