@@ -55,7 +55,7 @@ public class Experimentation {
 
 
         //String[] testToRun = {"A","B", "C", "D", "E", "F", "G",  "H"};
-        String[] testToRun = {"H"};
+        String[] testToRun = {"Caso"};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
@@ -218,7 +218,7 @@ public class Experimentation {
             ModelBuilder testHBuilder = new TestHBuilder(feature);
             String testCaseName = "Test H";
 
-            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
+            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy2) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
             ArrayList<TestCaseResult> resultsH = null;
             try {
                 resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);

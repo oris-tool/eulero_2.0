@@ -30,15 +30,11 @@ public abstract class AnalysisHeuristicStrategy {
     }
 
     public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger RThreshold, Approximator approximator){
-        this(heuristicName, CThreshold, RThreshold, approximator, false);
+        this(heuristicName, CThreshold, RThreshold, approximator, true);
     }
 
 
-    public abstract double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose);
-
-    public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return this.analyze(model, timeLimit, step, error, tabSpaceChars, true);
-    };
+    public abstract double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars);
 
     public BigInteger CThreshold() {
         return CThreshold;
@@ -85,10 +81,10 @@ public abstract class AnalysisHeuristicStrategy {
         return this.analyze(model, timeLimit, step, error, "---");
     }
 
-    public double[] numericalAND(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] numericalAND(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         double[] solution = new double[timeLimit.divide(step).intValue() + 1];
 
-        //System.out.println(tabSpaceChars + " Numerical AND Analysis of " + model.name());
+        System.out.println(tabSpaceChars + " Numerical AND Analysis of " + model.name());
 
         long time = System.nanoTime();
 
@@ -100,17 +96,13 @@ public abstract class AnalysisHeuristicStrategy {
             }
         }
 
-        /*System.out.println(tabSpaceChars +  " Analysis of " +  model.name() + " done in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");*/
+        System.out.println(tabSpaceChars +  " Analysis of " +  model.name() + " done in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
 
         return solution;
     }
 
-    public double[] numericalAND(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return numericalAND(model, timeLimit, step, error, tabSpaceChars, false);
-    }
-
-    public double[] numericalSEQ(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] numericalSEQ(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         double[] solution = new double[timeLimit.divide(step).intValue() + 1];
 
         System.out.println(tabSpaceChars + " Numerical SEQ Analysis of " + model.name());
@@ -140,11 +132,7 @@ public abstract class AnalysisHeuristicStrategy {
         return solution;
     }
 
-    public double[] numericalSEQ(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return numericalSEQ(model, timeLimit, step, error, tabSpaceChars, false);
-    }
-
-    public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         Activity repeatBody = ((Repeat) model).repeatBody();
 
         Analytical replacingBody = new Analytical(repeatBody.name() + "_new",
@@ -162,11 +150,7 @@ public abstract class AnalysisHeuristicStrategy {
 
             ((Repeat) model).replaceBody(replacingBody);
 
-            TransientSolution<DeterministicEnablingState, RewardRate> simulate2 = model.simulate(timeLimit.toString(), step.toString(), 1000);
-            double[] simulation2 = new double[simulate2.getSolution().length];
-            for(int i = 0; i < simulation2.length; i++){
-                simulation2[i] = simulate2.getSolution()[i][0][0];
-            }
+            double[] simulation2 = this.analyze(model, timeLimit, step, error, tabSpaceChars);
 
             ActivityViewer.CompareResults("REP I.B.: " + model.name(), List.of("Real", "Appr"), List.of(new TestCaseResult("real", simulation, 0, simulation.length, step.doubleValue(), 0), new TestCaseResult("appr", simulation2, 0, simulation2.length, step.doubleValue(), 0)));
         } else {
@@ -177,11 +161,7 @@ public abstract class AnalysisHeuristicStrategy {
         return this.analyze(model, timeLimit, step, error, tabSpaceChars);
     }
 
-    public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return REPInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars, false);
-    }
-
-    public void checkREPinDAG(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public void checkREPinDAG(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         TransientSolution<DeterministicEnablingState, RewardRate> simulate = null;
 
         if(plotIntermediate){
@@ -191,7 +171,7 @@ public abstract class AnalysisHeuristicStrategy {
 
         for(Activity act: ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())){
             if(act instanceof Repeat){
-                //System.out.println(tabSpaceChars + " Repetition found! It's " + act.name());
+                System.out.println(tabSpaceChars + " Repetition found! It's " + act.name());
 
                 Analytical replacingActivity = new Analytical(act.name() + "_new",
                         approximator().getApproximatedStochasticTransitionFeatures(
@@ -216,16 +196,12 @@ public abstract class AnalysisHeuristicStrategy {
                     ActivityViewer.CompareResults("REP I.B after Check: " + model.name(), List.of("Real", "Appr"), List.of(new TestCaseResult("real", simulation, 0, simulation.length, step.doubleValue(), 0), new TestCaseResult("appr", simulation2, 0, simulation2.length, step.doubleValue(), 0)));
                 }
 
-                //System.out.println(tabSpaceChars + " Block " + act.name() + " replaced...");
+                System.out.println(tabSpaceChars + " Block " + act.name() + " replaced...");
 
                 model.resetComplexityMeasure();
             }
         }
     }
-
-    /*public double[] checkREPinDAG(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return checkREPinDAG(model, timeLimit, step, error, tabSpaceChars, false);
-    }*/
 
     /*public void checkWellNestedInDAG(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         for(Activity act: ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())){
@@ -247,7 +223,7 @@ public abstract class AnalysisHeuristicStrategy {
         model.resetComplexityMeasure();
     }*/
 
-    public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
 
 
         ArrayList<Activity> innerActivities = ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())
@@ -259,7 +235,7 @@ public abstract class AnalysisHeuristicStrategy {
                         innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).doubleValue(), step),
                 approximator().stochasticTransitionFeatureWeights());
 
-        //System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + innerActivities.get(innerActivities.size() - 1).name());
+        System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + innerActivities.get(innerActivities.size() - 1).name());
         if(plotIntermediate){
             TransientSolution<DeterministicEnablingState, RewardRate> simulate = model.simulate(timeLimit.toString(), step.toString(), 5000);
             double[] simulation = new double[simulate.getSolution().length];
@@ -269,28 +245,19 @@ public abstract class AnalysisHeuristicStrategy {
 
             innerActivities.get(innerActivities.size() - 1).replace(newActivity);
 
-            TransientSolution<DeterministicEnablingState, RewardRate> simulate2 = model.simulate(timeLimit.toString(), step.toString(), 5000);
-            double[] simulation2 = new double[simulate2.getSolution().length];
-            for(int i = 0; i < simulation2.length; i++){
-                simulation2[i] = simulate2.getSolution()[i][0][0];
-            }
+            double[] simulation2 = this.analyze(model, timeLimit, step, error, tabSpaceChars);
 
             ActivityViewer.CompareResults("Inner Block Analysis: " + model.name(), List.of("Real", "Appr"), List.of(new TestCaseResult("real", simulation, 0, simulation.length, step.doubleValue(), 0), new TestCaseResult("appr", simulation2, 0, simulation2.length, step.doubleValue(), 0)));
         } else {
             innerActivities.get(innerActivities.size() - 1).replace(newActivity);
         }
-        //System.out.println(tabSpaceChars + "---"  + " Approximated inner block " + innerActivities.get(innerActivities.size() - 1).name());
-
+        System.out.println(tabSpaceChars + "---"  + " Approximated inner block " + innerActivities.get(innerActivities.size() - 1).name());
 
         model.resetComplexityMeasure();
         return this.analyze(model, timeLimit, step, error, tabSpaceChars);
     }
 
-    public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return DAGInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars, false);
-    }
-
-    public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
         ArrayList<DAG> innerBlocks = new ArrayList<>();
         ArrayList<DAG> sortedInnerBlocks = new ArrayList<>();
         for(Activity activity: ((DAG) model).end().pre()){
@@ -308,7 +275,7 @@ public abstract class AnalysisHeuristicStrategy {
         nestedDAG.setEFT(nestedDAG.low());
         nestedDAG.setLFT(nestedDAG.upp());
 
-        //System.out.println(tabSpaceChars + "---"  + " Replicated block before " + nestedDAG.end().pre().get(1).name().replace(model.name()+"_nestingOf__", ""));
+        System.out.println(tabSpaceChars + "---"  + " Replicated block before " + nestedDAG.end().pre().get(1).name().replace(model.name()+"_nestingOf__", ""));
 
         if(plotIntermediate){
             TransientSolution<DeterministicEnablingState, RewardRate> simulate = model.simulate(timeLimit.toString(), step.toString(), 5000);
@@ -317,11 +284,8 @@ public abstract class AnalysisHeuristicStrategy {
                 simulation[i] = simulate.getSolution()[i][0][0];
             }
 
-            TransientSolution<DeterministicEnablingState, RewardRate> simulate2 = nestedDAG.simulate(timeLimit.toString(), step.toString(), 5000);
-            double[] simulation2 = new double[simulate2.getSolution().length];
-            for(int i = 0; i < simulation2.length; i++){
-                simulation2[i] = simulate2.getSolution()[i][0][0];
-            }
+            double[] simulation2 = this.analyze(nestedDAG, timeLimit, step, error, tabSpaceChars);
+
             ActivityViewer.CompareResults("Inner Block Replication: " + model.name(), List.of("Real", "Appr"), List.of(new TestCaseResult("real", simulation, 0, simulation.length, step.doubleValue(), 0), new TestCaseResult("appr", simulation2, 0, simulation2.length, step.doubleValue(), 0)));
         }
 
@@ -329,15 +293,11 @@ public abstract class AnalysisHeuristicStrategy {
         return this.analyze(nestedDAG, timeLimit, step, error, tabSpaceChars);
     }
 
-    public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars, false);
-    }
-
-    public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal sampleFactor, BigDecimal error, String tabSpaceChars, boolean verbose){
+    public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal sampleFactor, BigDecimal error, String tabSpaceChars){
         long time = System.nanoTime();
         TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.divide(sampleFactor, RoundingMode.HALF_DOWN).toString(), error.toString());
-        //System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
-                //(System.nanoTime() - time)/1e9) + "...");
+        System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
         double[] solution = new double[timeLimit.divide(step, RoundingMode.HALF_DOWN).intValue()];
         for(int i = 0; i < solution.length; i++){
             solution[i] = transientSolution.getSolution()[i * sampleFactor.intValue()][0][0];
@@ -346,25 +306,17 @@ public abstract class AnalysisHeuristicStrategy {
         return solution;
     }
 
-    public double[] regenerativeTransientAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal sampleFactor, BigDecimal error, String tabSpaceChars){
-        return regenerativeTransientAnalysis(model, timeLimit, step, sampleFactor, error, tabSpaceChars, false);
-    }
-
-    public double[] forwardAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars, boolean verbose){
-        //System.out.println(tabSpaceChars + " Forward Analysis of block " + model.name());
+    public double[] forwardAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
+        System.out.println(tabSpaceChars + " Forward Analysis of block " + model.name());
         long time = System.nanoTime();
         TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.toString(), error.toString());
-        //System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
-                //(System.nanoTime() - time)/1e9) + "...");
+        System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
         double[] solution = new double[transientSolution.getSolution().length];
         for(int i = 0; i < solution.length; i++){
             solution[i] = transientSolution.getSolution()[i][0][0];
         }
 
         return solution;
-    }
-
-    public double[] forwardAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal error, String tabSpaceChars){
-        return forwardAnalysis(model, timeLimit, step, error, tabSpaceChars, false);
     }
 }
