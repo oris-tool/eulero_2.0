@@ -20,14 +20,14 @@ SimDAG_0 has been approximated
 ------------------ Performing DAG Inner Block Analysis on NR_ComAND_F
 --------------------- Searching Repetitions in DAG NR_ComAND_H
 --------------------- Performing DAG Inner Block Analysis on NR_ComAND_H
------------------------- Searching Repetitions in DAG SimDAG_2
------------------------- Block Analysis: Choose inner block SimDAG_2
------------------------- Approximated inner block SimDAG_2
---------------------- Searching Repetitions in DAG NR_ComAND_H
---------------------- Performing DAG Inner Block Analysis on NR_ComAND_H
 ------------------------ Searching Repetitions in DAG SimDAG_1
 ------------------------ Block Analysis: Choose inner block SimDAG_1
 ------------------------ Approximated inner block SimDAG_1
+--------------------- Searching Repetitions in DAG NR_ComAND_H
+--------------------- Performing DAG Inner Block Analysis on NR_ComAND_H
+------------------------ Searching Repetitions in DAG SimDAG_2
+------------------------ Block Analysis: Choose inner block SimDAG_2
+------------------------ Approximated inner block SimDAG_2
 --------------------- Searching Repetitions in DAG NR_ComAND_H
 --------------------- Block Analysis: Choose inner block NR_ComAND_H
 --------------------- Approximated inner block NR_ComAND_H
@@ -57,4 +57,4 @@ NR_A has been approximated
 --------- Approximated inner block SimDAG_3_nestingOf_SimDAG_3
 ------ Searching Repetitions in DAG Main_nestingOf_SimDAG_3
 --- Searching Repetitions in DAG Main_N
-Evaluation took 4.880 seconds
+Evaluation took 4.746 seconds
