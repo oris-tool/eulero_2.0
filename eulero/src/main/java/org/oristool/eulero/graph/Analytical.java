@@ -139,6 +139,7 @@ public class Analytical extends Activity {
         for(StochasticTransitionFeature feature: pdfFeatures){
 
             Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdfFeatures.indexOf(feature));
+            immediateT.addFeature(new Priority(prio));
             immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdfWeights.get(pdfFeatures.indexOf(feature)).doubleValue())));
             Place p = pn.addPlace("p_" + this.name() + "_" + pdfFeatures.indexOf(feature));
             Transition t = pn.addTransition(this.name() + "_" + pdfFeatures.indexOf(feature));

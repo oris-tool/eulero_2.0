@@ -1,0 +1,78 @@
+
+HEURISTIC 1
+--- Searching Repetitions in DAG Main
+------ Repetition found! It's NestedRepetition_Q
+--------- Performing REP Inner Block Analysis on NestedRepetition_Q
+------------ Numerical SEQ Analysis of NR_A
+--------------- Performing REP Inner Block Analysis on NR_B
+------------------ Searching Repetitions in DAG SimDAG_0
+------------------ Performing DAG Inner Block Analysis on SimDAG_0
+--------------------- Numerical AND Analysis of SimDAG_0_WX
+------------------------ Numerical SEQ Analysis of SimDAG_0_X
+------------------------ Analysis of SimDAG_0_X done in 0.007 seconds...
+--------------------- Analysis of SimDAG_0_WX done in 0.011 seconds...
+--------------------- Block Analysis: Choose inner block SimDAG_0_WX
+--------------------- Approximated inner block SimDAG_0_WX
+------------------ Searching Repetitions in DAG SimDAG_0
+------------------ Performing DAG Inner Block Analysis on SimDAG_0
+--------------------- Numerical AND Analysis of SimDAG_0_TU
+------------------------ Numerical SEQ Analysis of SimDAG_0_T
+------------------------ Analysis of SimDAG_0_T done in 0.006 seconds...
+--------------------- Analysis of SimDAG_0_TU done in 0.009 seconds...
+--------------------- Block Analysis: Choose inner block SimDAG_0_TU
+--------------------- Approximated inner block SimDAG_0_TU
+------------------ Searching Repetitions in DAG SimDAG_0
+SimDAG_0 has been approximated
+--------------- Numerical AND Analysis of NR_ComAND
+------------------ Numerical SEQ Analysis of NR_ComAND_A
+--------------------- Numerical AND Analysis of NR_ComAND_C
+--------------------- Analysis of NR_ComAND_C done in 0.015 seconds...
+------------------ Analysis of NR_ComAND_A done in 0.024 seconds...
+------------------ Numerical SEQ Analysis of NR_ComAND_F
+--------------------- Numerical AND Analysis of NR_ComAND_H
+------------------------ Searching Repetitions in DAG SimDAG_1
+------------------------ Searching Repetitions in DAG SimDAG_2
+--------------------- Analysis of NR_ComAND_H done in 0.355 seconds...
+------------------ Analysis of NR_ComAND_F done in 0.363 seconds...
+--------------- Analysis of NR_ComAND done in 0.387 seconds...
+------------ Analysis of NR_A done in 9.802 seconds...
+NR_A has been approximated
+------ Block NestedRepetition_Q replaced...
+--- Performing DAG Inner Block Analysis on Main
+------ Searching Repetitions in DAG SimDAG_3
+------ Performing DAG Inner Block Analysis on SimDAG_3
+--------- Numerical AND Analysis of SimDAG_3_WX
+------------ Numerical SEQ Analysis of SimDAG_3_X
+------------ Analysis of SimDAG_3_X done in 0.006 seconds...
+--------- Analysis of SimDAG_3_WX done in 0.009 seconds...
+--------- Block Analysis: Choose inner block SimDAG_3_WX
+--------- Approximated inner block SimDAG_3_WX
+------ Searching Repetitions in DAG SimDAG_3
+------ Performing DAG Inner Block Analysis on SimDAG_3
+--------- Numerical AND Analysis of SimDAG_3_TU
+------------ Numerical SEQ Analysis of SimDAG_3_T
+------------ Analysis of SimDAG_3_T done in 0.006 seconds...
+--------- Analysis of SimDAG_3_TU done in 0.009 seconds...
+--------- Block Analysis: Choose inner block SimDAG_3_TU
+--------- Approximated inner block SimDAG_3_TU
+------ Searching Repetitions in DAG SimDAG_3
+------ Block Analysis: Choose inner block SimDAG_3
+------ Approximated inner block SimDAG_3
+--- Searching Repetitions in DAG Main
+--- Performing DAG Inner Block Analysis on Main
+------ Numerical AND Analysis of T
+--------- Numerical SEQ Analysis of T2
+--------- Analysis of T2 done in 0.007 seconds...
+------ Analysis of T done in 0.010 seconds...
+------ Block Analysis: Choose inner block T
+------ Approximated inner block T
+--- Searching Repetitions in DAG Main
+--- Performing DAG Inner Block Analysis on Main
+------ Numerical AND Analysis of V
+--------- Numerical SEQ Analysis of V2
+--------- Analysis of V2 done in 0.006 seconds...
+------ Analysis of V done in 0.009 seconds...
+------ Block Analysis: Choose inner block V
+------ Approximated inner block V
+--- Searching Repetitions in DAG Main
+Evaluation took 34.644 seconds

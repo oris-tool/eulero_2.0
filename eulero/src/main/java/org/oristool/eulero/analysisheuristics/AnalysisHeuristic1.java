@@ -49,11 +49,17 @@ public class AnalysisHeuristic1 extends AnalysisHeuristicStrategy{
 
                 if(model.C().compareTo(this.CThreshold()) > 0 || model.R().compareTo(this.RThreshold()) > 0){
                     System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
+                    // Chiama cerca blocchi complessi TODO
                     return DAGInnerBlockAnalysis(model, timeLimit, step, error, tabSpaceChars);
+                }
+            } else {
+                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedR().compareTo(this.RThreshold()) > 0) {
+                    System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
+                    return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars);
                 }
             }
         }
 
-        return forwardAnalysis(model, timeLimit, step, error, tabSpaceChars);
+        return getSimpleActivityCDF(model, timeLimit, step, error);
     }
 }

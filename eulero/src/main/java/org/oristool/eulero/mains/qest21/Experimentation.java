@@ -5,6 +5,7 @@ import org.oristool.eulero.analysisheuristics.AnalysisHeuristic2;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristic3;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
 import org.oristool.eulero.graph.Activity;
+import org.oristool.eulero.graph.Analytical;
 import org.oristool.eulero.mains.TestCaseHandler;
 import org.oristool.eulero.mains.TestCaseResult;
 import org.oristool.eulero.math.approximation.Approximator;
@@ -34,15 +35,12 @@ public class Experimentation {
         String GTPathSuffix = "/GroundTruth.txt";
         //Approximator approximator = new SplineBodyEXPTailApproximation(3);
         Approximator approximator = new EXPMixtureApproximation();
-        //StochasticTransitionFeature feature = StochasticTransitionFeature.newExpolynomial("1.1302477 * 3 * Exp[-4 x] + 1.1302477 *  x^1 * Exp[-2 x]", new OmegaBigDecimal("0"), new OmegaBigDecimal("1"));
-        //StochasticTransitionFeature feature = StochasticTransitionFeature.newExpolynomial("8.809103208401715 * x^1 * Exp[-0.8 x] + -8.809103208401715 * x^2 * Exp[-0.8 x]", new OmegaBigDecimal("0"), new OmegaBigDecimal("1"));
-        //StochasticTransitionFeature feature = StochasticTransitionFeature.newExpolynomial("1.35820981381836543 * 3 * Exp[-4 x]", new OmegaBigDecimal("0"), new OmegaBigDecimal("1"));
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         BigDecimal timeLimit = BigDecimal.valueOf(8);
         BigDecimal timeTick = BigDecimal.valueOf(0.01) ;
         BigDecimal forwardReductionFactor = BigDecimal.valueOf(10) ; // TODO passalo come parametro... magari si possono fare ulteriori estensioni
         BigDecimal timeError = timeTick.divide(BigDecimal.valueOf(10));
-        int groundTruthRuns = 1000;
+        int groundTruthRuns = 20000;
         boolean save = true;
         boolean plot = true;
         boolean GTFromFile = true;
@@ -54,8 +52,8 @@ public class Experimentation {
         AnalysisHeuristicStrategy strategy3 = new AnalysisHeuristic3(C, R, approximator);
 
 
-        //String[] testToRun = {"A","B", "C", "D", "E", "F", "G",  "H"};
-        String[] testToRun = {"Caso"};
+        String[] testToRun = {"A", "B", "C", "D", "E", "F", "G", "H"};
+        //String[] testToRun = {"B"};
 
         // Test A
         if(Arrays.asList(testToRun).contains("A")){
@@ -85,7 +83,7 @@ public class Experimentation {
             ModelBuilder testBBuilder = new TestBBuilder(feature);
             String testCaseName = "Test B";
 
-            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy2) , groundTruthRuns, 498, savePathPrefix + '/' +  testCaseName, false);
+            TestCaseHandler testCaseHandlerB = new TestCaseHandler(testCaseName, testBBuilder, List.of(strategy1, strategy2, strategy3), groundTruthRuns, 498, savePathPrefix + '/' +  testCaseName, false);
             ArrayList<TestCaseResult> resultsB = null;
             try {
                 resultsB = testCaseHandlerB.runTestCase(timeLimit, timeTick, timeError);
@@ -218,7 +216,7 @@ public class Experimentation {
             ModelBuilder testHBuilder = new TestHBuilder(feature);
             String testCaseName = "Test H";
 
-            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy2) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
+            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testHBuilder, List.of(strategy1, strategy2, strategy3) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
             ArrayList<TestCaseResult> resultsH = null;
             try {
                 resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);
@@ -235,8 +233,9 @@ public class Experimentation {
         }
 
         if(Arrays.asList(testToRun).contains("Caso")){
-            System.out.println("Starting Test Caso.");
             String testCaseName = "Test Caso";
+
+            System.out.println("Starting Test Caso.");
             ModelBuilder_Deprecated testBuilder1 = new TestBBuilderDeprecated(feature, approximator);
             long time = System.currentTimeMillis();
             Activity test = testBuilder1.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
@@ -244,7 +243,7 @@ public class Experimentation {
             System.out.println("Analysis done in " +
                     (System.currentTimeMillis() - time) + "...");
 
-            System.out.println("\n\nStarting Test Caso.");
+            /*System.out.println("\n\nStarting Test Caso.");
             ModelBuilder_Deprecated testBuilder2 = new TestDBuilderDeprecated(feature, approximator);
             time = System.currentTimeMillis();
             Activity test2 = testBuilder2.buildModelForAnalysis_Heuristic2(timeLimit, timeTick);
@@ -268,12 +267,23 @@ public class Experimentation {
             System.out.println("Analysis done in " +
                     (System.currentTimeMillis() - time) + "...");
 
+            /*ArrayList<StochasticTransitionFeature> feats = new ArrayList<>();
+            feats.add(feature);
+            feats.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(1.43)));
 
+            ArrayList<BigDecimal> weights = new ArrayList<>();
+            weights.add(BigDecimal.valueOf(0.75));
+            weights.add(BigDecimal.valueOf(0.25));
 
-            /*ModelBuilder testBuilder = new TestBBuilder(feature);
+            ModelBuilder testBuilder = new TestBuilder(feature);
 
-            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testBuilder, List.of(strategy2) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
-            ArrayList<TestCaseResult> resultsH = testCaseHandlerH.runTestCase(timeLimit.add(BigDecimal.valueOf(2)), timeTick, timeError);
+            TestCaseHandler testCaseHandlerH = new TestCaseHandler(testCaseName, testBuilder, List.of(strategy2, strategy3) , groundTruthRuns, 466, savePathPrefix + '/' + testCaseName, false);
+            ArrayList<TestCaseResult> resultsH = null;
+            try {
+                resultsH = testCaseHandlerH.runTestCase(BigDecimal.valueOf(3), timeTick, timeError);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if(plot){
                 testCaseHandlerH.plotResults(resultsH);

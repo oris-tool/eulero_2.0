@@ -17,6 +17,7 @@
 
 package org.oristool.eulero.graph;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -63,7 +64,7 @@ import org.oristool.util.Pair;
 /**
  * Represents a node in an activity DAG.
  */
-public abstract class Activity {
+public abstract class Activity implements Serializable {
     private BigDecimal EFT;
     private BigDecimal LFT;
     private BigInteger C;

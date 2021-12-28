@@ -421,7 +421,6 @@ public class EXPMixtureApproximation extends Approximator {
                 }
             }
 
-            //features.add(StochasticTransitionFeature.newShiftedExp(BigDecimal.valueOf(Q3), BigDecimal.valueOf(tailLambda)));
             features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
 
             stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.75));

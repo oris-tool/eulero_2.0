@@ -6,6 +6,10 @@ import org.oristool.eulero.graph.DAG;
 import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestBuilder  extends ModelBuilder {
 
     public TestBuilder(StochasticTransitionFeature feature) {
@@ -23,20 +27,33 @@ public class TestBuilder  extends ModelBuilder {
         Analytical v_0 = new Analytical("SimDAG_0_V", feature);
         Analytical w_0 = new Analytical("SimDAG_0_W", feature);
 
-        DAG tu_0 = DAG.forkJoin("SimDAG_0_TU",
+        /*DAG tu_0 = DAG.forkJoin("SimDAG_0_TU",
                 DAG.sequence("SimDAG_0_T",
                         new Analytical("SimDAG_0_T1", feature),
                         new Analytical("SimDAG_0_T2", feature)
                 ), u_0
-        );
+        );*/
 
-        DAG wx_0 = DAG.forkJoin("SimDAG_0_WX",
+        ArrayList<StochasticTransitionFeature> feats = new ArrayList<>();
+        feats.add(feature);
+        feats.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(1.43)));
+
+        ArrayList<BigDecimal> weights = new ArrayList<>();
+        weights.add(BigDecimal.valueOf(0.75));
+        weights.add(BigDecimal.valueOf(0.25));
+
+        Analytical tu_0 = new Analytical("TU", feats, weights);
+
+        /*DAG wx_0 = DAG.forkJoin("SimDAG_0_WX",
                 DAG.sequence("SimDAG_0_X",
                         new Analytical("SimDAG_0_X1", feature),
                         new Analytical("SimDAG_0_X2", feature)
                 ),
                 w_0
-        );
+        );*/
+
+        Analytical wx_0 = new Analytical("WX", feats, weights);
+
 
         DAG simDag_0 = DAG.empty("SimDAG_0");
         q_0.addPrecondition(simDag_0.begin());

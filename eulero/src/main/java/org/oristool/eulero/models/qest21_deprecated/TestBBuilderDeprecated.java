@@ -275,6 +275,8 @@ public class TestBBuilderDeprecated extends ModelBuilder_Deprecated {
         for(int count = 0; count < pAnalysis.getSolution().length; count++){
             pCDF[count] = pAnalysis.getSolution()[count][0][0];
         }
+        System.out.println("Secondi: " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
 
         Numerical numericalP = new Numerical("PUp_numerical", timeTick, getLowIndex(pCDF), getUppIndex(pCDF), cutCDF(pCDF), approximator);
 
