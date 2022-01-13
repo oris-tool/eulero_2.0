@@ -29,7 +29,7 @@ class AnalysisHeuristic1Test {
         BigInteger R =  BigInteger.valueOf(10);
         //Approximator approximator = new SplineBodyEXPTailApproximation(3);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
         StochasticTransitionFeature unif0_10 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(8));
@@ -62,7 +62,7 @@ class AnalysisHeuristic1Test {
                 dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error, ""), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "XOR-TEST", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
@@ -78,7 +78,7 @@ class AnalysisHeuristic1Test {
         BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         //Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
         StochasticTransitionFeature unif0_10 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
@@ -120,7 +120,7 @@ class AnalysisHeuristic1Test {
                 dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, error, ""), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
@@ -135,7 +135,7 @@ class AnalysisHeuristic1Test {
         BigInteger R =  BigInteger.valueOf(20);
         //Approximator approximator = new SplineBodyEXPTailApproximation(3);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
         StochasticTransitionFeature unif0_10 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
@@ -175,7 +175,7 @@ class AnalysisHeuristic1Test {
                 dag.simulate(timeLimit.toString(), step.toString(), simulationRuns), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, step), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
+        TestCaseResult analysis = new TestCaseResult("Simulation", analyzer.analyze(dag, timeLimit, step, step, ""), dag.EFT().divide(step).intValue(), dag.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }
@@ -190,7 +190,7 @@ class AnalysisHeuristic1Test {
         BigInteger R =  BigInteger.valueOf(8);
         Approximator approximator = new SplineBodyEXPTailApproximation(1);
         //Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
         StochasticTransitionFeature unif0_10 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
@@ -231,7 +231,7 @@ class AnalysisHeuristic1Test {
                 pComplex.simulate(timeLimit.toString(), step.toString(), simulationRuns), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue(), 0
         );
 
-        TestCaseResult analysis = new TestCaseResult("Analysi", analyzer.analyze(pComplex, timeLimit, step, step), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue(), 0);
+        TestCaseResult analysis = new TestCaseResult("Analysi", analyzer.analyze(pComplex, timeLimit, step, step, ""), pComplex.EFT().divide(step).intValue(), pComplex.LFT().divide(step).intValue(), step.doubleValue(), 0);
         ActivityViewer.CompareResults("XOR-TEST", false, "", List.of("Simulation", "Analysis"), simulation, analysis);
         Thread.sleep(20000);
     }

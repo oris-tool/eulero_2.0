@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
@@ -33,9 +36,14 @@ import org.oristool.petrinet.Transition;
 /**
  * DAG: A graph of activities
  */
+@XmlRootElement(name = "DAG")
+@XmlSeeAlso({AND.class, SEQ.class})
 public class DAG extends Activity {
-    private final Activity begin;
-    private final Activity end;       
+    @XmlElement(name = "begin", required = true)
+    private Activity begin;
+
+    @XmlElement(name = "end", required = true)
+    private Activity end;
 
     /**
      * An empty DAG
@@ -96,6 +104,10 @@ public class DAG extends Activity {
         
         return dag;
     }
+
+    public DAG(){
+        super("");
+    };
 
     protected DAG(String name) {  // force use of static methods
         super(name);

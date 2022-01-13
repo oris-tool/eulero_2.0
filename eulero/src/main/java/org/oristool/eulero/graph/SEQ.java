@@ -1,19 +1,30 @@
 package org.oristool.eulero.graph;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+@XmlRootElement(name = "SEQ")
 public class SEQ extends DAG{
-    private final List<Activity> activities;
+    @XmlElementWrapper(name = "activities")
+    @XmlElement(name = "activity", required = true)
+    private List<Activity> activities;
+
     protected SEQ(String name, List<Activity> activities){
         super(name);
         setEFT(this.low());
         setLFT(this.upp());
-        //setC(activities.stream().max(Comparator.comparing(Activity::C)).get().C());
-        //setR(activities.stream().max(Comparator.comparing(Activity::R)).get().R());
         this.activities = activities;
     }
+
+    public SEQ(){
+        super("");
+    };
 
     public List<Activity> activities() {
         return activities;

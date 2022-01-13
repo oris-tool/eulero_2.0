@@ -1,12 +1,18 @@
 package org.oristool.eulero.mains;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import org.apache.commons.lang3.SerializationUtils;
 import org.oristool.eulero.analysisheuristics.AnalysisHeuristicStrategy;
-import org.oristool.eulero.graph.Activity;
+import org.oristool.eulero.graph.*;
 import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -19,25 +25,33 @@ import java.util.stream.Collectors;
 
 public class TestCaseHandler {
     private final String testCaseName;
-    private final ModelBuilder modelBuilder;
     private final List<AnalysisHeuristicStrategy> heuristics;
     private final int groundTruthRuns;
     private final int runs;
     private final String testCasePath;
     private final boolean saveResults;
+    private final boolean verbose;
+    private final Activity model;
+    private final ModelBuilder modelBuilder;
 
 
-    public TestCaseHandler(String testCaseName, ModelBuilder modelBuilder, List<AnalysisHeuristicStrategy> heuristics, int groundTruthRuns, int runs, String testCasePath, boolean saveResults){
+    public TestCaseHandler(String testCaseName, ModelBuilder modelBuilder, List<AnalysisHeuristicStrategy> heuristics, int groundTruthRuns, int runs, String testCasePath, boolean saveResults, boolean verbose){
         this.testCaseName = testCaseName;
         this.heuristics = heuristics;
-        this.modelBuilder = modelBuilder;
         this.groundTruthRuns = groundTruthRuns;
         this.runs = runs;
         this.testCasePath = testCasePath;
         this.saveResults = saveResults;
+        this.verbose = verbose;
+        this.modelBuilder = modelBuilder;
+        this.model = modelBuilder.buildModel();
+        jaxbObjectToXML(this.model);
     }
 
-    public ArrayList<TestCaseResult> runTestCase(BigDecimal timeLimit, BigDecimal step, BigDecimal error) throws FileNotFoundException {
+    public ArrayList<TestCaseResult> runTestCase(BigDecimal offset, BigDecimal step, BigDecimal error) throws FileNotFoundException {
+        return runTestCase(offset, step, BigDecimal.ONE, error);
+    }
+    public ArrayList<TestCaseResult> runTestCase(BigDecimal offset, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error) throws FileNotFoundException {
         ArrayList<TestCaseResult> results = new ArrayList<>();
         File logFile = new File(testCasePath + "/log/");
         if(!logFile.exists()){
@@ -45,17 +59,22 @@ public class TestCaseHandler {
         }
         PrintStream systemOut = System.out;
         // GroundTruth
-        System.out.println("\nGT Simulation starts...");
-        PrintStream printWriterGT = new PrintStream(new FileOutputStream(testCasePath + "/log/GroundTruth.txt", false));
-        System.setOut(printWriterGT);
-        System.out.println("\nGT Simulation starts...");
+        if(verbose) {
+            System.out.println("\nGT Simulation starts...");
+            PrintStream printWriterGT = new PrintStream(new FileOutputStream(testCasePath + "/log/GroundTruth.txt", false));
+            System.setOut(printWriterGT);
+            System.out.println("\nGT Simulation starts...");
+        }
 
         File f = new File(testCasePath + "/CDF/GroundTruth.txt");
         if(f.exists() && !f.isDirectory()) {
-            System.out.println("Ground Truth already computed... Loading...");
+            if(verbose){
+                System.out.println("Ground Truth already computed... Loading...");
 
-            System.setOut(systemOut);
-            System.out.println("Ground Truth already computed... Loading...");
+                System.setOut(systemOut);
+                System.out.println("Ground Truth already computed... Loading...");
+            }
+
             FileReader fr = null;
             try {
                 fr = new FileReader(testCasePath + "/CDF/GroundTruth.txt");
@@ -71,7 +90,8 @@ public class TestCaseHandler {
                     String groundTruthString = b.readLine();
                     extractedValues.add(Double.valueOf(groundTruthString.split(", ")[1]));
                 } catch (Exception e) {
-                    System.out.println("String Read!!");
+                    if(verbose)
+                        System.out.println("String Read!!");
                     stringRead = true;
                 }
             }
@@ -92,7 +112,8 @@ public class TestCaseHandler {
             try {
                 gtTime = bComputationTimes.readLine();
             } catch (Exception e) {
-                System.out.println("String Read!!");
+                if(verbose)
+                    System.out.println("String Read!!");
                 stringRead = true;
             }
 
@@ -109,47 +130,62 @@ public class TestCaseHandler {
             results.add(GTSimulation);
         } else {
 
-            TestCaseResult GTSimulation = runSimulation(timeLimit, step, groundTruthRuns);
+            TestCaseResult GTSimulation = runSimulation(offset, step, groundTruthRuns);
             results.add(GTSimulation);
-            System.out.println(String.format("GT Simulation took %.3f seconds",
-                    GTSimulation.computationTime()/1e9));
-            System.setOut(systemOut);
-            System.out.println(String.format("GT Simulation took %.3f seconds",
-                    GTSimulation.computationTime()/1e9));
+
+            if(verbose){
+                System.out.println(String.format("GT Simulation took %.3f seconds",
+                        GTSimulation.computationTime()/1e9));
+                System.setOut(systemOut);
+                System.out.println(String.format("GT Simulation took %.3f seconds",
+                        GTSimulation.computationTime()/1e9));
+            }
         }
 
         // Heuristics
         long[] heuristicTimes = new long[heuristics.size()];
         for(AnalysisHeuristicStrategy heuristic: heuristics){
             PrintStream printWriter = new PrintStream(new FileOutputStream(testCasePath + "/log/Heuristic" + heuristics.indexOf(heuristic) + ".txt", false));
-            System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
-            System.setOut(printWriter);
-            System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
 
-            TestCaseResult heuristicResult = runHeuristic(heuristic, timeLimit, step, error);
+            if(verbose){
+                System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
+                System.setOut(printWriter);
+                System.out.println("\nHEURISTIC " + heuristics.indexOf(heuristic));
+            }
+
+            TestCaseResult heuristicResult = runHeuristic(heuristic, offset, step, forwardReductionFactor, error);
             results.add(heuristicResult);
-            System.out.println(String.format("Evaluation took %.3f seconds",
-                    heuristicResult.computationTime()/1e9));
-            System.setOut(systemOut);
-            System.out.println(String.format("Evaluation took %.3f seconds",
-                    heuristicResult.computationTime()/1e9));
+
+            if(verbose){
+                System.out.println(String.format("Evaluation took %.3f seconds",
+                        heuristicResult.computationTime()/1e9));
+                System.setOut(systemOut);
+                System.out.println(String.format("Evaluation took %.3f seconds",
+                        heuristicResult.computationTime()/1e9));
+            }
 
             heuristicTimes[heuristics.indexOf(heuristic)] = (long) (heuristicResult.computationTime()/1e9);
         }
 
         // Simulation
         PrintStream printWriter = new PrintStream(new FileOutputStream(testCasePath + "/log/simulation.txt", false));
-        System.out.println("\nShort Simulation starts...");
-        System.setOut(printWriter);
 
-        TestCaseResult shortSimulation = runSimulation(timeLimit, step, Arrays.stream(heuristicTimes).min().orElse(0));
+        if(verbose){
+            System.out.println("\nShort Simulation starts...");
+            System.setOut(printWriter);
+        }
+
+        TestCaseResult shortSimulation = runSimulation(offset, step, groundTruthRuns + 1 /*heuristicTimes[0]*/);
         results.add(shortSimulation);
-        System.out.println(String.format("Simulation took %.3f seconds",
-                shortSimulation.computationTime()/1e9));
 
-        System.setOut(systemOut);
-        System.out.println(String.format("Simulation took %.3f seconds",
-                shortSimulation.computationTime()/1e9));
+        if(verbose){
+            System.out.printf("Simulation took %.3f seconds%n",
+                    shortSimulation.computationTime()/1e9);
+
+            System.setOut(systemOut);
+            System.out.printf("Simulation took %.3f seconds%n",
+                    shortSimulation.computationTime()/1e9);
+        }
 
         return results;
     }
@@ -232,96 +268,172 @@ public class TestCaseHandler {
         System.out.println("\nResults Stored");
     }
 
-    private TestCaseResult runSimulation(BigDecimal timeLimit, BigDecimal step, int runs){
+    private TestCaseResult runSimulation(BigDecimal offset, BigDecimal step, int runs){
         long start = System.nanoTime();
-        String caseTitle = runs == this.runs ? "Shorted Simulation" : "GroundTruth";
-        Activity model = modelBuilder.buildModel();
-        TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = model.simulate(timeLimit.toString(), step.toString(), runs);
+        String caseTitle = runs != this.groundTruthRuns ? "Shorted Simulation" : "GroundTruth";
+        Activity clonedModel = jaxbXmlFileToObject(this.testCasePath + "/model.xml");
+        System.out.println(clonedModel.name());
+        TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = clonedModel.simulate(clonedModel.LFT().add(offset).toString(), step.toString(), runs);
+        double[] cdf = new double[simulationCDF.getSolution().length];
+        for(int count = 0; count < simulationCDF.getSolution().length; count++){
+            double accumulator = 0;
+            for(int i = Math.max(count - 2, 0); i < Math.min(count + 2, cdf.length); i++){
+                accumulator += simulationCDF.getSolution()[i][0][0];
+            }
+            accumulator /= (Math.min(count + 2, cdf.length) - Math.max(count - 2, 0));
+            cdf[count] = accumulator;
+        }
         long computationTime = System.nanoTime() - start;
 
         return new TestCaseResult(
                 caseTitle,
-                simulationCDF,
-                model.EFT().divide(step).intValue(),
-                model.LFT().divide(step).intValue(),
+                cdf,
+                clonedModel.EFT().divide(step).intValue(),
+                clonedModel.LFT().divide(step).intValue(),
                 step.doubleValue(),
                 computationTime);
     }
 
-    private TestCaseResult runSimulation(BigDecimal timeLimit, BigDecimal step, long timeout){
+    private TestCaseResult runSimulation(BigDecimal offset, BigDecimal step, long timeout){
+        int windowWidth = 10;
         long start = System.nanoTime();
         String caseTitle = runs == this.runs ? "Shorted Simulation" : "GroundTruth";
-        Activity model = modelBuilder.buildModel();
-        TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = model.simulate(timeLimit.toString(), step.toString(), timeout);
+        Activity clonedModel = jaxbXmlFileToObject(this.testCasePath + "/model.xml");
+        System.out.println(clonedModel.name());
+        TransientSolution<DeterministicEnablingState, RewardRate> simulationCDF = clonedModel.simulate(clonedModel.LFT().add(offset).toString(), step.toString(), timeout);
+        double[] cdf = new double[simulationCDF.getSolution().length];
+        for(int count = 0; count < simulationCDF.getSolution().length; count++){
+            double accumulator = 0;
+            for(int i = Math.max(count - windowWidth, 0); i < Math.min(count + windowWidth, cdf.length); i++){
+                accumulator += simulationCDF.getSolution()[i][0][0];
+            }
+            accumulator /= (Math.min(count + windowWidth, cdf.length) - Math.max(count - windowWidth, 0));
+            cdf[count] = accumulator;
+        }
         long computationTime = System.nanoTime() - start;
 
         return new TestCaseResult(
                 caseTitle,
-                simulationCDF,
-                model.EFT().divide(step).intValue(),
-                model.LFT().divide(step).intValue(),
+                cdf,
+                clonedModel.EFT().divide(step).intValue(),
+                clonedModel.LFT().divide(step).intValue(),
                 step.doubleValue(),
                 computationTime);
     }
 
-    private TestCaseResult runHeuristic(AnalysisHeuristicStrategy strategy, BigDecimal timeLimit, BigDecimal step, BigDecimal error){
+    private TestCaseResult runHeuristic(AnalysisHeuristicStrategy strategy, BigDecimal offset, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error){
         long start = System.nanoTime();
-        Activity model = modelBuilder.buildModel();
-        double[] heuristicCDF = strategy.analyze(model, timeLimit, step, error);
+        Activity clonedModel = jaxbXmlFileToObject(this.testCasePath + "/model.xml");
+        System.out.println(clonedModel.name());
+        double[] heuristicCDF = strategy.analyze(clonedModel, clonedModel.LFT().add(offset), step, forwardReductionFactor, error);
         long computationTime = System.nanoTime() - start;
 
         return new TestCaseResult(
                 strategy.heuristicName(),
                 heuristicCDF,
-                model.EFT().divide(step).intValue(),
-                model.LFT().divide(step).intValue(),
+                clonedModel.EFT().divide(step).intValue(),
+                clonedModel.LFT().divide(step).intValue(),
                 step.doubleValue(),
                 computationTime);
     }
 
-   /* private TestCaseResult loadGroundTruth(){
-        FileReader f = null;
-        try {
-            f = new FileReader(groundTruthPath);
-        } catch (FileNotFoundException e) {
+    private void jaxbObjectToXML(Activity model)
+    {
+        try
+        {
+            //Create JAXB Context
+            JAXBContext jaxbContext = JAXBContext.newInstance(Analytical.class, SEQ.class, AND.class, Xor.class, DAG.class);
+
+            //Create Marshaller
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+            //Required formatting??
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            //Store XML to File
+            File file = new File(this.testCasePath + "/model.xml");
+
+            //Writes XML file to file-system
+            jaxbMarshaller.marshal(model, file);
+        }
+        catch (JAXBException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private Activity jaxbXmlFileToObject(String fileName) {
+
+        File xmlFile = new File(fileName);
+
+        JAXBContext jaxbContext;
+        try
+        {
+            jaxbContext = JAXBContext.newInstance(Activity.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            //System.out.println(model);
+            Activity test = (Activity) jaxbUnmarshaller.unmarshal(xmlFile);
+
+            attachFeatures(test, this.modelBuilder.getFeatures(), this.modelBuilder.getWeights());
+
+            return test;
+        }
+        catch (JAXBException e)
+        {
             e.printStackTrace();
         }
 
-        BufferedReader b = new BufferedReader(f);
-        ArrayList<Double> extractedValues = new ArrayList<>();
-        boolean stringRead = false;
-        while(!stringRead){
-            try {
-                String groundTruthString = b.readLine();
-                extractedValues.add(Double.valueOf(groundTruthString.split(", ")[1]));
-            } catch (Exception e) {
-                System.out.println("String Read!!");
-                stringRead = true;
+        return this.model;
+    }
+
+    private void attachFeatures(Activity model, ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights){
+        ArrayList<StochasticTransitionFeature> beginEndFeature = new ArrayList<>();
+        beginEndFeature.add(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+        ArrayList<BigDecimal> beginEndWeights = new ArrayList<>();
+        beginEndWeights.add(BigDecimal.ONE);
+
+        if(model instanceof Analytical){
+            ((Analytical) model).setFeatures(features);
+            ((Analytical) model).setWeights(weights);
+        }
+
+        if(model instanceof SEQ){
+            ((Analytical)((SEQ) model).begin()).setFeatures(beginEndFeature);
+            ((Analytical)((SEQ) model).begin()).setWeights(beginEndWeights);
+            ((Analytical)((SEQ) model).begin()).setFeatures(beginEndFeature);
+            ((Analytical)((SEQ) model).begin()).setWeights(beginEndWeights);
+
+            ((Analytical)((SEQ) model).end()).setFeatures(beginEndFeature);
+            ((Analytical)((SEQ) model).end()).setWeights(beginEndWeights);
+            ((Analytical)((SEQ) model).end()).setFeatures(beginEndFeature);
+            ((Analytical)((SEQ) model).end()).setWeights(beginEndWeights);
+
+            for(Activity act: ((SEQ) model).activities()){
+                attachFeatures(act, features, weights);
             }
         }
 
-        double[] numericalGroundTruth = new double[extractedValues.size()];
-        for(int i = 0; i < numericalGroundTruth.length; i++){
-            numericalGroundTruth[i] = extractedValues.get(i).doubleValue();
+        if(model instanceof AND){
+            ((Analytical)((AND) model).begin()).setFeatures(beginEndFeature);
+            ((Analytical)((AND) model).begin()).setWeights(beginEndWeights);
+            ((Analytical)((AND) model).begin()).setFeatures(beginEndFeature);
+            ((Analytical)((AND) model).begin()).setWeights(beginEndWeights);
+
+            ((Analytical)((AND) model).end()).setFeatures(beginEndFeature);
+            ((Analytical)((AND) model).end()).setWeights(beginEndWeights);
+            ((Analytical)((AND) model).end()).setFeatures(beginEndFeature);
+            ((Analytical)((AND) model).end()).setWeights(beginEndWeights);
+
+            for(Activity act: ((AND) model).activities()){
+                attachFeatures(act, features, weights);
+            }
         }
 
-        return new TestCaseResult(numericalGroundTruth, )
-
-        FileReader fComputationTimes = null;
-        try {
-            fComputationTimes = new FileReader(groundTruthTimePath);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        BufferedReader bComputationTimes = new BufferedReader(fComputationTimes);
-        String gtTime = null;
-        try {
-            gtTime = bComputationTimes.readLine();
-        } catch (Exception e) {
-            System.out.println("String Read!!");
-            stringRead = true;
+        if(model instanceof Xor){
+            for(Activity act: ((Xor) model).alternatives()){
+                attachFeatures(act, features, weights);
+            }
         }
 
-        computationTimes.add(Double.valueOf(gtTime.split("s")[0]).doubleValue() * 1000);
-        MainHelper.ResultWrapper groundTruthResult = new MainHelper.ResultWrapper(numericalGroundTruth, 0, timeLimit.divide(timeTick).intValue(), timeTick.doubleValue());*/
+    }
 }

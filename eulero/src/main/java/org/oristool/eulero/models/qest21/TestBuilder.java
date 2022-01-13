@@ -10,62 +10,56 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestBuilder  extends ModelBuilder {
+public class TestBuilder extends ModelBuilder {
 
     public TestBuilder(StochasticTransitionFeature feature) {
         super(feature);
     }
 
+    public TestBuilder(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights) {
+        super(features, weights);
+    }
+
     @Override
     public Activity buildModel() {
-        StochasticTransitionFeature feature = this.getFeature();
+        ArrayList<StochasticTransitionFeature> features = this.getFeatures();
+        ArrayList<BigDecimal> weights = this.getWeights();
 
-        Analytical q_0 = new Analytical("SimDAG_0_Q", feature);
-        Analytical r_0 = new Analytical("SimDAG_0_R", feature);
-        Analytical s_0 = new Analytical("SimDAG_0_S", feature);
-        Analytical u_0 = new Analytical("SimDAG_0_U", feature);
-        Analytical v_0 = new Analytical("SimDAG_0_V", feature);
-        Analytical w_0 = new Analytical("SimDAG_0_W", feature);
 
-        /*DAG tu_0 = DAG.forkJoin("SimDAG_0_TU",
-                DAG.sequence("SimDAG_0_T",
-                        new Analytical("SimDAG_0_T1", feature),
-                        new Analytical("SimDAG_0_T2", feature)
-                ), u_0
-        );*/
+        Analytical q_4 = new Analytical("SimDAG_4_Q", features, weights);
+        Analytical r_4 = new Analytical("SimDAG_4_R", features, weights);
+        Analytical s_4 = new Analytical("SimDAG_4_S", features, weights);
+        Analytical u_4 = new Analytical("SimDAG_4_U", features, weights);
+        Analytical v_4 = new Analytical("SimDAG_4_V", features, weights);
+        Analytical w_4 = new Analytical("SimDAG_4_W", features, weights);
 
-        ArrayList<StochasticTransitionFeature> feats = new ArrayList<>();
-        feats.add(feature);
-        feats.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(1.43)));
+        DAG tu_4 = DAG.forkJoin("SimDAG_4_TU",
+                DAG.sequence("SimDAG_4_T",
+                        new Analytical("SimDAG_4_T1", features, weights),
+                        new Analytical("SimDAG_4_T2", features, weights)
+                ), u_4
+        );
 
-        ArrayList<BigDecimal> weights = new ArrayList<>();
-        weights.add(BigDecimal.valueOf(0.75));
-        weights.add(BigDecimal.valueOf(0.25));
-
-        Analytical tu_0 = new Analytical("TU", feats, weights);
-
-        /*DAG wx_0 = DAG.forkJoin("SimDAG_0_WX",
-                DAG.sequence("SimDAG_0_X",
-                        new Analytical("SimDAG_0_X1", feature),
-                        new Analytical("SimDAG_0_X2", feature)
+        DAG wx_4 = DAG.forkJoin("SimDAG_4_WX",
+                DAG.sequence("SimDAG_4_X",
+                        new Analytical("SimDAG_4_X1", features, weights),
+                        new Analytical("SimDAG_4_X2", features, weights)
                 ),
-                w_0
-        );*/
+                w_4
+        );
 
-        Analytical wx_0 = new Analytical("WX", feats, weights);
+        DAG simDag_4 = DAG.empty("SimDAG_4");
+        q_4.addPrecondition(simDag_4.begin());
+        r_4.addPrecondition(simDag_4.begin());
+        s_4.addPrecondition(simDag_4.begin());
+        tu_4.addPrecondition(q_4, r_4);
+        v_4.addPrecondition(r_4);
+        wx_4.addPrecondition(s_4, r_4);
 
+        simDag_4.end().addPrecondition(tu_4, v_4, wx_4);
+        simDag_4.setEFT(simDag_4.low());
+        simDag_4.setLFT(simDag_4.upp());
 
-        DAG simDag_0 = DAG.empty("SimDAG_0");
-        q_0.addPrecondition(simDag_0.begin());
-        r_0.addPrecondition(simDag_0.begin());
-        s_0.addPrecondition(simDag_0.begin());
-        tu_0.addPrecondition(q_0, r_0);
-        v_0.addPrecondition(r_0);
-        wx_0.addPrecondition(s_0, r_0);
-
-        simDag_0.end().addPrecondition(tu_0, v_0, wx_0);
-        simDag_0.setEFT(simDag_0.low());
-        simDag_0.setLFT(simDag_0.upp());
-        return simDag_0;
+        return simDag_4;
     }
 }

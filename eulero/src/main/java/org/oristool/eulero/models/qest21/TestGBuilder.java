@@ -4,6 +4,8 @@ import org.oristool.eulero.graph.*;
 import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestGBuilder extends ModelBuilder {
@@ -11,16 +13,22 @@ public class TestGBuilder extends ModelBuilder {
         super(feature);
     }
 
+    public TestGBuilder(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights) {
+        super(features, weights);
+    }
+
     @Override
     public Activity buildModel() {
-        StochasticTransitionFeature feature = this.getFeature();
+        ArrayList<StochasticTransitionFeature> features = this.getFeatures();
+        ArrayList<BigDecimal> weights = this.getWeights();
+
 
         // Computing M, M', N' and K
-        Analytical q_0 = new Analytical("SimDAG_0_Q", feature);
-        Analytical r_0 = new Analytical("SimDAG_0_R", feature);
-        Analytical s_0 = new Analytical("SimDAG_0_S", feature);
-        Analytical t_0 = new Analytical("SimDAG_0_T", feature);
-        Analytical v_0 = new Analytical("SimDAG_0_V", feature);
+        Analytical q_0 = new Analytical("SimDAG_0_Q", features, weights);
+        Analytical r_0 = new Analytical("SimDAG_0_R", features, weights);
+        Analytical s_0 = new Analytical("SimDAG_0_S", features, weights);
+        Analytical t_0 = new Analytical("SimDAG_0_T", features, weights);
+        Analytical v_0 = new Analytical("SimDAG_0_V", features, weights);
         DAG simDag_0 = DAG.empty("SimDAG_0");
         q_0.addPrecondition(simDag_0.begin());
         r_0.addPrecondition(simDag_0.begin());
@@ -34,11 +42,11 @@ public class TestGBuilder extends ModelBuilder {
 
         Repeat internalRep = new Repeat("NR_B", 0.2, simDag_0);
 
-        Analytical q_1 = new Analytical("SimDAG_1_Q", feature);
-        Analytical r_1 = new Analytical("SimDAG_1_R", feature);
-        Analytical s_1 = new Analytical("SimDAG_1_S", feature);
-        Analytical t_1 = new Analytical("SimDAG_1_T", feature);
-        Analytical u_1 = new Analytical("SimDAG_1_U", feature);
+        Analytical q_1 = new Analytical("SimDAG_1_Q", features, weights);
+        Analytical r_1 = new Analytical("SimDAG_1_R", features, weights);
+        Analytical s_1 = new Analytical("SimDAG_1_S", features, weights);
+        Analytical t_1 = new Analytical("SimDAG_1_T", features, weights);
+        Analytical u_1 = new Analytical("SimDAG_1_U", features, weights);
         DAG simDag_1 = DAG.empty("SimDAG_1");
         q_1.addPrecondition(simDag_1.begin());
         r_1.addPrecondition(simDag_1.begin());
@@ -49,11 +57,11 @@ public class TestGBuilder extends ModelBuilder {
         simDag_1.setEFT(simDag_1.low());
         simDag_1.setLFT(simDag_1.upp());
 
-        Analytical q_2 = new Analytical("SimDAG_2_Q", feature);
-        Analytical r_2 = new Analytical("SimDAG_2_R", feature);
-        Analytical s_2 = new Analytical("SimDAG_2_S", feature);
-        Analytical t_2 = new Analytical("SimDAG_2_T", feature);
-        Analytical u_2 = new Analytical("SimDAG_2_U", feature);
+        Analytical q_2 = new Analytical("SimDAG_2_Q", features, weights);
+        Analytical r_2 = new Analytical("SimDAG_2_R", features, weights);
+        Analytical s_2 = new Analytical("SimDAG_2_S", features, weights);
+        Analytical t_2 = new Analytical("SimDAG_2_T", features, weights);
+        Analytical u_2 = new Analytical("SimDAG_2_U", features, weights);
         DAG simDag_2 = DAG.empty("SimDAG_2");
         q_2.addPrecondition(simDag_2.begin());
         r_2.addPrecondition(simDag_2.begin());
@@ -64,11 +72,11 @@ public class TestGBuilder extends ModelBuilder {
         simDag_2.setEFT(simDag_2.low());
         simDag_2.setLFT(simDag_2.upp());
 
-        Analytical q_3 = new Analytical("SimDAG_3_Q", feature);
-        Analytical r_3 = new Analytical("SimDAG_3_R", feature);
-        Analytical s_3 = new Analytical("SimDAG_3_S", feature);
-        Analytical t_3 = new Analytical("SimDAG_3_T", feature);
-        Analytical v_3 = new Analytical("SimDAG_3_V", feature);
+        Analytical q_3 = new Analytical("SimDAG_3_Q", features, weights);
+        Analytical r_3 = new Analytical("SimDAG_3_R", features, weights);
+        Analytical s_3 = new Analytical("SimDAG_3_S", features, weights);
+        Analytical t_3 = new Analytical("SimDAG_3_T", features, weights);
+        Analytical v_3 = new Analytical("SimDAG_3_V", features, weights);
         DAG simDag_3 = DAG.empty("SimDAG_3");
         q_3.addPrecondition(simDag_3.begin());
         r_3.addPrecondition(simDag_3.begin());
@@ -79,7 +87,7 @@ public class TestGBuilder extends ModelBuilder {
         simDag_3.setEFT(simDag_3.low());
         simDag_3.setLFT(simDag_3.upp());
 
-        Repeat nestedRepetition_Q = new Repeat("NestedRepetition_Q", 0.15,
+        /*Repeat nestedRepetition_Q = new Repeat("NestedRepetition_Q", 0.15,
                 DAG.sequence("NR_A",
                         internalRep, new Analytical("NR_D", feature),
                         DAG.forkJoin("NR_ComAND",
@@ -95,30 +103,48 @@ public class TestGBuilder extends ModelBuilder {
                                 )
                         )
                 )
-        );
+        );*/
 
-        Analytical r = new Analytical("R", feature);
+        Analytical q_4 = new Analytical("SimDAG_4_Q", features, weights);
+        Analytical r_4 = new Analytical("SimDAG_4_R", features, weights);
+        Analytical s_4 = new Analytical("SimDAG_4_S", features, weights);
+        Analytical t_4 = new Analytical("SimDAG_4_T", features, weights);
+        Analytical v_4 = new Analytical("SimDAG_4_V", features, weights);
+
+        DAG simDag_4 = DAG.empty("SimDAG_4");
+        q_4.addPrecondition(simDag_4.begin());
+        r_4.addPrecondition(simDag_4.begin());
+        s_4.addPrecondition(simDag_4.begin());
+        t_4.addPrecondition(q_4, r_4);
+        v_4.addPrecondition(r_4, s_4);
+        simDag_4.end().addPrecondition(t_4, v_4);
+        simDag_4.setEFT(simDag_4.low());
+        simDag_4.setLFT(simDag_4.upp());
+
+        Analytical r = new Analytical("R", features, weights);
 
         DAG t = DAG.forkJoin("T",
-                new Analytical("T1", feature),
-                DAG.sequence("T2", new Analytical("T2A", feature), new Analytical("T2B", feature))
+                new Analytical("T1", features, weights),
+                DAG.sequence("T2", new Analytical("T2A", features, weights), new Analytical("T2B", features, weights))
         );
 
         Xor s = new Xor("S",
-                List.of(new Analytical("S1", feature), new Analytical("S2", feature)),
+                List.of(new Analytical("S1", features, weights), new Analytical("S2", features, weights)),
                 List.of(0.7, 0.3)
         );
 
         DAG v = DAG.forkJoin("V",
-                new Analytical("V1", feature),
-                DAG.sequence("V2", new Analytical("V2A", feature), new Analytical("V2B", feature))
+                new Analytical("V1", features, weights),
+                DAG.sequence("V2", new Analytical("V2A", features, weights), new Analytical("V2B", features, weights))
         );
 
         DAG main = DAG.empty("Main");
-        nestedRepetition_Q.addPrecondition(main.begin());
+        //nestedRepetition_Q.addPrecondition(main.begin());
+        simDag_4.addPrecondition(main.begin());
         r.addPrecondition(main.begin());
         s.addPrecondition(main.begin());
-        t.addPrecondition(nestedRepetition_Q, r);
+        //t.addPrecondition(nestedRepetition_Q, r);
+        t.addPrecondition(simDag_4, r);
         simDag_3.addPrecondition(r);
         v.addPrecondition(s, r);
         main.end().addPrecondition(v, simDag_3, t);

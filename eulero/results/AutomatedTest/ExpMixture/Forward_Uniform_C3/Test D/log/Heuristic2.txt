@@ -1,0 +1,103 @@
+
+HEURISTIC 2
+--- Searching Repetitions in DAG MAIN
+--- Performing DAG Inner Block Analysis on MAIN
+------ Searching Repetitions in DAG A
+--------- Repetition found! It's NestedRepetition
+------------ Performing REP Inner Block Analysis on NestedRepetition
+--------------- Searching Repetitions in DAG NR_A
+------------------ Repetition found! It's NR_B
+--------------------- Performing REP Inner Block Analysis on NR_B
+------------------------ Searching Repetitions in DAG SimDAG_0
+------------------------ Performing Block Replication on SimDAG_0
+--------------------------- Searching Repetitions in DAG SimDAG_0_nonNesting
+--------------------------- Forward Analysis of block SimDAG_0_nonNesting
+--------------------------- Analysis done in 0.144 seconds...
+--------------------------- Searching Repetitions in DAG SimDAG_0_nestingOf__WX
+--------------------------- Forward Analysis of block SimDAG_0_nestingOf__WX
+--------------------------- Analysis done in 0.008 seconds...
+------------------------ Searching Repetitions in DAG SimDAG_0_N
+------------------------ Forward Analysis of block SimDAG_0_N
+------------------------ Analysis done in 0.013 seconds...
+SimDAG_0 has been approximated
+--------------------- Forward Analysis of block NR_B
+--------------------- Analysis done in 0.013 seconds...
+------------------ Block NR_B replaced...
+--------------- Performing DAG Inner Block Analysis on NR_A
+------------------ Searching Repetitions in DAG NR_ComAND
+------------------ Performing DAG Inner Block Analysis on NR_ComAND
+--------------------- Searching Repetitions in DAG NR_ComAND_F
+--------------------- Performing DAG Inner Block Analysis on NR_ComAND_F
+------------------------ Searching Repetitions in DAG NR_ComAND_H
+------------------------ Performing DAG Inner Block Analysis on NR_ComAND_H
+--------------------------- Searching Repetitions in DAG SimDAG_2
+--------------------------- Forward Analysis of block SimDAG_2
+--------------------------- Analysis done in 0.061 seconds...
+--------------------------- Block Analysis: Choose inner block SimDAG_2
+--------------------------- Approximated inner block SimDAG_2
+------------------------ Searching Repetitions in DAG NR_ComAND_H
+------------------------ Performing DAG Inner Block Analysis on NR_ComAND_H
+--------------------------- Searching Repetitions in DAG SimDAG_1
+--------------------------- Forward Analysis of block SimDAG_1
+--------------------------- Analysis done in 0.054 seconds...
+--------------------------- Block Analysis: Choose inner block SimDAG_1
+--------------------------- Approximated inner block SimDAG_1
+------------------------ Searching Repetitions in DAG NR_ComAND_H
+------------------------ Forward Analysis of block NR_ComAND_H
+------------------------ Analysis done in 0.011 seconds...
+------------------------ Block Analysis: Choose inner block NR_ComAND_H
+------------------------ Approximated inner block NR_ComAND_H
+--------------------- Searching Repetitions in DAG NR_ComAND_F
+--------------------- Forward Analysis of block NR_ComAND_F
+--------------------- Analysis done in 0.008 seconds...
+--------------------- Block Analysis: Choose inner block NR_ComAND_F
+--------------------- Approximated inner block NR_ComAND_F
+------------------ Searching Repetitions in DAG NR_ComAND
+------------------ Forward Analysis of block NR_ComAND
+------------------ Analysis done in 0.041 seconds...
+------------------ Block Analysis: Choose inner block NR_ComAND
+------------------ Approximated inner block NR_ComAND
+--------------- Searching Repetitions in DAG NR_A
+--------------- Forward Analysis of block NR_A
+--------------- Analysis done in 0.021 seconds...
+NR_A has been approximated
+------------ Forward Analysis of block NestedRepetition
+------------ Analysis done in 0.009 seconds...
+--------- Block NestedRepetition replaced...
+------ Forward Analysis of block A
+------ Analysis done in 0.013 seconds...
+------ Block Analysis: Choose inner block A
+------ Approximated inner block A
+--- Searching Repetitions in DAG MAIN
+--- Performing DAG Inner Block Analysis on MAIN
+------ Searching Repetitions in DAG H
+------ Performing DAG Inner Block Analysis on H
+--------- Searching Repetitions in DAG U
+--------- Performing DAG Inner Block Analysis on U
+------------ Searching Repetitions in DAG SimDAG_3
+------------ Performing Block Replication on SimDAG_3
+--------------- Searching Repetitions in DAG SimDAG_3_nonNesting
+--------------- Forward Analysis of block SimDAG_3_nonNesting
+--------------- Analysis done in 0.135 seconds...
+--------------- Searching Repetitions in DAG SimDAG_3_nestingOf__WX
+--------------- Forward Analysis of block SimDAG_3_nestingOf__WX
+--------------- Analysis done in 0.008 seconds...
+------------ Searching Repetitions in DAG SimDAG_3_N
+------------ Forward Analysis of block SimDAG_3_N
+------------ Analysis done in 0.016 seconds...
+------------ Block Analysis: Choose inner block SimDAG_3
+------------ Approximated inner block SimDAG_3
+--------- Searching Repetitions in DAG U
+--------- Forward Analysis of block U
+--------- Analysis done in 0.044 seconds...
+--------- Block Analysis: Choose inner block U
+--------- Approximated inner block U
+------ Searching Repetitions in DAG H
+------ Forward Analysis of block H
+------ Analysis done in 0.085 seconds...
+------ Block Analysis: Choose inner block H
+------ Approximated inner block H
+--- Searching Repetitions in DAG MAIN
+--- Forward Analysis of block MAIN
+--- Analysis done in 0.033 seconds...
+Evaluation took 1.481 seconds

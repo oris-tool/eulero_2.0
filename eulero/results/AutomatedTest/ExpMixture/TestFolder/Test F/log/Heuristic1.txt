@@ -1,0 +1,346 @@
+
+HEURISTIC 1
+--- Searching Repetitions in DAG Main
+--- Performing DAG Inner Block Analysis on Main
+------ Searching Repetitions in DAG SimDAG_4
+------ Performing DAG Inner Block Analysis on SimDAG_4
+--------- Numerical AND Analysis of SimDAG_4_TU
+------------ Numerical SEQ Analysis of SimDAG_4_T
+--------------- Forward Analysis of block SimDAG_4_T1
+Enumeration took 0,001 seconds...
+Slicing took 0,003 seconds...
+--------------- Analysis done in 0,005 seconds...
+--------------- Forward Analysis of block SimDAG_4_T2
+Enumeration took 0,000 seconds...
+Slicing took 0,003 seconds...
+--------------- Analysis done in 0,004 seconds...
+------------ Analysis of SimDAG_4_T done in 0,011 seconds...
+------------ Forward Analysis of block SimDAG_4_U
+Enumeration took 0,000 seconds...
+Slicing took 0,003 seconds...
+------------ Analysis done in 0,005 seconds...
+--------- Analysis of SimDAG_4_TU done in 0,017 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_4_TU
+--------- Approximated inner block SimDAG_4_TU
+------ Searching Repetitions in DAG SimDAG_4
+------ Performing DAG Inner Block Analysis on SimDAG_4
+--------- Numerical AND Analysis of SimDAG_4_WX
+------------ Numerical SEQ Analysis of SimDAG_4_X
+--------------- Forward Analysis of block SimDAG_4_X1
+Enumeration took 0,001 seconds...
+Slicing took 0,002 seconds...
+--------------- Analysis done in 0,005 seconds...
+--------------- Forward Analysis of block SimDAG_4_X2
+Enumeration took 0,000 seconds...
+Slicing took 0,002 seconds...
+--------------- Analysis done in 0,004 seconds...
+------------ Analysis of SimDAG_4_X done in 0,010 seconds...
+------------ Forward Analysis of block SimDAG_4_W
+Enumeration took 0,000 seconds...
+Slicing took 0,002 seconds...
+------------ Analysis done in 0,004 seconds...
+--------- Analysis of SimDAG_4_WX done in 0,015 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_4_WX
+--------- Approximated inner block SimDAG_4_WX
+------ Searching Repetitions in DAG SimDAG_4
+------ Forward Analysis of block SimDAG_4
+Enumeration took 1,142 seconds...
+Slicing took 3,285 seconds...
+------ Analysis done in 4,429 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+------ Block Analysis: Choose inner block SimDAG_4
+------ Approximated inner block SimDAG_4
+--- Searching Repetitions in DAG Main
+--- Performing DAG Inner Block Analysis on Main
+------ Searching Repetitions in DAG SimDAG_3
+------ Performing DAG Inner Block Analysis on SimDAG_3
+--------- Numerical AND Analysis of SimDAG_3_TU
+------------ Numerical SEQ Analysis of SimDAG_3_T
+--------------- Forward Analysis of block SimDAG_3_T1
+Enumeration took 0,001 seconds...
+Slicing took 0,002 seconds...
+--------------- Analysis done in 0,004 seconds...
+--------------- Forward Analysis of block SimDAG_3_T2
+Enumeration took 0,000 seconds...
+Slicing took 0,001 seconds...
+--------------- Analysis done in 0,003 seconds...
+------------ Analysis of SimDAG_3_T done in 0,008 seconds...
+------------ Forward Analysis of block SimDAG_3_U
+Enumeration took 0,000 seconds...
+Slicing took 0,001 seconds...
+------------ Analysis done in 0,003 seconds...
+--------- Analysis of SimDAG_3_TU done in 0,011 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_3_TU
+--------- Approximated inner block SimDAG_3_TU
+------ Searching Repetitions in DAG SimDAG_3
+------ Performing DAG Inner Block Analysis on SimDAG_3
+--------- Numerical AND Analysis of SimDAG_3_WX
+------------ Numerical SEQ Analysis of SimDAG_3_X
+--------------- Forward Analysis of block SimDAG_3_X1
+Enumeration took 0,001 seconds...
+Slicing took 0,001 seconds...
+--------------- Analysis done in 0,003 seconds...
+--------------- Forward Analysis of block SimDAG_3_X2
+Enumeration took 0,000 seconds...
+Slicing took 0,001 seconds...
+--------------- Analysis done in 0,003 seconds...
+------------ Analysis of SimDAG_3_X done in 0,007 seconds...
+------------ Forward Analysis of block SimDAG_3_W
+Enumeration took 0,000 seconds...
+Slicing took 0,001 seconds...
+------------ Analysis done in 0,003 seconds...
+--------- Analysis of SimDAG_3_WX done in 0,010 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_3_WX
+--------- Approximated inner block SimDAG_3_WX
+------ Searching Repetitions in DAG SimDAG_3
+------ Forward Analysis of block SimDAG_3
+Enumeration took 0,901 seconds...
+Slicing took 2,857 seconds...
+------ Analysis done in 3,760 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+Eccezione: il valore utilizzato era 0.0
+Eccezione...
+Eccezione...
+------ Block Analysis: Choose inner block SimDAG_3
+------ Approximated inner block SimDAG_3
+--- Searching Repetitions in DAG Main
+--- Forward Analysis of block Main
+Enumeration took 5,098 seconds...
+Slicing took 16,953 seconds...
+--- Analysis done in 22,057 seconds...
+Evaluation took 34,709 seconds

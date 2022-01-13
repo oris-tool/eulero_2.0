@@ -1,22 +1,30 @@
 package org.oristool.eulero.graph;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@XmlRootElement(name = "AND")
 public class AND extends DAG {
-    private final List<Activity> activities;
+    @XmlElementWrapper(name = "activities")
+    @XmlElement(name = "activity", required = true)
+    private List<Activity> activities;
+
+    public AND(){
+        super("");
+    };
 
     protected AND(String name, List<Activity> activities) {
         super(name);
         setEFT(this.low());
         setLFT(this.upp());
-        //setC(activities.stream().mapToInt(act -> act.C()).sum());
-        //setC(activities.stream().mapToInt(Activity::C).sum());
-        //setR(activities.stream().mapToInt(Activity::R).sum());
         this.activities = activities;
-        // Forse si dovrebbe trovare un modo per init EFT, LFT, C, R; per ora è fatto in quello statico. Se avessi il costruttore privato, forzerei quello statico e allora andrebbe bene.
     }
 
     public List<Activity> activities() {

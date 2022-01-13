@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -35,9 +38,19 @@ import org.oristool.petrinet.Transition;
 /**
  * XOR: A random choice between activities
  */
+@XmlRootElement(name = "XOR")
 public class Xor extends Activity {
+    @XmlElementWrapper(name = "probs")
+    @XmlElement(name = "prob", required = true)
     private List<Double> probs;
+
+    @XmlElementWrapper(name = "alternatives")
+    @XmlElement(name = "activity", required = true)
     private List<Activity> alternatives;
+
+    public Xor(){
+        super("");
+    };
     
     public Xor(String name, List<Activity> alternatives, List<Double> probs) {
         super(name);

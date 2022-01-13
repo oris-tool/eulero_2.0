@@ -22,6 +22,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
@@ -43,10 +47,15 @@ import org.oristool.petrinet.Transition;
 /**
  * Activity with an analytical CDF.
  */
+@XmlRootElement(name = "Analytical")
 public class Analytical extends Activity {
 
+    @XmlTransient
     private StochasticTransitionFeature pdf;
+
+    @XmlTransient
     private ArrayList<StochasticTransitionFeature> pdfFeatures;
+    @XmlTransient
     private ArrayList<BigDecimal> pdfWeights;
 
     /**
@@ -80,6 +89,10 @@ public class Analytical extends Activity {
         setSimplifiedR(BigInteger.ONE);
         this.pdfFeatures = pdfFeatures;
         this.pdfWeights = pdfWeights;
+    }
+
+    public Analytical(){
+        super("");
     }
 
     @Override
@@ -136,8 +149,16 @@ public class Analytical extends Activity {
 
     @Override
     public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        for(StochasticTransitionFeature feature: pdfFeatures){
+        if(pdfFeatures.size() == 1){
+            Transition t = pn.addTransition(this.name());
+            t.addFeature(new Priority(prio));
+            t.addFeature(pdfFeatures.get(0));
+            pn.addPrecondition(in, t);
+            pn.addPostcondition(t, out);
+            return prio + 1;
+        }
 
+        for(StochasticTransitionFeature feature: pdfFeatures){
             Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdfFeatures.indexOf(feature));
             immediateT.addFeature(new Priority(prio));
             immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdfWeights.get(pdfFeatures.indexOf(feature)).doubleValue())));
@@ -171,7 +192,6 @@ public class Analytical extends Activity {
         return true;
     }
 
-    // Forse qui si può sfruttare direttamente EFT e LFT, bisogna capire come si calcolano sugli altri a livelli superiori.
     @Override
     public BigDecimal low() {
         return this.EFT();
@@ -181,4 +201,13 @@ public class Analytical extends Activity {
     public BigDecimal upp() {
         return this.LFT();
     }
+
+    public void setFeatures(ArrayList<StochasticTransitionFeature> pdfFeatures) {
+        this.pdfFeatures = pdfFeatures;
+    }
+
+    public void setWeights(ArrayList<BigDecimal> pdfWeights) {
+        this.pdfWeights = pdfWeights;
+    }
+
 }

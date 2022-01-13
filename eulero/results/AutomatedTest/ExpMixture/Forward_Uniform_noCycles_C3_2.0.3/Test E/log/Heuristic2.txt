@@ -1,0 +1,70 @@
+
+HEURISTIC 2
+--- Searching Repetitions in DAG Main
+--- Performing Block Replication on Main
+------ Searching Repetitions in DAG Main_nonNesting
+------ Performing DAG Inner Block Analysis on Main_nonNesting
+--------- Searching Repetitions in DAG SimDAG_3_nonNesting
+--------- Performing Block Replication on SimDAG_3_nonNesting
+------------ Replicated block before SimDAG_3_nonNesting_nestingOf_SimDAG_3_V_nonNesting
+--------- Searching Repetitions in DAG SimDAG_3_nonNesting_N
+--------- Performing DAG Inner Block Analysis on SimDAG_3_nonNesting_N
+------------ Searching Repetitions in DAG SimDAG_3_nonNesting_nestingOf_SimDAG_3_V_nonNesting
+------------ Forward Analysis of block SimDAG_3_nonNesting_nestingOf_SimDAG_3_V_nonNesting
+------------ Analysis done in 0,007 seconds...
+Eccezione...
+------------ Block Analysis: Choose inner block SimDAG_3_nonNesting_nestingOf_SimDAG_3_V_nonNesting
+------------ Approximated inner block SimDAG_3_nonNesting_nestingOf_SimDAG_3_V_nonNesting
+--------- Searching Repetitions in DAG SimDAG_3_nonNesting_N
+--------- Performing DAG Inner Block Analysis on SimDAG_3_nonNesting_N
+------------ Searching Repetitions in DAG SimDAG_3_nonNesting_nonNesting
+------------ Forward Analysis of block SimDAG_3_nonNesting_nonNesting
+------------ Analysis done in 0,006 seconds...
+Eccezione...
+------------ Block Analysis: Choose inner block SimDAG_3_nonNesting_nonNesting
+------------ Approximated inner block SimDAG_3_nonNesting_nonNesting
+--------- Searching Repetitions in DAG SimDAG_3_nonNesting_N
+--------- Forward Analysis of block SimDAG_3_nonNesting_N
+--------- Analysis done in 0,008 seconds...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_3_nonNesting
+--------- Approximated inner block SimDAG_3_nonNesting
+------ Searching Repetitions in DAG Main_nonNesting
+------ Forward Analysis of block Main_nonNesting
+------ Analysis done in 0,162 seconds...
+Eccezione...
+------ Searching Repetitions in DAG Main_nestingOf_T
+------ Performing DAG Inner Block Analysis on Main_nestingOf_T
+--------- Searching Repetitions in DAG SimDAG_4_nestingOf_T
+--------- Performing Block Replication on SimDAG_4_nestingOf_T
+------------ Replicated block before SimDAG_4_nestingOf_T_nestingOf_SimDAG_4_V_nestingOf_T
+--------- Searching Repetitions in DAG SimDAG_4_nestingOf_T_N
+--------- Performing DAG Inner Block Analysis on SimDAG_4_nestingOf_T_N
+------------ Searching Repetitions in DAG SimDAG_4_nestingOf_T_nestingOf_SimDAG_4_V_nestingOf_T
+------------ Forward Analysis of block SimDAG_4_nestingOf_T_nestingOf_SimDAG_4_V_nestingOf_T
+------------ Analysis done in 0,006 seconds...
+Eccezione...
+------------ Block Analysis: Choose inner block SimDAG_4_nestingOf_T_nestingOf_SimDAG_4_V_nestingOf_T
+------------ Approximated inner block SimDAG_4_nestingOf_T_nestingOf_SimDAG_4_V_nestingOf_T
+--------- Searching Repetitions in DAG SimDAG_4_nestingOf_T_N
+--------- Performing DAG Inner Block Analysis on SimDAG_4_nestingOf_T_N
+------------ Searching Repetitions in DAG SimDAG_4_nestingOf_T_nonNesting
+------------ Forward Analysis of block SimDAG_4_nestingOf_T_nonNesting
+------------ Analysis done in 0,007 seconds...
+Eccezione...
+------------ Block Analysis: Choose inner block SimDAG_4_nestingOf_T_nonNesting
+------------ Approximated inner block SimDAG_4_nestingOf_T_nonNesting
+--------- Searching Repetitions in DAG SimDAG_4_nestingOf_T_N
+--------- Forward Analysis of block SimDAG_4_nestingOf_T_N
+--------- Analysis done in 0,008 seconds...
+Eccezione...
+--------- Block Analysis: Choose inner block SimDAG_4_nestingOf_T
+--------- Approximated inner block SimDAG_4_nestingOf_T
+------ Searching Repetitions in DAG Main_nestingOf_T
+------ Forward Analysis of block Main_nestingOf_T
+------ Analysis done in 0,041 seconds...
+Eccezione...
+--- Searching Repetitions in DAG Main_N
+--- Forward Analysis of block Main_N
+--- Analysis done in 0,016 seconds...
+Evaluation took 0,508 seconds

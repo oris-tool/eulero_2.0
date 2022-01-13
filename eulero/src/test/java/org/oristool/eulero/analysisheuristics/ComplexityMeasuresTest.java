@@ -21,7 +21,7 @@ public class ComplexityMeasuresTest {
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
-        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator);
+        AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
         Activity model = new Analytical("A6", unif0_10);
 

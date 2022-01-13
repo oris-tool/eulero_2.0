@@ -1,0 +1,48 @@
+
+HEURISTIC 0
+--- Searching Repetitions in DAG Main
+------ Repetition found! It's NestedRepetition_Q
+--------- Performing REP Inner Block Analysis on NestedRepetition_Q
+------------ Numerical SEQ Analysis of NR_A
+--------------- Performing REP Inner Block Analysis on NR_B
+------------------ Searching Repetitions in DAG SimDAG_0
+------------------ Performing Block Replication on SimDAG_0
+--------------------- Replicated block before WX
+------------------ Numerical AND Analysis of SimDAG_0_N
+--------------------- Searching Repetitions in DAG SimDAG_0_nonNesting
+--------------------- Searching Repetitions in DAG SimDAG_0_nestingOf__WX
+------------------ Analysis of SimDAG_0_N done in 1.687 seconds...
+SimDAG_0 has been approximated
+--------------- Numerical AND Analysis of NR_ComAND
+------------------ Numerical SEQ Analysis of NR_ComAND_A
+--------------------- Numerical AND Analysis of NR_ComAND_C
+--------------------- Analysis of NR_ComAND_C done in 0.020 seconds...
+------------------ Analysis of NR_ComAND_A done in 0.030 seconds...
+------------------ Numerical SEQ Analysis of NR_ComAND_F
+--------------------- Numerical AND Analysis of NR_ComAND_H
+------------------------ Searching Repetitions in DAG SimDAG_1
+------------------------ Searching Repetitions in DAG SimDAG_2
+--------------------- Analysis of NR_ComAND_H done in 0.941 seconds...
+------------------ Analysis of NR_ComAND_F done in 0.952 seconds...
+--------------- Analysis of NR_ComAND done in 0.982 seconds...
+------------ Analysis of NR_A done in 2.772 seconds...
+NR_A has been approximated
+------ Block NestedRepetition_Q replaced...
+--- Performing Block Replication on Main
+------ Replicated block before Main_nestingOf_SimDAG_3
+--- Numerical AND Analysis of Main_N
+------ Searching Repetitions in DAG Main_nonNesting
+------ Searching Repetitions in DAG Main_nestingOf_SimDAG_3
+------ Performing DAG Inner Block Analysis on Main_nestingOf_SimDAG_3
+--------- Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3
+--------- Performing Block Replication on SimDAG_3_nestingOf_SimDAG_3
+------------ Replicated block before SimDAG_3_nestingOf_SimDAG_3_nestingOf_SimDAG_3_WX__nestingOf_SimDAG_3
+--------- Numerical AND Analysis of SimDAG_3_nestingOf_SimDAG_3_N
+------------ Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3_nonNesting
+------------ Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3_nestingOf_SimDAG_3_WX__nestingOf_SimDAG_3
+--------- Analysis of SimDAG_3_nestingOf_SimDAG_3_N done in 1.650 seconds...
+--------- Block Analysis: Choose inner block SimDAG_3_nestingOf_SimDAG_3
+--------- Approximated inner block SimDAG_3_nestingOf_SimDAG_3
+------ Searching Repetitions in DAG Main_nestingOf_SimDAG_3
+--- Analysis of Main_N done in 3.351 seconds...
+Evaluation took 7.841 seconds

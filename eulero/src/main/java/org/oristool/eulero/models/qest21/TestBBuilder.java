@@ -7,36 +7,43 @@ import org.oristool.eulero.graph.Xor;
 import org.oristool.eulero.models.ModelBuilder;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestBBuilder extends ModelBuilder {
-
     public TestBBuilder(StochasticTransitionFeature feature) {
         super(feature);
     }
 
+    public TestBBuilder(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights) {
+        super(features, weights);
+    }
+
     @Override
     public Activity buildModel() {
-        StochasticTransitionFeature feature = this.getFeature();
+        ArrayList<StochasticTransitionFeature> features = this.getFeatures();
+        ArrayList<BigDecimal> weights = this.getWeights();
 
-        Analytical q_0 = new Analytical("SimDAG_0_Q", feature);
-        Analytical r_0 = new Analytical("SimDAG_0_R", feature);
-        Analytical s_0 = new Analytical("SimDAG_0_S", feature);
-        Analytical u_0 = new Analytical("SimDAG_0_U", feature);
-        Analytical v_0 = new Analytical("SimDAG_0_V", feature);
-        Analytical w_0 = new Analytical("SimDAG_0_W", feature);
+
+        Analytical q_0 = new Analytical("SimDAG_0_Q", features, weights);
+        Analytical r_0 = new Analytical("SimDAG_0_R", features, weights);
+        Analytical s_0 = new Analytical("SimDAG_0_S", features, weights);
+        Analytical u_0 = new Analytical("SimDAG_0_U", features, weights);
+        Analytical v_0 = new Analytical("SimDAG_0_V", features, weights);
+        Analytical w_0 = new Analytical("SimDAG_0_W", features, weights);
 
         DAG tu_0 = DAG.forkJoin("SimDAG_0_TU",
                 DAG.sequence("SimDAG_0_T",
-                        new Analytical("SimDAG_0_T1", feature),
-                        new Analytical("SimDAG_0_T2", feature)
+                        new Analytical("SimDAG_0_T1", features, weights),
+                        new Analytical("SimDAG_0_T2", features, weights)
                 ), u_0
         );
 
         DAG wx_0 = DAG.forkJoin("SimDAG_0_WX",
                 DAG.sequence("SimDAG_0_X",
-                        new Analytical("SimDAG_0_X1", feature),
-                        new Analytical("SimDAG_0_X2", feature)
+                        new Analytical("SimDAG_0_X1", features, weights),
+                        new Analytical("SimDAG_0_X2", features, weights)
                 ),
                 w_0
         );
@@ -53,11 +60,11 @@ public class TestBBuilder extends ModelBuilder {
         simDag_0.setEFT(simDag_0.low());
         simDag_0.setLFT(simDag_0.upp());
 
-        Analytical q_1 = new Analytical("SimDAG_1_Q", feature);
-        Analytical r_1 = new Analytical("SimDAG_1_R", feature);
-        Analytical s_1 = new Analytical("SimDAG_1_S", feature);
-        Analytical u_1 = new Analytical("SimDAG_1_U", feature);
-        Analytical t_1 = new Analytical("SimDAG_1_T", feature);
+        Analytical q_1 = new Analytical("SimDAG_1_Q", features, weights);
+        Analytical r_1 = new Analytical("SimDAG_1_R", features, weights);
+        Analytical s_1 = new Analytical("SimDAG_1_S", features, weights);
+        Analytical u_1 = new Analytical("SimDAG_1_U", features, weights);
+        Analytical t_1 = new Analytical("SimDAG_1_T", features, weights);
 
         DAG simDag_1 = DAG.empty("SimDAG_1");
         q_1.addPrecondition(simDag_1.begin());
@@ -70,11 +77,11 @@ public class TestBBuilder extends ModelBuilder {
         simDag_1.setEFT(simDag_1.low());
         simDag_1.setLFT(simDag_1.upp());
 
-        Analytical q_2 = new Analytical("SimDAG_2_Q", feature);
-        Analytical r_2 = new Analytical("SimDAG_2_R", feature);
-        Analytical s_2 = new Analytical("SimDAG_2_S", feature);
-        Analytical u_2 = new Analytical("SimDAG_2_U", feature);
-        Analytical t_2 = new Analytical("SimDAG_2_T", feature);
+        Analytical q_2 = new Analytical("SimDAG_2_Q", features, weights);
+        Analytical r_2 = new Analytical("SimDAG_2_R", features, weights);
+        Analytical s_2 = new Analytical("SimDAG_2_S", features, weights);
+        Analytical u_2 = new Analytical("SimDAG_2_U", features, weights);
+        Analytical t_2 = new Analytical("SimDAG_2_T", features, weights);
 
         DAG simDag_2 = DAG.empty("SimDAG_2");
         q_2.addPrecondition(simDag_2.begin());
@@ -87,24 +94,24 @@ public class TestBBuilder extends ModelBuilder {
         simDag_2.setEFT(simDag_2.low());
         simDag_2.setLFT(simDag_2.upp());
 
-        Analytical q_3 = new Analytical("SimDAG_3_Q", feature);
-        Analytical r_3 = new Analytical("SimDAG_3_R", feature);
-        Analytical s_3 = new Analytical("SimDAG_3_S", feature);
-        Analytical u_3 = new Analytical("SimDAG_3_U", feature);
-        Analytical v_3 = new Analytical("SimDAG_3_V", feature);
-        Analytical w_3 = new Analytical("SimDAG_3_W", feature);
+        Analytical q_3 = new Analytical("SimDAG_3_Q", features, weights);
+        Analytical r_3 = new Analytical("SimDAG_3_R", features, weights);
+        Analytical s_3 = new Analytical("SimDAG_3_S", features, weights);
+        Analytical u_3 = new Analytical("SimDAG_3_U", features, weights);
+        Analytical v_3 = new Analytical("SimDAG_3_V", features, weights);
+        Analytical w_3 = new Analytical("SimDAG_3_W", features, weights);
 
         DAG tu_3 = DAG.forkJoin("SimDAG_3_TU",
                 DAG.sequence("SimDAG_3_T",
-                        new Analytical("SimDAG_3_T1", feature),
-                        new Analytical("SimDAG_3_T2", feature)
+                        new Analytical("SimDAG_3_T1", features, weights),
+                        new Analytical("SimDAG_3_T2", features, weights)
                 ), u_3
         );
 
         DAG wx_3 = DAG.forkJoin("SimDAG_3_WX",
                 DAG.sequence("SimDAG_3_X",
-                        new Analytical("SimDAG_3_X1", feature),
-                        new Analytical("SimDAG_3_X2", feature)
+                        new Analytical("SimDAG_3_X1", features, weights),
+                        new Analytical("SimDAG_3_X2", features, weights)
                 ),
                 w_3
         );
@@ -124,24 +131,24 @@ public class TestBBuilder extends ModelBuilder {
         return DAG.forkJoin("Main",
                 DAG.forkJoin("A",
                         DAG.sequence("B",
-                                new Analytical("C", feature),
-                                new Analytical("D", feature),
-                                new Analytical("E", feature),
-                                new Analytical("F", feature)
+                                new Analytical("C", features, weights),
+                                new Analytical("D", features, weights),
+                                new Analytical("E", features, weights),
+                                new Analytical("F", features, weights)
                         ),
                         DAG.sequence("G",
                                 simDag_0,
-                                new Analytical("I", feature),
+                                new Analytical("I", features, weights),
                                 DAG.forkJoin("SimAND",
                                         DAG.sequence("SimAND_A",
-                                                new Analytical("SimAND_B", feature),
+                                                new Analytical("SimAND_B", features, weights),
                                                 DAG.forkJoin("SimAND_C",
-                                                        new Analytical("SimAND_D", feature),
-                                                        new Analytical("SimAND_E", feature)
+                                                        new Analytical("SimAND_D", features, weights),
+                                                        new Analytical("SimAND_E", features, weights)
                                                 )
                                         ),
                                         DAG.sequence("SimAND_F",
-                                                new Analytical("SimAND_G", feature),
+                                                new Analytical("SimAND_G", features, weights),
                                                 DAG.forkJoin("SimAND_H",
                                                         simDag_1,
                                                         simDag_2
@@ -152,27 +159,27 @@ public class TestBBuilder extends ModelBuilder {
                 ),
                 DAG.sequence("K",
                         DAG.forkJoin("L",
-                                new Analytical("M", feature),
+                                new Analytical("M", features, weights),
                                 DAG.sequence("N",
-                                        new Analytical("O", feature),
-                                        new Analytical("P", feature)
+                                        new Analytical("O", features, weights),
+                                        new Analytical("P", features, weights)
                                 )
                         ),
                         DAG.forkJoin("Q",
                                 DAG.sequence("R",
-                                        new Analytical("S", feature),
-                                        new Analytical("T", feature)
+                                        new Analytical("S", features, weights),
+                                        new Analytical("T", features, weights)
                                 ),
                                 new Xor("U", List.of(
-                                        new Analytical("V", feature),
-                                        new Analytical("W", feature)
+                                        new Analytical("V", features, weights),
+                                        new Analytical("W", features, weights)
                                 ), List.of(0.3, 0.7))
                         ),
                         DAG.forkJoin("X",
                                 DAG.sequence("Y",
-                                        new Analytical("Z", feature),
-                                        new Analytical("A'", feature),
-                                        new Analytical("B'", feature)
+                                        new Analytical("Z", features, weights),
+                                        new Analytical("A'", features, weights),
+                                        new Analytical("B'", features, weights)
                                 ),
                                 simDag_3
                         )

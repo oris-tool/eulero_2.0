@@ -17,20 +17,17 @@
 
 package org.oristool.eulero.graph;
 
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import jakarta.xml.bind.annotation.*;
 import org.oristool.analyzer.Succession;
 import org.oristool.analyzer.graph.Node;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
-import org.oristool.math.OmegaBigDecimal;
-import org.oristool.math.expression.Variable;
-import org.oristool.math.function.GEN;
-import org.oristool.math.function.StateDensityFunction;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
@@ -38,8 +35,6 @@ import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trans.TreeTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.Regeneration;
-import org.oristool.models.stpn.trees.StochasticStateFeature;
-import org.oristool.models.stpn.trees.TransientStochasticStateFeature;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
 import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
@@ -64,15 +59,51 @@ import org.oristool.util.Pair;
 /**
  * Represents a node in an activity DAG.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
+    @XmlElements({
+            @XmlElement(name="EFT", type=Analytical.class, required = true),
+            @XmlElement(name="EFT", type=SEQ.class, required = true),
+            @XmlElement(name="EFT", type=AND.class, required = true),
+            @XmlElement(name="EFT", type=Xor.class, required = true),
+            @XmlElement(name="EFT", type=DAG.class, required = true),
+    })
     private BigDecimal EFT;
+
+    @XmlElements({
+            @XmlElement(name="LFT",type=Analytical.class, required = true),
+            @XmlElement(name="LFT",type=SEQ.class, required = true),
+            @XmlElement(name="LFT",type=AND.class, required = true),
+            @XmlElement(name="LFT",type=Xor.class, required = true),
+            @XmlElement(name="LFT",type=DAG.class, required = true),
+    })
     private BigDecimal LFT;
+
     private BigInteger C;
     private BigInteger R;
     private BigInteger simplifiedR;
     private BigInteger simplifiedC;
+
+    @XmlTransient
     private List<Activity> pre = new ArrayList<>();
+
+    @XmlElementWrapper(name="post-activities")
+    @XmlElements({
+            @XmlElement(name="activity",type=Analytical.class),
+            @XmlElement(name="activity",type=SEQ.class),
+            @XmlElement(name="activity",type=AND.class),
+            @XmlElement(name="activity",type=Xor.class),
+            @XmlElement(name="activity",type=DAG.class),
+    })
     private List<Activity> post = new ArrayList<>();
+
+    @XmlElements({
+            @XmlElement(name="name",type=Analytical.class, required = true),
+            @XmlElement(name="name",type=SEQ.class, required = true),
+            @XmlElement(name="name",type=AND.class, required = true),
+            @XmlElement(name="name",type=Xor.class, required = true),
+            @XmlElement(name="name",type=DAG.class, required = true),
+    })
     private String name;
     
     /**
@@ -102,7 +133,7 @@ public abstract class Activity implements Serializable {
     public void setPost(List<Activity> post) {
         this.post = post;
     }
-    
+
     /**
      * The name of this activity.
      */
@@ -536,8 +567,6 @@ public abstract class Activity implements Serializable {
      */
     public abstract int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio);
 
-    //public abstract int getTimedPetriBlock(PetriNet pn, Place in, Place out, int prio);
-
     public abstract BigDecimal low();
 
     public abstract BigDecimal upp();
@@ -744,7 +773,7 @@ public abstract class Activity implements Serializable {
         long start = System.nanoTime();
         s.simulate();
         System.out.println(String.format("Simulation took %.3f seconds",
-                (System.nanoTime() - start)/1e9));
+                (System.nanoTime() - start) / 1e9));
 
         // evaluate reward
         TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();

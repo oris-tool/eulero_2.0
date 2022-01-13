@@ -3,6 +3,7 @@ package org.oristool.eulero.mains;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.petrinet.Marking;
 
 public class TestCaseResult {
     private final String title;
@@ -21,7 +22,7 @@ public class TestCaseResult {
         this.computationTime = computationTime;
     }
 
-    public TestCaseResult(String title, TransientSolution<DeterministicEnablingState, RewardRate> solution, int min, int max, double step, long computationTime){
+    public TestCaseResult(String title, TransientSolution solution, int min, int max, double step, long computationTime){
         this.title = title;
         this.computationTime = computationTime;
         double[] cdf = new double[solution.getSolution().length];

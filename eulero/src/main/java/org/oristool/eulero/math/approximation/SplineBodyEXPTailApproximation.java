@@ -308,6 +308,8 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
     @Override
     public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        // Clean weights vector
+        stochasticTransitionFeatureWeights().clear();
         ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
 
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
@@ -324,7 +326,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
 
         double Q3 = /*low +*/ Q3Index * step.doubleValue();
 
-        int bodyPieceWidth = (int) ((Q3 - low) / step.doubleValue() / (double) bodyPieces);
+        int bodyPieceWidth = (int) ((upp - low) / step.doubleValue() / (double) bodyPieces);
 
         double[] pdf = new double[cdf.length];
         for(int i = 0; i < pdf.length; i++){
@@ -334,7 +336,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         for(int i = 0; i < bodyPieces; i++){
             // Body
             int bodyPieceStartingIndex = (int) (low / step.doubleValue()) + i * bodyPieceWidth;
-            int bodyPieceEndingIndex = (i != bodyPieces - 1) ?  (int) (low / step.doubleValue()) + (i + 1) * bodyPieceWidth : Q3Index;
+            int bodyPieceEndingIndex = (i != bodyPieces - 1) ?  (int) (low / step.doubleValue()) + (i + 1) * bodyPieceWidth : cdf.length - 1;
             OmegaBigDecimal eft = new OmegaBigDecimal(String.valueOf(bodyPieceStartingIndex * step.doubleValue()));
             OmegaBigDecimal lft = new OmegaBigDecimal(String.valueOf(bodyPieceEndingIndex * step.doubleValue())); // sull'ultimo dovrebbe venire proprio Q3
             double bodyPieceLocalWeight = cdf[bodyPieceEndingIndex] - cdf[bodyPieceStartingIndex];
@@ -361,6 +363,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
             if(alpha < -f1){
                 alpha = -f1;
             }
+
             if(alpha > 2 * bodyPieceLocalWeight / h - f1){
                 alpha = 2 * bodyPieceLocalWeight / h - f1;
             }
@@ -376,23 +379,23 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         }
 
         //tail
-        double tailLambda = Double.MAX_VALUE;
+        /*double tailLambda = Double.MAX_VALUE;
         double[] test = new double[cdf.length - Q3Index];
         for(int i = Q3Index ; i < cdf.length; i++){
             double cdfValue = (cdf[i] - cdf[Q3Index]) / (1 - cdf[Q3Index]);
 
             //Discard bad conditioned values
-            if(cdfValue > 0  &&  cdfValue < 1 && /*low + */(i * step.doubleValue()) > Q3) {
+            if(cdfValue > 0  &&  cdfValue < 1 && (i * step.doubleValue()) > Q3) {
                 tailLambda = Math.min(
                         tailLambda,
-                        -Math.log(1 - cdfValue) / (/*low + */(i * step.doubleValue()) - Q3)
+                        -Math.log(1 - cdfValue) / ((i * step.doubleValue()) - Q3)
                 );
             }
             test[i - Q3Index] = cdfValue;
         }
 
         features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
-        stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));
+        stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));*/
         return features;
     }
 }

@@ -1,24 +1,38 @@
 package org.oristool.eulero.models;
 
+import org.checkerframework.checker.units.qual.A;
 import org.oristool.eulero.graph.Activity;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public abstract class ModelBuilder {
-    private StochasticTransitionFeature feature;
+    private ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+    private ArrayList<BigDecimal> weights = new ArrayList<>();
 
     public ModelBuilder(StochasticTransitionFeature feature){
-        this.feature = feature;
+        this.features.add(feature);
+        this.weights.add(BigDecimal.ONE);
+    }
+
+    public ModelBuilder(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights){
+        this.features = features;
+        this.weights = weights;
     }
 
     public ModelBuilder() {
 
     }
 
-    public StochasticTransitionFeature getFeature() {
-        return feature;
+    public ArrayList<StochasticTransitionFeature> getFeatures() {
+        return features;
+    }
+
+    public ArrayList<BigDecimal> getWeights() {
+        return weights;
     }
 
     public double[] cutCDF(double[] cdf){

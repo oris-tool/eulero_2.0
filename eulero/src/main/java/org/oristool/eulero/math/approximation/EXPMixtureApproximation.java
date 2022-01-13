@@ -292,6 +292,7 @@ public class EXPMixtureApproximation extends Approximator {
 
     @Override
     public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        stochasticTransitionFeatureWeights().clear();
         ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
 
         if(cdf.length < (upp - low)/step.doubleValue()){

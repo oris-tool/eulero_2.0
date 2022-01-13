@@ -1,0 +1,11 @@
+
+HEURISTIC 1
+--- Numerical AND Analysis of AND(DAG(A0, A1, A2 | A3, A4),DAG(A5, A6 | A7, A8, A9))
+------ Searching Repetitions in DAG DAG(A0, A1, A2 | A3, A4)
+------ Forward Analysis of block DAG(A0, A1, A2 | A3, A4)
+------ Analysis done in 0,133 seconds...
+------ Searching Repetitions in DAG DAG(A5, A6 | A7, A8, A9)
+------ Forward Analysis of block DAG(A5, A6 | A7, A8, A9)
+------ Analysis done in 0,122 seconds...
+--- Analysis of AND(DAG(A0, A1, A2 | A3, A4),DAG(A5, A6 | A7, A8, A9)) done in 0,256 seconds...
+Evaluation took 0,257 seconds

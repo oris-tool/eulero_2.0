@@ -1,0 +1,60 @@
+
+HEURISTIC 2
+--- Searching Repetitions in DAG Main
+------ Repetition found! It's NestedRepetition_Q
+--------- Performing REP Inner Block Analysis on NestedRepetition_Q
+------------ Searching Repetitions in DAG NR_A
+--------------- Repetition found! It's NR_B
+------------------ Performing REP Inner Block Analysis on NR_B
+--------------------- Searching Repetitions in DAG SimDAG_0
+--------------------- Performing Block Replication on SimDAG_0
+------------------------ Searching Repetitions in DAG SimDAG_0_nonNesting
+------------------------ Searching Repetitions in DAG SimDAG_0_nestingOf__WX
+--------------------- Searching Repetitions in DAG SimDAG_0_N
+SimDAG_0 has been approximated
+--------------- Block NR_B replaced...
+------------ Performing DAG Inner Block Analysis on NR_A
+--------------- Searching Repetitions in DAG NR_ComAND
+--------------- Performing DAG Inner Block Analysis on NR_ComAND
+------------------ Searching Repetitions in DAG NR_ComAND_F
+------------------ Performing DAG Inner Block Analysis on NR_ComAND_F
+--------------------- Searching Repetitions in DAG NR_ComAND_H
+--------------------- Performing DAG Inner Block Analysis on NR_ComAND_H
+------------------------ Searching Repetitions in DAG SimDAG_1
+------------------------ Block Analysis: Choose inner block SimDAG_1
+------------------------ Approximated inner block SimDAG_1
+--------------------- Searching Repetitions in DAG NR_ComAND_H
+--------------------- Performing DAG Inner Block Analysis on NR_ComAND_H
+------------------------ Searching Repetitions in DAG SimDAG_2
+------------------------ Block Analysis: Choose inner block SimDAG_2
+------------------------ Approximated inner block SimDAG_2
+--------------------- Searching Repetitions in DAG NR_ComAND_H
+--------------------- Block Analysis: Choose inner block NR_ComAND_H
+--------------------- Approximated inner block NR_ComAND_H
+------------------ Searching Repetitions in DAG NR_ComAND_F
+------------------ Block Analysis: Choose inner block NR_ComAND_F
+------------------ Approximated inner block NR_ComAND_F
+--------------- Searching Repetitions in DAG NR_ComAND
+--------------- Block Analysis: Choose inner block NR_ComAND
+--------------- Approximated inner block NR_ComAND
+------------ Searching Repetitions in DAG NR_A
+NR_A has been approximated
+------ Block NestedRepetition_Q replaced...
+--- Performing Block Replication on Main
+------ Searching Repetitions in DAG Main_nonNesting
+------ Performing Block Replication on Main_nonNesting
+--------- Searching Repetitions in DAG Main_nonNesting_nonNesting
+--------- Searching Repetitions in DAG Main_nonNesting_nestingOf_T__nonNesting
+------ Searching Repetitions in DAG Main_nonNesting_N
+------ Searching Repetitions in DAG Main_nestingOf_SimDAG_3
+------ Performing DAG Inner Block Analysis on Main_nestingOf_SimDAG_3
+--------- Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3
+--------- Performing Block Replication on SimDAG_3_nestingOf_SimDAG_3
+------------ Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3_nonNesting
+------------ Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3_nestingOf_SimDAG_3_WX__nestingOf_SimDAG_3
+--------- Searching Repetitions in DAG SimDAG_3_nestingOf_SimDAG_3_N
+--------- Block Analysis: Choose inner block SimDAG_3_nestingOf_SimDAG_3
+--------- Approximated inner block SimDAG_3_nestingOf_SimDAG_3
+------ Searching Repetitions in DAG Main_nestingOf_SimDAG_3
+--- Searching Repetitions in DAG Main_N
+Evaluation took 8.162 seconds
