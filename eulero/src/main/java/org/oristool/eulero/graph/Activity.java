@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 import jakarta.xml.bind.annotation.*;
-import org.oristool.analyzer.Succession;
 import org.oristool.analyzer.graph.Node;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
@@ -62,11 +61,11 @@ import org.oristool.util.Pair;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
     @XmlElements({
-            @XmlElement(name="EFT", type=Analytical.class, required = true),
-            @XmlElement(name="EFT", type=SEQ.class, required = true),
-            @XmlElement(name="EFT", type=AND.class, required = true),
-            @XmlElement(name="EFT", type=Xor.class, required = true),
-            @XmlElement(name="EFT", type=DAG.class, required = true),
+            @XmlElement(name="EFT",type=Analytical.class, required = true),
+            @XmlElement(name="EFT",type=SEQ.class, required = true),
+            @XmlElement(name="EFT",type=AND.class, required = true),
+            @XmlElement(name="EFT",type=Xor.class, required = true),
+            @XmlElement(name="EFT",type=DAG.class, required = true),
     })
     private BigDecimal EFT;
 
@@ -81,20 +80,15 @@ public abstract class Activity implements Serializable {
 
     private BigInteger C;
     private BigInteger R;
+    private BigInteger S;
     private BigInteger simplifiedR;
     private BigInteger simplifiedC;
+    private BigInteger simplifiedS;
 
     @XmlTransient
     private List<Activity> pre = new ArrayList<>();
 
-    @XmlElementWrapper(name="post-activities")
-    @XmlElements({
-            @XmlElement(name="activity",type=Analytical.class),
-            @XmlElement(name="activity",type=SEQ.class),
-            @XmlElement(name="activity",type=AND.class),
-            @XmlElement(name="activity",type=Xor.class),
-            @XmlElement(name="activity",type=DAG.class),
-    })
+    @XmlTransient
     private List<Activity> post = new ArrayList<>();
 
     @XmlElements({
@@ -157,6 +151,10 @@ public abstract class Activity implements Serializable {
         return !Objects.isNull(R) ? R : computeR(false);
     }
 
+    public BigInteger S() {
+        return !Objects.isNull(S) ? S : computeS(false);
+    }
+
     public BigInteger simplifiedC() {
         return !Objects.isNull(simplifiedC) ? simplifiedC : computeC(true);
     }
@@ -165,11 +163,15 @@ public abstract class Activity implements Serializable {
         return !Objects.isNull(simplifiedR) ? simplifiedR : computeR(true);
     }
 
+    public BigInteger simplifiedS() {
+        return !Objects.isNull(simplifiedS) ? simplifiedS : computeS(true);
+    }
+
     public void resetComplexityMeasure(){
         computeC(true);
         computeC(false);
-        computeR(true);
-        computeR(false);
+        computeS(true);
+        computeS(false);
     }
 
     public void setEFT(BigDecimal EFT) {
@@ -188,12 +190,20 @@ public abstract class Activity implements Serializable {
         this.R = R;
     }
 
+    public void setS(BigInteger S) {
+        this.S = S;
+    }
+
     public void setSimplifiedR(BigInteger simplifiedR) {
         this.simplifiedR = simplifiedR;
     }
 
     public void setSimplifiedC(BigInteger simplifiedC) {
         this.simplifiedC = simplifiedC;
+    }
+
+    public void setSimplifiedS(BigInteger simplifiedS) {
+        this.simplifiedS = simplifiedS;
     }
 
     /** Activities that are part of this one */
@@ -208,6 +218,111 @@ public abstract class Activity implements Serializable {
     public abstract Activity copyRecursive(String suffix);
 
     public BigInteger computeC(boolean getSimplified){
+        //System.out.println("Calcolo C");
+
+        long time = System.nanoTime();
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        buildTPN(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        TimedAnalysis.Builder builder = TimedAnalysis.builder();
+        builder.includeAge(true);
+        builder.markRegenerations(true);
+        builder.excludeZeroProb(true);
+
+        TimedAnalysis analysis = builder.build();
+
+        SuccessionGraph graph = analysis.compute(pn, m);
+
+        // Get C
+        BigInteger maxC = BigInteger.ZERO;
+        BigInteger simplifiedMaxC = BigInteger.ZERO;
+        for (State s: graph.getStates()) {
+            BigInteger maximumTestValue = BigInteger.ZERO;
+            BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
+            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
+                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
+                    simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
+                }
+            }
+
+            if(maximumTestValue.compareTo(maxC) > 0){
+                maxC = maximumTestValue;
+            }
+            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxC) > 0){
+                simplifiedMaxC = simplifiedMaximumTestValue;
+            }
+        }
+
+        setC(maxC);
+        setSimplifiedC(simplifiedMaxC);
+        /*System.out.println("C computed in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");*/
+
+        return getSimplified ? simplifiedMaxC : maxC;
+    }
+
+    public BigInteger computeR(boolean getSimplified){
+        //System.out.println("Calcolo R");
+        long time = System.nanoTime();
+
+        PetriNet pn = new PetriNet();
+        Place in = pn.addPlace("pBEGIN");
+        Place out = pn.addPlace("pEND");
+        buildTPN(pn, in, out, 1);
+
+        Marking m = new Marking();
+        m.addTokens(in, 1);
+
+        TimedAnalysis.Builder builder = TimedAnalysis.builder();
+        builder.includeAge(true);
+        builder.markRegenerations(true);
+        builder.excludeZeroProb(true);
+
+        TimedAnalysis analysis = builder.build();
+        SuccessionGraph graph = analysis.compute(pn, m);
+
+        // Get R
+        Deque<Node> regenerativeStack = new LinkedList<Node>();
+        regenerativeStack.push(graph.getRoot());
+        BigInteger maxR = BigInteger.ZERO;
+        BigInteger simplifiedMaxR = BigInteger.ZERO;
+        while (!regenerativeStack.isEmpty()) {
+            // Ogni volta che re-itero, sto verificando una rigenerazione di partenza diversa
+            Node n = regenerativeStack.pop();
+            //System.out.println("new regenerative node: " + n.toString());
+            if (n != null) {
+                BigInteger nodePathLength = computeMaximumRegenerationEpoch(graph, n, regenerativeStack, false);
+                BigInteger nodeSimplifiedPathLength = computeMaximumRegenerationEpoch(graph, n, regenerativeStack, true);
+
+                if(nodePathLength.compareTo(maxR) > 0){
+                    maxR = nodePathLength;
+                }
+
+                if(nodeSimplifiedPathLength.compareTo(simplifiedMaxR) > 0){
+                    simplifiedMaxR = nodeSimplifiedPathLength;
+                }
+            }
+        }
+
+        setR(maxR);
+        setSimplifiedR(simplifiedMaxR);
+
+        /*System.out.println("R computed in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");*/
+
+        return getSimplified ? simplifiedMaxR : maxR;
+    }
+
+    /*public BigInteger computeS(boolean getSimplified){
+        System.out.println("Calcolo S");
+
+        long time = System.nanoTime();
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
@@ -248,57 +363,13 @@ public abstract class Activity implements Serializable {
 
         setC(maxC);
         setSimplifiedC(simplifiedMaxC);
+        System.out.println("C computed in " + String.format("%.3f seconds",
+                (System.nanoTime() - time)/1e9) + "...");
 
         return getSimplified ? simplifiedMaxC : maxC;
-    }
+    }*/
 
-    public BigInteger computeR(boolean getSimplified){
-        PetriNet pn = new PetriNet();
-        Place in = pn.addPlace("pBEGIN");
-        Place out = pn.addPlace("pEND");
-        buildTimedPetriNet(pn, in, out, 1);
-
-        Marking m = new Marking();
-        m.addTokens(in, 1);
-
-        TimedAnalysis.Builder builder = TimedAnalysis.builder();
-        builder.includeAge(true);
-        builder.markRegenerations(true);
-        builder.excludeZeroProb(true);
-
-        TimedAnalysis analysis = builder.build();
-        SuccessionGraph graph = analysis.compute(pn, m);
-
-        // Get R
-        Deque<Node> regenerativeStack = new LinkedList<Node>();
-        regenerativeStack.push(graph.getRoot());
-        BigInteger maxR = BigInteger.ZERO;
-        BigInteger simplifiedMaxR = BigInteger.ZERO;
-        while (!regenerativeStack.isEmpty()) {
-            // Ogni volta che re-itero, sto verificando una rigenerazione di partenza diversa
-            Node n = regenerativeStack.pop();
-            //System.out.println("new regenerative node: " + n.toString());
-            if (n != null) {
-                BigInteger nodePathLength = computeMaximumPathLength(graph, n, regenerativeStack, false);
-                BigInteger nodeSimplifiedPathLength = computeMaximumPathLength(graph, n, regenerativeStack, true);
-
-                if(nodePathLength.compareTo(maxR) > 0){
-                    maxR = nodePathLength;
-                }
-
-                if(nodeSimplifiedPathLength.compareTo(simplifiedMaxR) > 0){
-                    simplifiedMaxR = nodeSimplifiedPathLength;
-                }
-            }
-        }
-
-        setR(maxR);
-        setSimplifiedR(simplifiedMaxR);
-
-        return getSimplified ? simplifiedMaxR : maxR;
-    }
-
-    private BigInteger computeMaximumPathLength(SuccessionGraph graph, Node node, Deque<Node> stack, boolean getSimplified){
+    private BigInteger computeMaximumRegenerationEpoch(SuccessionGraph graph, Node node, Deque<Node> stack, boolean getSimplified){
         /*BigInteger maximumR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
                 .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
                 .mapToInt(t -> t.getFeature(RegenerationEpochLengthTransitionFeature.class).getR().intValue()).sum());
@@ -319,8 +390,8 @@ public abstract class Activity implements Serializable {
             if(graph.getState(n).hasFeature(Regeneration.class)){
                 stack.push(n);
             } else {
-                BigInteger nodePathLength = computeMaximumPathLength(graph, n, stack, false);
-                BigInteger nodeSimplifiedPathLength = computeMaximumPathLength(graph, n, stack, true);
+                BigInteger nodePathLength = computeMaximumRegenerationEpoch(graph, n, stack, false);
+                BigInteger nodeSimplifiedPathLength = computeMaximumRegenerationEpoch(graph, n, stack, true);
 
                 if(nodePathLength.compareTo(maximumChoice) > 0){
                     maximumChoice = nodePathLength;
@@ -334,8 +405,9 @@ public abstract class Activity implements Serializable {
 
         return getSimplified ?  maximumSimplifiedR.add(maximumSimplifiedChoice) : maximumR.add(maximumChoice);
     }
+    public abstract  BigInteger computeS(boolean getSimplified);
 
-    public abstract void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio);
+    public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
     
     @Override
     public final String toString() {
@@ -343,10 +415,10 @@ public abstract class Activity implements Serializable {
     }
     
     /**
-     * Adds activities as a direct dependency; also adds this 
+     * Adds activities as a direct dependency; also adds this
      * activity to the dependencies' post().  
      */
-    public final void addPrecondition(Activity... others) {
+    public void addPrecondition(Activity... others) {
         for (Activity other : others) {
             if (pre.contains(other))
                 throw new IllegalArgumentException(other + " already present in " + this);
@@ -354,6 +426,7 @@ public abstract class Activity implements Serializable {
                 throw new IllegalArgumentException(this + " already present in " + other);
             pre.add(other);
             other.post.add(this);
+
         }
     }
        
@@ -565,7 +638,7 @@ public abstract class Activity implements Serializable {
      * @param prio initial priority of the transitions of this activity
      * @return next priority level for the rest of the network
      */
-    public abstract int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio);
+    public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
 
     public abstract BigDecimal low();
 
@@ -584,7 +657,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
         
         StringBuilder b = new StringBuilder();
         for (Transition t : pn.getTransitions()) {
@@ -610,7 +683,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
         
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -647,7 +720,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
 
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -680,7 +753,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
         
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -710,7 +783,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
 
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -757,7 +830,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        this.addStochasticPetriBlock(pn, in, out, 1);
+        this.buildSTPN(pn, in, out, 1);
 
         Marking m = new Marking();
         m.addTokens(in, 1);

@@ -1,3 +1,0 @@
-
-HEURISTIC 0
-Main

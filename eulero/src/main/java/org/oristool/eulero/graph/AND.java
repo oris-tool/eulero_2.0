@@ -5,6 +5,7 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,9 +13,7 @@ import java.util.stream.Collectors;
 
 @XmlRootElement(name = "AND")
 public class AND extends DAG {
-    @XmlElementWrapper(name = "activities")
-    @XmlElement(name = "activity", required = true)
-    private List<Activity> activities;
+
 
     public AND(){
         super("");
@@ -24,17 +23,13 @@ public class AND extends DAG {
         super(name);
         setEFT(this.low());
         setLFT(this.upp());
-        this.activities = activities;
-    }
-
-    public List<Activity> activities() {
-        return activities;
+        setActivities(activities);
     }
 
     @Override
     public boolean isWellNested() {
         boolean isWellNested = true;
-        for (Activity block : activities) {
+        for (Activity block : activities()) {
             isWellNested = isWellNested && block.isWellNested();
         }
         return isWellNested;
@@ -42,12 +37,12 @@ public class AND extends DAG {
 
     @Override
     public DAG copyRecursive(String suffix){
-        DAG copy = DAG.forkJoin(this.name() + "_" + suffix, this.activities.stream()
+        DAG copy = DAG.forkJoin(this.name() + "_" + suffix, activities().stream()
                 .map(a -> a.copyRecursive(suffix)).toArray(Activity[]::new));
         copy.setEFT(copy.low());
         copy.setLFT(copy.upp());
         copy.C();
-        copy.R();
+        copy.S();
         return copy;
 
     }

@@ -1,6 +1,0 @@
-
-HEURISTIC 1
---- Searching Repetitions in DAG DAG(Act0, Act1 | Act2, Act3, Act4 | )
---- Forward Analysis of block DAG(Act0, Act1 | Act2, Act3, Act4 | )
---- Analysis done in 0,385 seconds...
-Evaluation took 0,422 seconds

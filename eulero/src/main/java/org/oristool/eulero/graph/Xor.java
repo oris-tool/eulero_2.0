@@ -18,6 +18,7 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +30,6 @@ import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
-import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
 import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
@@ -59,8 +59,6 @@ public class Xor extends Activity {
 
         setEFT(alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
         setLFT(alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
-        //setC(alternatives.stream().max(Comparator.comparing(Activity::C)).get().C());
-        //setR(alternatives.stream().max(Comparator.comparing(Activity::R)).get().R());
         this.probs = probs;
         this.alternatives = alternatives;
 
@@ -76,7 +74,7 @@ public class Xor extends Activity {
     }
 
     @Override
-    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio) {
+    public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
         // input/output places of alternative activities
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
@@ -103,7 +101,7 @@ public class Xor extends Activity {
             t.addFeature(StochasticTransitionFeature.newUniformInstance(alternatives().get(i).EFT(), alternatives().get(i).LFT()));
             t.addFeature(new TimedTransitionFeature(alternatives().get(i).EFT().toString(), alternatives().get(i).LFT().toString()));
             t.addFeature(new ConcurrencyTransitionFeature(alternatives().get(i).C()));
-            t.addFeature(new RegenerationEpochLengthTransitionFeature(alternatives().get(i).R()));
+            //t.addFeature(new RegenerationEpochLengthTransitionFeature(alternatives().get(i).R()));
 
             pn.addPrecondition(act_ins.get(i), t);
             pn.addPostcondition(t, act_outs.get(i));
@@ -150,7 +148,7 @@ public class Xor extends Activity {
     }
     
     @Override
-    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
         // input/output places of alternative activities
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
@@ -172,7 +170,7 @@ public class Xor extends Activity {
         }
 
         for (int i = 0; i < alternatives.size(); i++) {
-            alternatives.get(i).addStochasticPetriBlock(pn, act_ins.get(i), act_outs.get(i), prio++);
+            alternatives.get(i).buildSTPN(pn, act_ins.get(i), act_outs.get(i), prio++);
         }
         
         for (int i = 0; i < alternatives.size(); i++) {
@@ -188,6 +186,15 @@ public class Xor extends Activity {
         return prio;
     }
 
+    @Override
+    public BigInteger computeS(boolean getSimplified) {
+        int maximumS = 0;
+        for(Activity act: alternatives){
+            maximumS = Math.max(maximumS, act.S().intValue());
+        }
+
+        return getSimplified ? BigInteger.ONE : BigInteger.valueOf(maximumS);
+    }
 
     @Override
     public BigDecimal low() {

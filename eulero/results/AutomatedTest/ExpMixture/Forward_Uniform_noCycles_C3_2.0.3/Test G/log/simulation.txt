@@ -1,2 +1,0 @@
-Simulation took 7,003 seconds
-Simulation took 7,005 seconds

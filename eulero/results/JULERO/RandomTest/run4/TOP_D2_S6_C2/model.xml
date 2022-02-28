@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DAG>
+    <EFT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+    <LFT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">12.0</LFT>
+    <name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">DAG(SEQ(A0,A1,A2,A3,A4,A5), AND(A6,A7), AND(A8,A9) | AND(A10,A11), SEQ(A12,A13,A14,A15,A16,A17))</name>
+    <begin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="analytical">
+        <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+        <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+        <C>1</C>
+        <simplifiedC>1</simplifiedC>
+        <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">DAG(SEQ(A0,A1,A2,A3,A4,A5), AND(A6,A7), AND(A8,A9) | AND(A10,A11), SEQ(A12,A13,A14,A15,A16,A17))_BEGIN</name>
+    </begin>
+    <end xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="analytical">
+        <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+        <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+        <C>1</C>
+        <simplifiedC>1</simplifiedC>
+        <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">DAG(SEQ(A0,A1,A2,A3,A4,A5), AND(A6,A7), AND(A8,A9) | AND(A10,A11), SEQ(A12,A13,A14,A15,A16,A17))_END</name>
+    </end>
+    <activities>
+        <activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="seq">
+            <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+            <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">6.0</LFT>
+            <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A0,A1,A2,A3,A4,A5)</name>
+            <begin xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A0,A1,A2,A3,A4,A5)_BEGIN</name>
+            </begin>
+            <end xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A0,A1,A2,A3,A4,A5)_END</name>
+            </end>
+            <activities>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A0</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A1</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A2</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A3</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A4</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A5</name>
+                </activity>
+            </activities>
+            <edges>
+                <edge>
+                    <pre>A1</pre>
+                    <post>A0</post>
+                </edge>
+                <edge>
+                    <pre>A2</pre>
+                    <post>A1</post>
+                </edge>
+                <edge>
+                    <pre>A3</pre>
+                    <post>A2</post>
+                </edge>
+                <edge>
+                    <pre>A4</pre>
+                    <post>A3</post>
+                </edge>
+                <edge>
+                    <pre>A5</pre>
+                    <post>A4</post>
+                </edge>
+            </edges>
+        </activity>
+        <activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="and">
+            <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+            <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+            <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A6,A7)</name>
+            <begin xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A6,A7)_BEGIN</name>
+            </begin>
+            <end xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A6,A7)_END</name>
+            </end>
+            <activities>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A6</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A7</name>
+                </activity>
+            </activities>
+            <edges/>
+        </activity>
+        <activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="and">
+            <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+            <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+            <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A8,A9)</name>
+            <begin xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A8,A9)_BEGIN</name>
+            </begin>
+            <end xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A8,A9)_END</name>
+            </end>
+            <activities>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A8</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A9</name>
+                </activity>
+            </activities>
+            <edges/>
+        </activity>
+        <activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="and">
+            <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+            <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+            <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A10,A11)</name>
+            <begin xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A10,A11)_BEGIN</name>
+            </begin>
+            <end xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AND(A10,A11)_END</name>
+            </end>
+            <activities>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A10</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A11</name>
+                </activity>
+            </activities>
+            <edges/>
+        </activity>
+        <activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="seq">
+            <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+            <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">6.0</LFT>
+            <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A12,A13,A14,A15,A16,A17)</name>
+            <begin xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A12,A13,A14,A15,A16,A17)_BEGIN</name>
+            </begin>
+            <end xsi:type="analytical">
+                <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</EFT>
+                <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0</LFT>
+                <C>1</C>
+                <simplifiedC>1</simplifiedC>
+                <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">SEQ(A12,A13,A14,A15,A16,A17)_END</name>
+            </end>
+            <activities>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A12</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A13</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A14</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A15</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A16</name>
+                </activity>
+                <activity xsi:type="analytical">
+                    <EFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">0.0</EFT>
+                    <LFT xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">1.0</LFT>
+                    <C>1</C>
+                    <S>1</S>
+                    <simplifiedC>1</simplifiedC>
+                    <simplifiedS>1</simplifiedS>
+                    <name xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">A17</name>
+                </activity>
+            </activities>
+            <edges>
+                <edge>
+                    <pre>A13</pre>
+                    <post>A12</post>
+                </edge>
+                <edge>
+                    <pre>A14</pre>
+                    <post>A13</post>
+                </edge>
+                <edge>
+                    <pre>A15</pre>
+                    <post>A14</post>
+                </edge>
+                <edge>
+                    <pre>A16</pre>
+                    <post>A15</post>
+                </edge>
+                <edge>
+                    <pre>A17</pre>
+                    <post>A16</post>
+                </edge>
+            </edges>
+        </activity>
+    </activities>
+    <edges>
+        <edge>
+            <pre>SEQ(A0,A1,A2,A3,A4,A5)</pre>
+            <post>SEQ(A12,A13,A14,A15,A16,A17)</post>
+        </edge>
+        <edge>
+            <pre>SEQ(A0,A1,A2,A3,A4,A5)</pre>
+            <post>AND(A10,A11)</post>
+        </edge>
+        <edge>
+            <pre>AND(A6,A7)</pre>
+            <post>SEQ(A12,A13,A14,A15,A16,A17)</post>
+        </edge>
+        <edge>
+            <pre>AND(A8,A9)</pre>
+            <post>AND(A10,A11)</post>
+        </edge>
+        <edge>
+            <pre>AND(A8,A9)</pre>
+            <post>SEQ(A12,A13,A14,A15,A16,A17)</post>
+        </edge>
+    </edges>
+</DAG>

@@ -52,7 +52,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.oristool.eulero.mains.TestCaseResult;
+import org.oristool.eulero.evaluation.heuristic.EvaluationResult;
 import org.oristool.models.stpn.TransientSolution;
 
 /**
@@ -202,7 +202,7 @@ public class ActivityViewer extends JFrame {
     }
 
     @SafeVarargs
-    public static void CompareResults(String savePath, boolean save, String title, List<String> stringList, TestCaseResult... results) {
+    public static void CompareResults(String savePath, boolean save, String title, List<String> stringList, EvaluationResult... results) {
         // TODO check dimension of step and upper
 
         ActivityViewer v = new ActivityViewer();
@@ -264,8 +264,7 @@ public class ActivityViewer extends JFrame {
 
     }
 
-
-    public static void CompareResults(String title, List<String> stringList, List<TestCaseResult> results) {
+    public static void CompareResults(String title, List<String> stringList, List<EvaluationResult> results) {
         // TODO check dimension of step and upper
 
         ActivityViewer v = new ActivityViewer();
@@ -281,8 +280,9 @@ public class ActivityViewer extends JFrame {
             pdfs[i] = results.get(i).pdf();
 
             // JS divergence
+            // TODO La GT è ora in posizione 1
             labels.add(stringList.get(i) + String.format(" (JS %.6f)",
-                    results.get(i).cdfAreaDifference(cdfs[0])));
+                    results.get(i).jsDistance(results.get(0).pdf())));
         }
 
         ChartPanel cdf = solutionChart("CDF - " + title, labels, step, upper, cdfs);

@@ -1,3 +1,0 @@
-
-GT Simulation starts...
-GT Simulation took 51,797 seconds

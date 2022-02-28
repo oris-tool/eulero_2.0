@@ -1,4 +1,0 @@
-
-GT Simulation starts...
-
-HEURISTIC 0

@@ -18,19 +18,16 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.GammaDistribution;
-import org.oristool.eulero.math.approximation.EXPMixtureApproximation;
-import org.oristool.eulero.math.approximation.Approximator;
-import org.oristool.eulero.math.approximation.Approximator.ApproximationSupportSetup;
-import org.oristool.eulero.math.distribution.discrete.HistogramDistribution;
+import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
+import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
@@ -76,7 +73,12 @@ public class Numerical extends Activity {
     }
 
     @Override
-    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio) {
+    public BigInteger computeS(boolean getSimplified) {
+        return null;
+    }
+
+    @Override
+    public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
 
     }
 
@@ -97,11 +99,8 @@ public class Numerical extends Activity {
     }
 
     @Override
-    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
-        Map<String, ApproximationSupportSetup> setups = approximator.getApproximationSupportSetups(cdf, min * step.doubleValue(), max * step.doubleValue(), step);
-        PetriBlockHelper.petriBlockFromSetups(this.name(), pn, in, out, prio, setups, PetriBlockHelper.GENRepresentation.XOR);
-        System.out.println("Approximation performed on " + name());
-
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
+        // TODO anche se questa è una classe deprecated
         return prio + 1;
     }
 
@@ -334,20 +333,6 @@ public class Numerical extends Activity {
             for (int i = 0; i < probs.size(); i++)
                 cdf[x] += probs.get(i) * activities.get(i).CDF(t);
         }
-
-        return new Numerical(name, step, min, max, cdf);
-    }
-
-    public static Numerical fromHistogram(String name, HistogramDistribution histogram, BigDecimal step){
-        int min = histogram.getLow()
-                .divide(step, MathContext.DECIMAL128)
-                .setScale(0, RoundingMode.HALF_UP).intValue();
-
-        int max = histogram.getUpp()
-                .divide(step, MathContext.DECIMAL128)
-                .setScale(0, RoundingMode.HALF_UP).intValue();
-
-        double[] cdf = histogram.getCDFasArray(step);
 
         return new Numerical(name, step, min, max, cdf);
     }

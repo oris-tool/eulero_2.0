@@ -18,7 +18,7 @@
 package org.oristool.eulero.graph;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.oristool.math.OmegaBigDecimal;
@@ -53,6 +53,11 @@ public class Repeat extends Activity {
         return new Repeat(this.name() + suffix, this.repeatProb, bodyCopy);
     }
 
+    @Override
+    public BigInteger computeS(boolean getSimplified) {
+        return null;
+    }
+
     public Activity repeatBody() {
         return repeatBody;
     }
@@ -75,7 +80,7 @@ public class Repeat extends Activity {
     }
     
     @Override
-    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
         Transition repeat = pn.addTransition(name() + "_repeat");
         repeat.addFeature(new Priority(prio++));
         repeat.addFeature(StochasticTransitionFeature
@@ -94,12 +99,12 @@ public class Repeat extends Activity {
         pn.addPrecondition(choose, exit);
         pn.addPostcondition(exit, out);
         
-        prio = repeatBody.addStochasticPetriBlock(pn, in, choose, prio);
+        prio = repeatBody.buildSTPN(pn, in, choose, prio);
         return prio;
     }
 
     @Override
-    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int prio) {
+    public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
         Transition repeat = pn.addTransition(name() + "_repeat");
         repeat.addFeature(new Priority(prio++));
         repeat.addFeature(StochasticTransitionFeature

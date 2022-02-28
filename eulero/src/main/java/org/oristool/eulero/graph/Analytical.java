@@ -22,12 +22,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
-import org.oristool.eulero.math.distribution.continuous.ContinuousDistribution;
-import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
@@ -37,9 +33,6 @@ import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
-import org.oristool.models.tpn.ConcurrencyTransitionFeature;
-import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
-import org.oristool.models.tpn.TimedTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
@@ -67,9 +60,9 @@ public class Analytical extends Activity {
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
-        setR(BigInteger.ONE);
+        //setR(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
-        setSimplifiedR(BigInteger.ONE);
+        //setSimplifiedR(BigInteger.ONE);
         this.pdfFeatures = new ArrayList<>();
         this.pdfFeatures.add(pdf);
         this.pdfWeights = new ArrayList<>();
@@ -84,9 +77,11 @@ public class Analytical extends Activity {
                 pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
         );
         setC(BigInteger.ONE);
-        setR(BigInteger.ONE);
+        //setR(BigInteger.ONE);
+        setS(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
-        setSimplifiedR(BigInteger.ONE);
+        //setSimplifiedR(BigInteger.ONE);
+        setSimplifiedS(BigInteger.ONE);
         this.pdfFeatures = pdfFeatures;
         this.pdfWeights = pdfWeights;
     }
@@ -101,7 +96,12 @@ public class Analytical extends Activity {
     }
 
     @Override
-    public void buildTimedPetriNet(PetriNet pn, Place in, Place out, int priority) {}
+    public BigInteger computeS(boolean getSimplified) {
+        return BigInteger.ONE;
+    }
+
+    @Override
+    public void buildTPN(PetriNet pn, Place in, Place out, int priority) {}
 
 
     public StochasticTransitionFeature pdf() {
@@ -148,7 +148,7 @@ public class Analytical extends Activity {
     }
 
     @Override
-    public int addStochasticPetriBlock(PetriNet pn, Place in, Place out, int prio) {
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
         if(pdfFeatures.size() == 1){
             Transition t = pn.addTransition(this.name());
             t.addFeature(new Priority(prio));

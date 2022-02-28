@@ -1,0 +1,60 @@
+
+HEURISTIC 1
+DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Searching Repetitions in DAG DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Performing DAG Inner Block Analysis on DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+------ Numerical AND Analysis of AND(A10,A11)
+--------- Forward Analysis of block A10
+--------- Analysis done in 0,003 seconds...
+--------- Forward Analysis of block A11
+--------- Analysis done in 0,003 seconds...
+------ Analysis of AND(A10,A11) done in 0,007 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+------ Block Analysis: Choose inner block AND(A10,A11)
+------ Approximated inner block AND(A10,A11)
+--- Searching Repetitions in DAG DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Performing DAG Inner Block Analysis on DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+------ Numerical AND Analysis of AND(A2,A3)
+--------- Forward Analysis of block A2
+--------- Analysis done in 0,003 seconds...
+--------- Forward Analysis of block A3
+--------- Analysis done in 0,003 seconds...
+------ Analysis of AND(A2,A3) done in 0,006 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+------ Block Analysis: Choose inner block AND(A2,A3)
+------ Approximated inner block AND(A2,A3)
+--- Searching Repetitions in DAG DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Performing DAG Inner Block Analysis on DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+------ Numerical AND Analysis of AND(A0,A1)
+--------- Forward Analysis of block A0
+--------- Analysis done in 0,003 seconds...
+--------- Forward Analysis of block A1
+--------- Analysis done in 0,003 seconds...
+------ Analysis of AND(A0,A1) done in 0,006 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+------ Block Analysis: Choose inner block AND(A0,A1)
+------ Approximated inner block AND(A0,A1)
+--- Searching Repetitions in DAG DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Performing DAG Inner Block Analysis on DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+------ Numerical SEQ Analysis of SEQ(A4,A5,A6,A7,A8,A9)
+--------- Forward Analysis of block A4
+--------- Analysis done in 0,019 seconds...
+--------- Forward Analysis of block A5
+--------- Analysis done in 0,014 seconds...
+--------- Forward Analysis of block A6
+--------- Analysis done in 0,013 seconds...
+--------- Forward Analysis of block A7
+--------- Analysis done in 0,016 seconds...
+--------- Forward Analysis of block A8
+--------- Analysis done in 0,013 seconds...
+--------- Forward Analysis of block A9
+--------- Analysis done in 0,013 seconds...
+------ Analysis of SEQ(A4,A5,A6,A7,A8,A9) done in 0,095 seconds...
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+org.apache.commons.math3.exception.TooManyEvaluationsException: illegal state: maximal count (10.000) exceeded: evaluations
+------ Block Analysis: Choose inner block SEQ(A4,A5,A6,A7,A8,A9)
+------ Approximated inner block SEQ(A4,A5,A6,A7,A8,A9)
+--- Searching Repetitions in DAG DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Forward Analysis of block DAG(AND(A0,A1), AND(A2,A3) | SEQ(A4,A5,A6,A7,A8,A9), AND(A10,A11))
+--- Analysis done in 0,363 seconds...
+Evaluation took 0,532 seconds
