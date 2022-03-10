@@ -1,15 +1,8 @@
 package org.oristool.eulero.graph;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @XmlRootElement(name = "AND")
 public class AND extends DAG {
@@ -42,7 +35,7 @@ public class AND extends DAG {
         copy.setEFT(copy.low());
         copy.setLFT(copy.upp());
         copy.C();
-        copy.S();
+        copy.Q();
         return copy;
 
     }

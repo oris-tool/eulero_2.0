@@ -55,14 +55,11 @@ public class Analytical extends Activity {
      * Creates an activity with analytical PDF. 
      */
     public Analytical(String name, StochasticTransitionFeature pdf) {
-        // Se funziona meglio co lo XOR di transizioni, questo praticamente non lo cancello, ma mi andrà a creare la lista e ad aggiungere pdf
         super(name);
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
-        //setR(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
-        //setSimplifiedR(BigInteger.ONE);
         this.pdfFeatures = new ArrayList<>();
         this.pdfFeatures.add(pdf);
         this.pdfWeights = new ArrayList<>();
@@ -77,11 +74,9 @@ public class Analytical extends Activity {
                 pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
         );
         setC(BigInteger.ONE);
-        //setR(BigInteger.ONE);
-        setS(BigInteger.ONE);
+        setQ(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
-        //setSimplifiedR(BigInteger.ONE);
-        setSimplifiedS(BigInteger.ONE);
+        setSimplifiedQ(BigInteger.ONE);
         this.pdfFeatures = pdfFeatures;
         this.pdfWeights = pdfWeights;
     }
@@ -96,7 +91,7 @@ public class Analytical extends Activity {
     }
 
     @Override
-    public BigInteger computeS(boolean getSimplified) {
+    public BigInteger computeQ(boolean getSimplified) {
         return BigInteger.ONE;
     }
 

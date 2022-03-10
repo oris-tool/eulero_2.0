@@ -928,15 +928,15 @@
         }
 
         @Override
-        public BigInteger computeS(boolean getSimplified) {
+        public BigInteger computeQ(boolean getSimplified) {
             int simplifiedS = 0;
             int S = 0;
             for(Activity act: activities()){
                 simplifiedS += 1;
-                S += act.S().intValue();
+                S += act.Q().intValue();
             }
-            setS(BigInteger.valueOf(S));
-            setSimplifiedS(BigInteger.valueOf(simplifiedS));
+            setQ(BigInteger.valueOf(S));
+            setSimplifiedQ(BigInteger.valueOf(simplifiedS));
 
             return getSimplified ? BigInteger.valueOf(simplifiedS) : BigInteger.valueOf(S);
         }

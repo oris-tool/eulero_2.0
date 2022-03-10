@@ -187,10 +187,10 @@ public class Xor extends Activity {
     }
 
     @Override
-    public BigInteger computeS(boolean getSimplified) {
+    public BigInteger computeQ(boolean getSimplified) {
         int maximumS = 0;
         for(Activity act: alternatives){
-            maximumS = Math.max(maximumS, act.S().intValue());
+            maximumS = Math.max(maximumS, act.Q().intValue());
         }
 
         return getSimplified ? BigInteger.ONE : BigInteger.valueOf(maximumS);

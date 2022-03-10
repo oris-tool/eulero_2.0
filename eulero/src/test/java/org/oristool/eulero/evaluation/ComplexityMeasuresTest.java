@@ -2,8 +2,8 @@ package org.oristool.eulero.evaluation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.oristool.eulero.evaluation.heuristic.recursive.AnalysisHeuristic1;
-import org.oristool.eulero.evaluation.heuristic.recursive.AnalysisHeuristicStrategy;
+import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristic1;
+import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristicStrategy;
 import org.oristool.eulero.graph.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.SplineBodyEXPTailApproximation;

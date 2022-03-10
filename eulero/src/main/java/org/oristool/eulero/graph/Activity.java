@@ -80,10 +80,10 @@ public abstract class Activity implements Serializable {
 
     private BigInteger C;
     private BigInteger R;
-    private BigInteger S;
+    private BigInteger Q;
     private BigInteger simplifiedR;
     private BigInteger simplifiedC;
-    private BigInteger simplifiedS;
+    private BigInteger simplifiedQ;
 
     @XmlTransient
     private List<Activity> pre = new ArrayList<>();
@@ -151,8 +151,8 @@ public abstract class Activity implements Serializable {
         return !Objects.isNull(R) ? R : computeR(false);
     }
 
-    public BigInteger S() {
-        return !Objects.isNull(S) ? S : computeS(false);
+    public BigInteger Q() {
+        return !Objects.isNull(Q) ? Q : computeQ(false);
     }
 
     public BigInteger simplifiedC() {
@@ -164,14 +164,14 @@ public abstract class Activity implements Serializable {
     }
 
     public BigInteger simplifiedS() {
-        return !Objects.isNull(simplifiedS) ? simplifiedS : computeS(true);
+        return !Objects.isNull(simplifiedQ) ? simplifiedQ : computeQ(true);
     }
 
     public void resetComplexityMeasure(){
         computeC(true);
         computeC(false);
-        computeS(true);
-        computeS(false);
+        computeQ(true);
+        computeQ(false);
     }
 
     public void setEFT(BigDecimal EFT) {
@@ -190,8 +190,8 @@ public abstract class Activity implements Serializable {
         this.R = R;
     }
 
-    public void setS(BigInteger S) {
-        this.S = S;
+    public void setQ(BigInteger Q) {
+        this.Q = Q;
     }
 
     public void setSimplifiedR(BigInteger simplifiedR) {
@@ -202,8 +202,8 @@ public abstract class Activity implements Serializable {
         this.simplifiedC = simplifiedC;
     }
 
-    public void setSimplifiedS(BigInteger simplifiedS) {
-        this.simplifiedS = simplifiedS;
+    public void setSimplifiedQ(BigInteger simplifiedQ) {
+        this.simplifiedQ = simplifiedQ;
     }
 
     /** Activities that are part of this one */
@@ -405,7 +405,8 @@ public abstract class Activity implements Serializable {
 
         return getSimplified ?  maximumSimplifiedR.add(maximumSimplifiedChoice) : maximumR.add(maximumChoice);
     }
-    public abstract  BigInteger computeS(boolean getSimplified);
+
+    public abstract  BigInteger computeQ(boolean getSimplified);
 
     public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
     

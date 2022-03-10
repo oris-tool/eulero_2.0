@@ -26,6 +26,7 @@ public class TruncatedExponentialMixtureApproximation extends Approximator{
     @Override
     public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
         stochasticTransitionFeatureWeights().clear();
+        //ActivityViewer.CompareResults("", false, "", List.of("Test"), new EvaluationResult("", cdf, 0, cdf.length, step.doubleValue(), 1));
         ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
         double simplificationWindowWidth = 0.5;
         int simplificationWindowWidthInd = (int) (simplificationWindowWidth / step.doubleValue());
@@ -110,7 +111,8 @@ public class TruncatedExponentialMixtureApproximation extends Approximator{
                 stochasticTransitionFeatureWeights().remove(j - 1);
                 supportBreakpoints.remove(j);
                 j-=2;
-            } else {**/
+            } else {*/
+
                 lambda = BigDecimal.valueOf(lambda).setScale(4, RoundingMode.HALF_DOWN).doubleValue();
                 lambda = pdfDerivative[supportBreakpoints.get(j) + 1] >= 0 ? -lambda : lambda;
                 double b = lambda > 0 ? x[cutStartingIndex] : x[cutEndingIndex];

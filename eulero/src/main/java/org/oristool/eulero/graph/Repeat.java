@@ -54,7 +54,7 @@ public class Repeat extends Activity {
     }
 
     @Override
-    public BigInteger computeS(boolean getSimplified) {
+    public BigInteger computeQ(boolean getSimplified) {
         return null;
     }
 

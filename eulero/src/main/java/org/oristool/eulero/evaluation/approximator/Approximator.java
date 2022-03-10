@@ -20,4 +20,6 @@ public abstract class Approximator {
     public ArrayList<BigDecimal> stochasticTransitionFeatureWeights() {
         return stochasticTransitionFeatureWeights;
     }
+
+
 }
