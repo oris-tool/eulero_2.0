@@ -1,5 +1,6 @@
 package org.oristool.eulero.evaluation.approximator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
@@ -19,15 +20,14 @@ import java.util.stream.IntStream;
 
 public class TruncatedExponentialMixtureApproximation extends Approximator{
     @Override
-    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+    public Pair<BigDecimal, StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         return null;
     }
 
     @Override
-    public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
-        stochasticTransitionFeatureWeights().clear();
+    public ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
         //ActivityViewer.CompareResults("", false, "", List.of("Test"), new EvaluationResult("", cdf, 0, cdf.length, step.doubleValue(), 1));
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+        ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> features = new ArrayList<>();
         double simplificationWindowWidth = 0.5;
         int simplificationWindowWidthInd = (int) (simplificationWindowWidth / step.doubleValue());
 
@@ -48,7 +48,6 @@ public class TruncatedExponentialMixtureApproximation extends Approximator{
             pdf[i] = BigDecimal.valueOf((cdf[i] - cdf[i - 1]) / timeTick).doubleValue();
             x[i] = i * timeTick;
         }
-
 
         int start = IntStream.range(0, cdf.length)
                 .filter(i ->  cdf[i] >= 0.001)
@@ -125,8 +124,7 @@ public class TruncatedExponentialMixtureApproximation extends Approximator{
                 StochasticTransitionFeature feature = StochasticTransitionFeature.of(
                         new PartitionedGEN(List.of(gen)));
 
-                features.add(feature);
-                stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(featureWeight));
+                features.add(Pair.of(BigDecimal.valueOf(featureWeight), feature));
             //}
         }
 

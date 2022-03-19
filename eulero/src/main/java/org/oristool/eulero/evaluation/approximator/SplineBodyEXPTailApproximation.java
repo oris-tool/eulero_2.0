@@ -1,5 +1,6 @@
 package org.oristool.eulero.evaluation.approximator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.function.GEN;
 import org.oristool.math.function.PartitionedGEN;
@@ -19,7 +20,7 @@ public class SplineBodyEXPTailApproximation extends Approximator {
     }
 
     @Override
-    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+    public Pair<BigDecimal,StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
         if(cdf.length < (upp - low)/step.doubleValue()){
             throw new RuntimeException("cdf has enough samples with respect to provided support and time step value");
@@ -102,14 +103,12 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         String density = (1 - cdf[Q3Index]) * tailLambda * Math.exp(tailLambda * Q3) + " * Exp[-" + tailLambda + " x]";
         distributionPieces.add(GEN.newExpolynomial(density, new OmegaBigDecimal(String.valueOf(Q3)), OmegaBigDecimal.POSITIVE_INFINITY));
 
-        return StochasticTransitionFeature.of(new PartitionedGEN(distributionPieces));
+        return Pair.of(BigDecimal.ONE, StochasticTransitionFeature.of(new PartitionedGEN(distributionPieces)));
     }
 
     @Override
-    public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
-        // Clean weights vector
-        stochasticTransitionFeatureWeights().clear();
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+    public ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> features = new ArrayList<>();
 
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
         if(cdf.length < (upp - low)/step.doubleValue()){
@@ -171,10 +170,12 @@ public class SplineBodyEXPTailApproximation extends Approximator {
             double c2 = (2 * bodyPieceLocalWeight / h - f1 - alpha) / h;
 
             // Va capito se qui come è scritto ora è normalizzato, ma credo di sì
-            features.add(StochasticTransitionFeature.newExpolynomial(
-                    (c1 * x2 - c2 * x1) / bodyPieceLocalWeight + " + " + (c2 - c1) / bodyPieceLocalWeight+ "*x^1", eft, lft
+            features.add(Pair.of(
+                BigDecimal.valueOf(bodyPieceLocalWeight),
+                StochasticTransitionFeature.newExpolynomial(
+                (c1 * x2 - c2 * x1) / bodyPieceLocalWeight + " + " + (c2 - c1) / bodyPieceLocalWeight+ "*x^1", eft, lft
+                )
             ));
-            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(bodyPieceLocalWeight));
         }
 
         //tail

@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.oristool.eulero.evaluation.heuristic.EvaluationResult;
 import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristic1;
 import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristicStrategy;
-import org.oristool.eulero.graph.Analytical;
-import org.oristool.eulero.graph.DAG;
-import org.oristool.eulero.graph.Repeat;
-import org.oristool.eulero.graph.Xor;
+import org.oristool.eulero.workflow.Simple;
+import org.oristool.eulero.workflow.DAG;
+import org.oristool.eulero.workflow.Repeat;
+import org.oristool.eulero.workflow.Xor;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
 import org.oristool.eulero.evaluation.approximator.SplineBodyEXPTailApproximation;
@@ -40,19 +40,19 @@ class AnalysisHeuristic1Test {
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(2), BigDecimal.valueOf(10));
 
         DAG dag = DAG.sequence("S1",
-                new Analytical("A1", unif0_10),
+                new Simple("A1", unif0_10),
                 DAG.forkJoin("F1",
-                        new Analytical("A2", unif0_10),
-                        new Analytical("A3", unif2_10)
+                        new Simple("A2", unif0_10),
+                        new Simple("A3", unif2_10)
                 ),
-                new Analytical("A4", unif2_10),
+                new Simple("A4", unif2_10),
                 DAG.forkJoin("F2",
-                        new Analytical("A5", unif0_10),
+                        new Simple("A5", unif0_10),
                         new Xor(
                                 "X",
                                 List.of(
-                                        new Analytical("A6", unif0_10),
-                                        new Analytical("A7", unif2_10)
+                                        new Simple("A6", unif0_10),
+                                        new Simple("A7", unif2_10)
                                 ),
                                 List.of(0.3, 0.7)
                         )
@@ -89,28 +89,28 @@ class AnalysisHeuristic1Test {
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(0.2), BigDecimal.valueOf(1.0));
 
         DAG dag = DAG.sequence("S1",
-                new Analytical("A1", unif0_10),
+                new Simple("A1", unif0_10),
                 DAG.forkJoin("F1",
-                        new Analytical("A2", unif0_10),
-                        new Analytical("A3", unif2_10)
+                        new Simple("A2", unif0_10),
+                        new Simple("A3", unif2_10)
                 ),
-                new Analytical("A4", unif2_10),
+                new Simple("A4", unif2_10),
                 DAG.forkJoin("F2",
                         new Repeat("SimpleREP", 0.4,
                                 DAG.sequence("SR1",
-                                        new Analytical("SR21", unif0_10),
+                                        new Simple("SR21", unif0_10),
                                         DAG.forkJoin("SR3",
-                                                new Analytical("SR4", unif0_10),
-                                                new Analytical("SR5", unif2_10)
+                                                new Simple("SR4", unif0_10),
+                                                new Simple("SR5", unif2_10)
                                         ),
-                                        new Analytical("SR6", unif0_10)
+                                        new Simple("SR6", unif0_10)
                                 )
                         ),
                         new Xor(
                                 "X",
                                 List.of(
-                                        new Analytical("A6", unif0_10),
-                                        new Analytical("A7", unif2_10)
+                                        new Simple("A6", unif0_10),
+                                        new Simple("A7", unif2_10)
                                 ),
                                 List.of(0.3, 0.7)
                         )
@@ -146,27 +146,27 @@ class AnalysisHeuristic1Test {
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.valueOf(0.2), BigDecimal.valueOf(1.0));
 
         DAG dag = DAG.sequence("S1",
-                new Analytical("A4", unif2_10),
+                new Simple("A4", unif2_10),
                 DAG.forkJoin("F2",
                         new Repeat("SimpleREP", 0.3,
                                 DAG.sequence("SR1",
-                                        new Analytical("SR21", unif0_10),
+                                        new Simple("SR21", unif0_10),
                                         DAG.forkJoin("SR3",
-                                                new Analytical("SR4", unif0_10),
-                                                new Analytical("A1", unif0_10),
+                                                new Simple("SR4", unif0_10),
+                                                new Simple("A1", unif0_10),
                                                 DAG.forkJoin("F1",
-                                                        new Analytical("A2", unif0_10),
-                                                        new Analytical("A3", unif2_10)
+                                                        new Simple("A2", unif0_10),
+                                                        new Simple("A3", unif2_10)
                                                 )
                                         ),
-                                        new Analytical("SR6", unif0_10)
+                                        new Simple("SR6", unif0_10)
                                 )
                         ),
                         new Xor(
                                 "X",
                                 List.of(
-                                        new Analytical("A6", unif0_10),
-                                        new Analytical("A7", unif2_10)
+                                        new Simple("A6", unif0_10),
+                                        new Simple("A7", unif2_10)
                                 ),
                                 List.of(0.3, 0.7)
                         )
@@ -197,24 +197,24 @@ class AnalysisHeuristic1Test {
         StochasticTransitionFeature unif0_10 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.valueOf(0.8));
 
-        Analytical q = new Analytical("Q", unif0_10);
-        Analytical r = new Analytical("R", unif0_10);
-        Analytical s = new Analytical("S", unif0_10);
-        Analytical v = new Analytical("V", unif0_10);
+        Simple q = new Simple("Q", unif0_10);
+        Simple r = new Simple("R", unif0_10);
+        Simple s = new Simple("S", unif0_10);
+        Simple v = new Simple("V", unif0_10);
 
         DAG tu = DAG.forkJoin("TU",
                 DAG.sequence("T",
-                        new Analytical("T1", unif0_10),
-                        new Analytical("T2", unif0_10)
-                ), new Analytical("U", unif0_10)
+                        new Simple("T1", unif0_10),
+                        new Simple("T2", unif0_10)
+                ), new Simple("U", unif0_10)
         );
 
         DAG wx = DAG.forkJoin("WX",
                 DAG.sequence("X",
-                        new Analytical("X1", unif0_10),
-                        new Analytical("X2", unif0_10)
+                        new Simple("X1", unif0_10),
+                        new Simple("X2", unif0_10)
                 ),
-                new Analytical("W", unif0_10)
+                new Simple("W", unif0_10)
         );
 
         DAG pComplex = DAG.empty("P");

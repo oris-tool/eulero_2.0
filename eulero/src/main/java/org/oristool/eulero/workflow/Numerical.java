@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

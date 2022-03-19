@@ -1,14 +1,14 @@
 package org.oristool.eulero.evaluation.heuristic;
 
-import org.oristool.eulero.workflow.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
+import org.oristool.eulero.workflow.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
-    public AnalysisHeuristic2(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose) {
-        super("Heuristic 2", CThreshold, SThreshold, approximator, verbose);
+public class DeepDAGHeuristic extends AnalysisHeuristicStrategy {
+    public DeepDAGHeuristic(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose) {
+        super("Deep DAG", CThreshold, SThreshold, approximator, verbose);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class AnalysisHeuristic2 extends AnalysisHeuristicStrategy{
                 if(model.C().compareTo(this.CThreshold()) > 0 || model.Q().compareTo(this.SThreshold()) > 0){
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
-                    return DAGInnerBlockAnalysisOld(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+                    return DAGInnerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
 
                 if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedS().compareTo(this.SThreshold()) >= 0) {

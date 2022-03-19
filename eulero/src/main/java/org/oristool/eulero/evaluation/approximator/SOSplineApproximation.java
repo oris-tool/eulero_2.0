@@ -1,5 +1,6 @@
 package org.oristool.eulero.evaluation.approximator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -15,14 +16,13 @@ public class SOSplineApproximation extends Approximator{
     }
 
     @Override
-    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+    public Pair<BigDecimal,StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         return null;
     }
 
     @Override
-    public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
-        stochasticTransitionFeatureWeights().clear();
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+    public ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> features = new ArrayList<>();
 
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
         if(cdf.length < (upp - low)/step.doubleValue()){
@@ -66,10 +66,12 @@ public class SOSplineApproximation extends Approximator{
             double c2 = 2 / h * (p / h - alpha);
 
             // Va capito se qui come è scritto ora è normalizzato, ma credo di sì
-            features.add(StochasticTransitionFeature.newExpolynomial(
+            features.add(Pair.of(
+                BigDecimal.valueOf(p),
+                StochasticTransitionFeature.newExpolynomial(
                     c1 / p  + " + " + c2 / p + "*x^1", new OmegaBigDecimal(String.valueOf(x1)), new OmegaBigDecimal(String.valueOf(x2))
+                )
             ));
-            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(p));
         }
         return features;    }
 }

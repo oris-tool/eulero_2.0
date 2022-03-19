@@ -1,7 +1,7 @@
 package org.oristool.eulero.evaluation.approximator;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.oristool.eulero.graph.Numerical;
+import org.oristool.eulero.workflow.Numerical;
 import org.oristool.eulero.ui.ActivityViewer;
 
 import java.math.BigDecimal;

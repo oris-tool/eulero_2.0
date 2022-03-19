@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristic1;
 import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristicStrategy;
-import org.oristool.eulero.graph.*;
+import org.oristool.eulero.workflow.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.SplineBodyEXPTailApproximation;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -25,7 +25,7 @@ public class ComplexityMeasuresTest {
         Approximator approximator = new SplineBodyEXPTailApproximation(3);
         AnalysisHeuristicStrategy analyzer = new AnalysisHeuristic1(C, R, approximator, true);
 
-        Activity model = new Analytical("A6", unif0_10);
+        Activity model = new Simple("A6", unif0_10);
 
         // C
         Assertions.assertTrue(model.C().compareTo(C) < 0);
@@ -44,8 +44,8 @@ public class ComplexityMeasuresTest {
         BigInteger R =  BigInteger.valueOf(10);
 
         Activity model = DAG.forkJoin("test",
-                new Analytical("A6", unif0_10),
-                new Analytical("A1", unif0_10)
+                new Simple("A6", unif0_10),
+                new Simple("A1", unif0_10)
         );
 
         // C
@@ -65,8 +65,8 @@ public class ComplexityMeasuresTest {
         BigInteger R =  BigInteger.valueOf(10);
 
         Activity model = DAG.sequence("test",
-                new Analytical("A6", unif0_10),
-                new Analytical("A1", unif0_10)
+                new Simple("A6", unif0_10),
+                new Simple("A1", unif0_10)
         );
 
         // C
@@ -87,18 +87,18 @@ public class ComplexityMeasuresTest {
 
         Activity simpleModel = new Xor("test",
                 List.of(
-                    new Analytical("A6", unif0_10),
-                    new Analytical("A1", unif0_10)
+                    new Simple("A6", unif0_10),
+                    new Simple("A1", unif0_10)
                 ),
                 List.of(0.3, 0.4)
         );
 
         Activity complexModel = new Xor("testC",
                 List.of(
-                        new Analytical("A5", unif0_10),
+                        new Simple("A5", unif0_10),
                         DAG.forkJoin("AND",
-                                new Analytical("A1", unif0_10),
-                                new Analytical("A2", unif0_10)
+                                new Simple("A1", unif0_10),
+                                new Simple("A2", unif0_10)
                         )
                 ),
                 List.of(0.3, 0.4)
@@ -106,15 +106,15 @@ public class ComplexityMeasuresTest {
 
         Activity veryComplexModel = new Xor("testB",
                 List.of(
-                        new Analytical("A6", unif0_10),
+                        new Simple("A6", unif0_10),
                         DAG.sequence("SEQ",
                                 DAG.forkJoin("AND",
-                                        new Analytical("A1", unif0_10),
+                                        new Simple("A1", unif0_10),
                                         DAG.forkJoin("AND_inner",
-                                                new Analytical("A3", unif0_10),
-                                                new Analytical("A4", unif0_10)
+                                                new Simple("A3", unif0_10),
+                                                new Simple("A4", unif0_10)
                                         )
-                                ), new Analytical("A5", unif0_10)
+                                ), new Simple("A5", unif0_10)
 
                         )
                 ),
@@ -151,13 +151,13 @@ public class ComplexityMeasuresTest {
 
         Activity repeatBody = new Xor("testB",
                 List.of(
-                        new Analytical("A6", unif0_10),
+                        new Simple("A6", unif0_10),
                         DAG.sequence("SEQ",
                                 DAG.forkJoin("AND_inner",
-                                        new Analytical("A3", unif0_10),
-                                        new Analytical("A4", unif0_10)
+                                        new Simple("A3", unif0_10),
+                                        new Simple("A4", unif0_10)
                                 ),
-                                new Analytical("A5", unif0_10)
+                                new Simple("A5", unif0_10)
                         )
                 ),
                 List.of(0.3, 0.4)
@@ -167,15 +167,15 @@ public class ComplexityMeasuresTest {
 
         Activity complexRepeatBody = new Xor("testC",
                 List.of(
-                        new Analytical("A6", unif0_10),
+                        new Simple("A6", unif0_10),
                         DAG.forkJoin("FJ",
                                 DAG.forkJoin("AND_inner",
-                                        new Analytical("A3", unif0_10),
-                                        new Analytical("A4", unif0_10)
+                                        new Simple("A3", unif0_10),
+                                        new Simple("A4", unif0_10)
                                 ),
                                 DAG.forkJoin("AND_inner2",
-                                        new Analytical("A5", unif0_10),
-                                        new Analytical("A7", unif0_10)
+                                        new Simple("A5", unif0_10),
+                                        new Simple("A7", unif0_10)
                                 )
                         )
                 ),
@@ -220,11 +220,11 @@ public class ComplexityMeasuresTest {
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
 
-        Analytical q = new Analytical("Q", unif0_10);
-        Analytical r = new Analytical("R", unif0_10);
-        Analytical s = new Analytical("S", unif0_10);
-        Analytical u = new Analytical("U", unif0_10);
-        Analytical v = new Analytical("V", unif0_10);
+        Simple q = new Simple("Q", unif0_10);
+        Simple r = new Simple("R", unif0_10);
+        Simple s = new Simple("S", unif0_10);
+        Simple u = new Simple("U", unif0_10);
+        Simple v = new Simple("V", unif0_10);
 
         DAG pSimple = DAG.empty("P");
         q.addPrecondition(pSimple.begin());
@@ -258,24 +258,24 @@ public class ComplexityMeasuresTest {
         BigInteger C =  BigInteger.valueOf(3);
         BigInteger R =  BigInteger.valueOf(10);
 
-        Analytical q = new Analytical("Q", unif0_10);
-        Analytical r = new Analytical("R", unif0_10);
-        Analytical s = new Analytical("S", unif0_10);
-        Analytical v = new Analytical("V", unif0_10);
+        Simple q = new Simple("Q", unif0_10);
+        Simple r = new Simple("R", unif0_10);
+        Simple s = new Simple("S", unif0_10);
+        Simple v = new Simple("V", unif0_10);
 
         DAG tu = DAG.forkJoin("TU",
                 DAG.sequence("T",
-                        new Analytical("T1", unif0_10),
-                        new Analytical("T2", unif0_10)
-                ), new Analytical("U", unif0_10)
+                        new Simple("T1", unif0_10),
+                        new Simple("T2", unif0_10)
+                ), new Simple("U", unif0_10)
         );
 
         DAG wx = DAG.forkJoin("WX",
                 DAG.sequence("X",
-                        new Analytical("X1", unif0_10),
-                        new Analytical("X2", unif0_10)
+                        new Simple("X1", unif0_10),
+                        new Simple("X2", unif0_10)
                 ),
-                new Analytical("W", unif0_10)
+                new Simple("W", unif0_10)
         );
 
         DAG pComplex = DAG.empty("P");

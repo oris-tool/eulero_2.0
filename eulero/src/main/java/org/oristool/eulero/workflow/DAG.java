@@ -15,7 +15,7 @@
      * along with this program.  If not, see <https://www.gnu.org/licenses/>.
      */
 
-    package org.oristool.eulero.graph;
+    package org.oristool.eulero.workflow;
 
     import java.math.BigDecimal;
     import java.math.BigInteger;
@@ -121,9 +121,9 @@
 
         protected DAG(String name) {  // force use of static methods
             super(name);
-            this.begin = new Analytical(name + "_BEGIN",
+            this.begin = new Simple(name + "_BEGIN",
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
-            this.end = new Analytical(name + "_END",
+            this.end = new Simple(name + "_END",
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
         }
 

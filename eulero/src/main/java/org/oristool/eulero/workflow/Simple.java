@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -41,7 +41,7 @@ import org.oristool.petrinet.Transition;
  * Activity with an analytical CDF.
  */
 @XmlRootElement(name = "Analytical")
-public class Analytical extends Activity {
+public class Simple extends Activity {
 
     @XmlTransient
     private StochasticTransitionFeature pdf;
@@ -54,7 +54,7 @@ public class Analytical extends Activity {
     /**
      * Creates an activity with analytical PDF. 
      */
-    public Analytical(String name, StochasticTransitionFeature pdf) {
+    public Simple(String name, StochasticTransitionFeature pdf) {
         super(name);
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
@@ -66,7 +66,7 @@ public class Analytical extends Activity {
         this.pdfWeights.add(BigDecimal.ONE);
     }
 
-    public Analytical(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
+    public Simple(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
         super(name);
         setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
         setLFT(BigDecimal.valueOf(
@@ -81,13 +81,13 @@ public class Analytical extends Activity {
         this.pdfWeights = pdfWeights;
     }
 
-    public Analytical(){
+    public Simple(){
         super("");
     }
 
     @Override
-    public Analytical copyRecursive(String suffix) {
-        return new Analytical(this.name() + suffix, this.pdfFeatures, this.pdfWeights);
+    public Simple copyRecursive(String suffix) {
+        return new Simple(this.name() + suffix, this.pdfFeatures, this.pdfWeights);
     }
 
     @Override
@@ -117,18 +117,18 @@ public class Analytical extends Activity {
         return b.toString();
     }
     
-    public static Analytical uniform(String name, BigDecimal a, BigDecimal b) {
-        return new Analytical(name,
+    public static Simple uniform(String name, BigDecimal a, BigDecimal b) {
+        return new Simple(name,
                 StochasticTransitionFeature.newUniformInstance(a, b));
     }
 
-    public static Analytical exp(String name, BigDecimal lambda) {
-        return new Analytical(name,
+    public static Simple exp(String name, BigDecimal lambda) {
+        return new Simple(name,
                 StochasticTransitionFeature.newExponentialInstance(lambda));
     }
 
-    public static Analytical erlang(String name, int k, BigDecimal lambda) {
-        return new Analytical(name,
+    public static Simple erlang(String name, int k, BigDecimal lambda) {
+        return new Simple(name,
                 StochasticTransitionFeature.newErlangInstance(k, lambda));
     }
 

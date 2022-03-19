@@ -1,11 +1,13 @@
 package org.oristool.eulero.evaluation.heuristic;
 
-import org.oristool.eulero.graph.*;
+import org.apache.commons.lang3.tuple.Pair;
+import org.oristool.eulero.workflow.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
+import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.Marking;
 
 import java.math.BigDecimal;
@@ -156,10 +158,12 @@ public abstract class AnalysisHeuristicStrategy {
     public double[] REPInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars){
         Activity repeatBody = ((Repeat) model).repeatBody();
 
-        Analytical replacingBody = new Analytical(repeatBody.name() + "_N",
-                approximator().getApproximatedStochasticTransitionFeatures(
-                        analyze(repeatBody, repeatBody.LFT(), step, forwardReductionFactor, error, tabSpaceChars + "---" ), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step),
-                approximator().stochasticTransitionFeatureWeights()
+        ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature = approximator().getApproximatedStochasticTransitionFeatures(
+                analyze(repeatBody, repeatBody.LFT(), step, forwardReductionFactor, error, tabSpaceChars + "---" ), repeatBody.EFT().doubleValue(), repeatBody.LFT().doubleValue(), step);
+
+        Simple replacingBody = new Simple(repeatBody.name() + "_N",
+                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new))
         );
 
         if(verbose)
@@ -196,11 +200,14 @@ public abstract class AnalysisHeuristicStrategy {
                 if(verbose)
                     System.out.println(tabSpaceChars + " Repetition found! It's " + act.name());
 
-                Analytical replacingActivity = new Analytical(act.name() + "_N",
-                        approximator().getApproximatedStochasticTransitionFeatures(
-                                analyze(act, timeLimit, step, forwardReductionFactor, error, tabSpaceChars + "---"),
-                                act.EFT().doubleValue(), timeLimit.min(act.LFT()).doubleValue(), step),
-                        approximator().stochasticTransitionFeatureWeights());
+                ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
+                        analyze(act, timeLimit, step, forwardReductionFactor, error, tabSpaceChars + "---"),
+                        act.EFT().doubleValue(), timeLimit.min(act.LFT()).doubleValue(), step);
+
+                Simple replacingActivity = new Simple(act.name() + "_N",
+                        approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                        approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new))
+                );
 
                 act.replace(replacingActivity);
 
@@ -238,12 +245,14 @@ public abstract class AnalysisHeuristicStrategy {
         }
         BigDecimal innerActivityStep = BigDecimal.valueOf(mag * Math.pow(10, -2));
 
+        ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
+                analyze(innerActivities.get(innerActivities.size() - 1), innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
+                innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).doubleValue(), innerActivityStep);
 
-        Activity newActivity = new Analytical(innerActivities.get(innerActivities.size() - 1).name() + "_N",
-                approximator().getApproximatedStochasticTransitionFeatures(
-                        analyze(innerActivities.get(innerActivities.size() - 1), innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
-                        innerActivities.get(innerActivities.size() - 1).EFT().doubleValue(), (innerActivities.get(innerActivities.size() - 1).LFT().precision() >= 309 ? timeLimit : innerActivities.get(innerActivities.size() - 1).LFT()).doubleValue(), innerActivityStep),
-                new ArrayList<>(approximator().stochasticTransitionFeatureWeights()));
+        Activity newActivity = new Simple(innerActivities.get(innerActivities.size() - 1).name() + "_N",
+                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new))
+        );
 
         if(verbose)
             System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + innerActivities.get(innerActivities.size() - 1).name());
@@ -289,11 +298,7 @@ public abstract class AnalysisHeuristicStrategy {
     }
 
     public double[] DAGInnerBlockAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars){
-        //ArrayList<Activity> innerActivities = ((DAG) model).activitiesBetween(((DAG) model).begin(), ((DAG) model).end())
-        //        .stream().filter(t -> (t.C().doubleValue() > 1 || t.S().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::S)).collect(Collectors.toCollection(ArrayList::new));
-        //ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.S().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::S)).collect(Collectors.toCollection(ArrayList::new));
-
-        Map<String, Activity> toBeSimplifiedActivityMap = getDeepestComplexBlock(model);
+        Map<String, Activity> toBeSimplifiedActivityMap = getDeepestComplexDAG(model);
         Activity toBeSimplifiedActivity = toBeSimplifiedActivityMap.get("activity");
         Activity toBeSimplifiedActivityParent = toBeSimplifiedActivityMap.get("parent");
         double aux = toBeSimplifiedActivity.LFT().doubleValue();
@@ -304,11 +309,13 @@ public abstract class AnalysisHeuristicStrategy {
         }
         BigDecimal innerActivityStep = BigDecimal.valueOf(mag * Math.pow(10, -2));
 
-        Activity newActivity = new Analytical(toBeSimplifiedActivity.name() + "_N",
-                approximator().getApproximatedStochasticTransitionFeatures(
-                        analyze(toBeSimplifiedActivity, toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
-                        toBeSimplifiedActivity.EFT().doubleValue(), (toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT()).doubleValue(), innerActivityStep),
-                new ArrayList<>(approximator().stochasticTransitionFeatureWeights()));
+        ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
+                analyze(toBeSimplifiedActivity, toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
+                toBeSimplifiedActivity.EFT().doubleValue(), (toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT()).doubleValue(), innerActivityStep);
+
+        Activity newActivity = new Simple(toBeSimplifiedActivity.name() + "_N",
+                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new)));
 
         if(verbose)
             System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + toBeSimplifiedActivity.name());
@@ -354,12 +361,90 @@ public abstract class AnalysisHeuristicStrategy {
         return this.analyze(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
     }
 
+    public double[] DAGInnerBlockAnalysis2(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars){
+        Map<String, Activity> toBeSimplifiedActivityMap = getDeepestComplexBlock(model);
+        Activity toBeSimplifiedActivity = toBeSimplifiedActivityMap.get("activity");
+        Activity toBeSimplifiedActivityParent = toBeSimplifiedActivityMap.get("parent");
+        double aux = toBeSimplifiedActivity.LFT().doubleValue();
+        int mag = 1;
+        while (aux > 10) {
+            mag = mag * 10;
+            aux = aux / 10;
+        }
+        BigDecimal innerActivityStep = BigDecimal.valueOf(mag * Math.pow(10, -2));
+
+        ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
+                analyze(toBeSimplifiedActivity, toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
+                toBeSimplifiedActivity.EFT().doubleValue(), (toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT()).doubleValue(), innerActivityStep);
+
+        Activity newActivity = new Simple(toBeSimplifiedActivity.name() + "_N",
+                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new)));
+
+        if(verbose)
+            System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + toBeSimplifiedActivity.name());
+
+        if(plotIntermediate){
+            /*TransientSolution<DeterministicEnablingState, RewardRate> simulate = model.simulate(timeLimit.toString(), step.toString(), 5000);
+            double[] simulation = new double[simulate.getSolution().length];
+            for(int i = 0; i < simulation.length; i++){
+                simulation[i] = simulate.getSolution()[i][0][0];
+            }*/
+
+            TransientSolution<DeterministicEnablingState, RewardRate> testAct = toBeSimplifiedActivity.simulate(timeLimit.toString(), step.toString(), 1000);
+            double[] testActCDF = new double[testAct.getSolution().length];
+            for(int i = 0; i < testActCDF.length; i++){
+                testActCDF[i] = testAct.getSolution()[i][0][0];
+            }
+
+            TransientSolution<DeterministicEnablingState, RewardRate> newAct = newActivity.analyze(timeLimit.toString(), step.toString(), "0.001");
+            double[] newActcdf = new double[newAct.getSolution().length];
+            for(int i = 0; i < newActcdf.length; i++){
+                newActcdf[i] = newAct.getSolution()[i][0][0];
+            }
+
+            toBeSimplifiedActivity.replace(newActivity);
+            /*TransientSolution<DeterministicEnablingState, RewardRate> simulate2 = model.analyze(timeLimit.toString(), step.toString(), "0.001");
+            double[] simulation2 = new double[simulate2.getSolution().length];
+            for(int i = 0; i < simulation2.length; i++){
+                simulation2[i] = simulate2.getSolution()[i][0][0];
+            }*/
+
+            ActivityViewer.CompareResults(newActivity.name(), List.of("Real", "Appr"), List.of(new EvaluationResult("real", testActCDF, 0, testActCDF.length, step.doubleValue(), 0), new EvaluationResult("appr", newActcdf, 0, newActcdf.length, step.doubleValue(), 0)));
+        } else {
+            toBeSimplifiedActivity.replace(newActivity);
+            int activityIndex = ((DAG) toBeSimplifiedActivityParent).activities().indexOf(toBeSimplifiedActivity);
+            ((DAG) toBeSimplifiedActivityParent).activities().set(activityIndex, newActivity);
+            toBeSimplifiedActivityParent.resetComplexityMeasure();
+        }
+        if(verbose)
+            System.out.println(tabSpaceChars + "---"  + " Approximated inner block " + toBeSimplifiedActivity.name());
+
+        model.resetComplexityMeasure();
+
+        return this.analyze(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+    }
+
+    public Map<String, Activity> getDeepestComplexDAG(Activity model){
+        ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.Q().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::Q)).collect(Collectors.toCollection(ArrayList::new));
+        Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
+        boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof Xor || mostComplexActivity instanceof Simple;
+
+        if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(SThreshold) > 0){
+            return getDeepestComplexDAG(mostComplexActivity);
+        }
+
+        return Map.ofEntries(
+                Map.entry("parent", model),
+                Map.entry("activity", mostComplexActivity)
+        );
+    }
+
     public Map<String, Activity> getDeepestComplexBlock(Activity model){
         ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.Q().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::Q)).collect(Collectors.toCollection(ArrayList::new));
         Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
-        boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof Xor || mostComplexActivity instanceof Analytical;
 
-        if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(SThreshold) > 0){
+        if(mostComplexActivity.C().compareTo(CThreshold) > 0 || mostComplexActivity.Q().compareTo(SThreshold) > 0){
             return getDeepestComplexBlock(mostComplexActivity);
         }
 
@@ -420,15 +505,17 @@ public abstract class AnalysisHeuristicStrategy {
 
         DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1))));
         for(Activity activity: ((AND) nestedDAG).activities()){
-            Analytical newActivity = new Analytical(
-                    activity.name() + "_N",
-                    approximator().getApproximatedStochasticTransitionFeatures(
-                            analyze(activity, activity.LFT().precision() >= 309 ? timeLimit : activity.LFT(), step, forwardReductionFactor, error, tabSpaceChars + "---"),
-                            activity.EFT().doubleValue(),
-                            (activity.LFT().precision() >= 309 ? timeLimit : activity.LFT()).doubleValue(),
-                            step
-                    ),
-                    approximator.stochasticTransitionFeatureWeights()
+            ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
+                analyze(activity, activity.LFT().precision() >= 309 ? timeLimit : activity.LFT(), step, forwardReductionFactor, error, tabSpaceChars + "---"),
+                activity.EFT().doubleValue(),
+                (activity.LFT().precision() >= 309 ? timeLimit : activity.LFT()).doubleValue(),
+                step
+            );
+
+            Simple newActivity = new Simple(
+                activity.name() + "_N",
+                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new))
             );
             activity.replace(newActivity);
         }

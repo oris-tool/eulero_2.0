@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -38,24 +38,24 @@ class PetriTest {
         StochasticTransitionFeature unif01 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         
-        Analytical q = new Analytical("Q", unif01);
-        Analytical r = new Analytical("R", unif01);
-        Analytical s = new Analytical("S", unif01);
+        Simple q = new Simple("Q", unif01);
+        Simple r = new Simple("R", unif01);
+        Simple s = new Simple("S", unif01);
         
         DAG t = DAG.sequence("T", 
-                new Analytical("T1", unif01),
-                new Analytical("T2", unif01));
-        Analytical u = new Analytical("U", unif01);
+                new Simple("T1", unif01),
+                new Simple("T2", unif01));
+        Simple u = new Simple("U", unif01);
         DAG tu = DAG.forkJoin("TU", t, u);
 
         DAG v = DAG.sequence("V", 
-                new Analytical("V1", unif01),
-                new Analytical("V2", unif01));
+                new Simple("V1", unif01),
+                new Simple("V2", unif01));
         
-        Analytical w = new Analytical("W", unif01);
+        Simple w = new Simple("W", unif01);
         DAG x = DAG.sequence("X", 
-                new Analytical("X1", unif01),
-                new Analytical("X2", unif01));
+                new Simple("X1", unif01),
+                new Simple("X2", unif01));
 
         DAG wx = DAG.forkJoin("WX", w, x);
         
@@ -78,8 +78,8 @@ class PetriTest {
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         
         DAG t = DAG.sequence("T", 
-                new Analytical("T1", unif01),
-                new Analytical("T2", unif01));
+                new Simple("T1", unif01),
+                new Simple("T2", unif01));
         
         System.out.println(t.petriArcs());
         
@@ -94,8 +94,8 @@ class PetriTest {
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         
         DAG t = DAG.forkJoin("T", 
-                new Analytical("T1", unif01),
-                new Repeat("REP", 0.2, DAG.sequence("SEQ", new Analytical("T2", unif01))));
+                new Simple("T1", unif01),
+                new Repeat("REP", 0.2, DAG.sequence("SEQ", new Simple("T2", unif01))));
         
         System.out.println(t.yamlRecursive());
         System.out.println(t.petriArcs());
@@ -112,19 +112,19 @@ class PetriTest {
         
         DAG t = DAG.forkJoin("MAIN",
                     DAG.sequence("AB", 
-                            new Analytical("A", unif01), 
-                            new Analytical("B", unif01)),
+                            new Simple("A", unif01),
+                            new Simple("B", unif01)),
                     DAG.sequence("CRH", 
-                            new Analytical("C", unif01),
+                            new Simple("C", unif01),
                             new Repeat("R", 0.1, 
                                     DAG.forkJoin("DEFG", 
                                             DAG.sequence("DE", 
-                                                    new Analytical("D", unif01),
-                                                    new Analytical("E", unif01)),
+                                                    new Simple("D", unif01),
+                                                    new Simple("E", unif01)),
                                             DAG.sequence("FG", 
-                                                    new Analytical("F", unif01),
-                                                    new Analytical("G", unif01)))),
-                            new Analytical("H", unif01)));
+                                                    new Simple("F", unif01),
+                                                    new Simple("G", unif01)))),
+                            new Simple("H", unif01)));
                     
         System.out.println(t.yamlRecursive());
         System.out.println(t.petriArcs());
@@ -138,7 +138,7 @@ class PetriTest {
 
     @Test
     void AnalyticalTest() throws InterruptedException {
-        Analytical activity = Analytical.erlang("Test", 2, BigDecimal.valueOf(0.2));
+        Simple activity = Simple.erlang("Test", 2, BigDecimal.valueOf(0.2));
         TransientSolution<DeterministicEnablingState, RewardRate> solution = activity.analyze("50", "0.01", "0.001");
         double[] cdf = new double[solution.getSolution().length];
         for(int i = 0; i < cdf.length; i++){
@@ -167,12 +167,12 @@ class PetriTest {
                 StochasticTransitionFeature.newErlangInstance(2, BigDecimal.valueOf(0.2));
 
         DAG dag = DAG.sequence("DAG",
-                new Analytical("U1", unif0_10),
+                new Simple("U1", unif0_10),
                 DAG.forkJoin("F",
-                    new Analytical("U2", unif0_10),
-                    new Analytical("U3", unif0_10)
+                    new Simple("U2", unif0_10),
+                    new Simple("U3", unif0_10)
                 ),
-                new Analytical("E1", unif2_10)
+                new Simple("E1", unif2_10)
         );
         Repeat e = new Repeat("REP", 0.2, dag);
 

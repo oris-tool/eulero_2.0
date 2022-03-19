@@ -20,10 +20,10 @@ package org.oristool.eulero;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.oristool.eulero.graph.Analytical;
-import org.oristool.eulero.graph.DAG;
-import org.oristool.eulero.graph.Repeat;
-import org.oristool.eulero.graph.Xor;
+import org.oristool.eulero.workflow.Simple;
+import org.oristool.eulero.workflow.DAG;
+import org.oristool.eulero.workflow.Repeat;
+import org.oristool.eulero.workflow.Xor;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
@@ -35,77 +35,77 @@ public class Main {
         StochasticTransitionFeature unif01 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
         
-        Analytical a = new Analytical("A", unif01);
-        Analytical b = new Analytical("B", unif01);
-        Analytical c = new Analytical("C", unif01);
-        Analytical d = new Analytical("D", unif01);       
-        Analytical f = new Analytical("F", unif01);
+        Simple a = new Simple("A", unif01);
+        Simple b = new Simple("B", unif01);
+        Simple c = new Simple("C", unif01);
+        Simple d = new Simple("D", unif01);
+        Simple f = new Simple("F", unif01);
         
         DAG g = DAG.sequence("G", 
-                new Analytical("G1", unif01),
-                new Analytical("G2", unif01));
+                new Simple("G1", unif01),
+                new Simple("G2", unif01));
         
         DAG h = DAG.sequence("H", 
-                new Analytical("H1", unif01),
-                new Analytical("H2", unif01));
+                new Simple("H1", unif01),
+                new Simple("H2", unif01));
         
         Xor i = new Xor("I",
-                List.of(new Analytical("IA", unif01),
-                        new Analytical("IB", unif01)),
+                List.of(new Simple("IA", unif01),
+                        new Simple("IB", unif01)),
                 List.of(0.3, 0.7));
         
         DAG j = DAG.sequence("J", 
-                new Analytical("J1", unif01),
-                new Analytical("J2", unif01),
-                new Analytical("J3", unif01));
+                new Simple("J1", unif01),
+                new Simple("J2", unif01),
+                new Simple("J3", unif01));
 
         Xor k = new Xor("K", List.of(
                 DAG.sequence("KA",
-                        new Analytical("KA1", unif01),
-                        new Analytical("KA2", unif01)),
+                        new Simple("KA1", unif01),
+                        new Simple("KA2", unif01)),
                 DAG.sequence("KB",
-                        new Analytical("KB1", unif01),
-                        new Analytical("KB2", unif01))),
+                        new Simple("KB1", unif01),
+                        new Simple("KB2", unif01))),
                 List.of(0.4, 0.6));
         
-        Analytical n = new Analytical("N", unif01);
+        Simple n = new Simple("N", unif01);
         
         DAG o = DAG.forkJoin("O", 
                 DAG.sequence("YAPBP",
-                        new Analytical("Y", unif01),
+                        new Simple("Y", unif01),
                         DAG.forkJoin("APBP",
-                                new Analytical("AP", unif01),
-                                new Analytical("BP", unif01))),
+                                new Simple("AP", unif01),
+                                new Simple("BP", unif01))),
                 DAG.sequence("ZCPDP",
-                        new Analytical("Z", unif01),
+                        new Simple("Z", unif01),
                         DAG.forkJoin("CPDP",
                                 DAG.sequence("CP", 
-                                        new Analytical("CP1", unif01),
-                                        new Analytical("CP2", unif01)),
+                                        new Simple("CP1", unif01),
+                                        new Simple("CP2", unif01)),
                                 DAG.sequence("DP", 
-                                        new Analytical("DP1", unif01),
-                                        new Analytical("DP2", unif01)))));
+                                        new Simple("DP1", unif01),
+                                        new Simple("DP2", unif01)))));
 
         o.flatten();  // to remove DAG nesting
         
-        Analytical q = new Analytical("Q", unif01);
-        Analytical r = new Analytical("R", unif01);
-        Analytical s = new Analytical("S", unif01);
+        Simple q = new Simple("Q", unif01);
+        Simple r = new Simple("R", unif01);
+        Simple s = new Simple("S", unif01);
         
         DAG t = DAG.sequence("T", 
-                new Analytical("T1", unif01),
-                new Analytical("T2", unif01));
-        Analytical u = new Analytical("U", unif01);
+                new Simple("T1", unif01),
+                new Simple("T2", unif01));
+        Simple u = new Simple("U", unif01);
         DAG tu = DAG.forkJoin("TU", t, u);
 
         DAG v = DAG.sequence("V", 
-                new Analytical("V1", unif01),
-                new Analytical("V2", unif01));
+                new Simple("V1", unif01),
+                new Simple("V2", unif01));
         
-        Analytical w = new Analytical("W", unif01);
+        Simple w = new Simple("W", unif01);
         DAG x = DAG.sequence("X", 
-                new Analytical("X1", unif01),
-                new Analytical("X2", unif01));
+                new Simple("X1", unif01),
+                new Simple("X2", unif01));
 
         DAG wx = DAG.forkJoin("WX", w, x);
         
@@ -143,7 +143,7 @@ public class Main {
         TransientSolution<DeterministicEnablingState, RewardRate> before =
                 main.simulate("10", "0.1", 3000);           
         
-        main.nest(i).replace(new Analytical("BAD", unif01));
+        main.nest(i).replace(new Simple("BAD", unif01));
         System.out.println(main.yamlRecursive());
         
         TransientSolution<DeterministicEnablingState, RewardRate> after =

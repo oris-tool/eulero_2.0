@@ -20,10 +20,10 @@ package org.oristool.eulero;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.oristool.eulero.graph.Analytical;
-import org.oristool.eulero.graph.DAG;
-import org.oristool.eulero.graph.Repeat;
-import org.oristool.eulero.graph.Xor;
+import org.oristool.eulero.workflow.Simple;
+import org.oristool.eulero.workflow.DAG;
+import org.oristool.eulero.workflow.Repeat;
+import org.oristool.eulero.workflow.Xor;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;

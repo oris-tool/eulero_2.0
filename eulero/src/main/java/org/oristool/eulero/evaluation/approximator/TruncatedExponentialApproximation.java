@@ -1,5 +1,6 @@
 package org.oristool.eulero.evaluation.approximator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
@@ -20,14 +21,13 @@ public class TruncatedExponentialApproximation extends Approximator{
     }
 
     @Override
-    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+    public Pair<BigDecimal,StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         return null;
     }
 
     @Override
-    public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
-        stochasticTransitionFeatureWeights().clear();
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+    public ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> features = new ArrayList<>();
 
         if(cdf.length < (int)(upp - low)/step.doubleValue()){
             throw new RuntimeException("cdf has not enough samples with respect to provided support and time step value");
@@ -50,10 +50,10 @@ public class TruncatedExponentialApproximation extends Approximator{
 
         double pdfMax = Arrays.stream(pdf, 0, pdf.length).max().getAsDouble();
         int xMaxIndex = IntStream.range(0, pdf.length)
-                .filter(i ->  pdf[i] == pdfMax)
-                .findFirst() // first occurrence
-                .orElse(-1);
-                //.reduce((first, second) -> second).orElse(-1);
+            .filter(i ->  pdf[i] == pdfMax)
+            .findFirst() // first occurrence
+            .orElse(-1);
+            //.reduce((first, second) -> second).orElse(-1);
 
 
         double xMax = /*low +*/ timeTick * xMaxIndex;
@@ -62,63 +62,65 @@ public class TruncatedExponentialApproximation extends Approximator{
         double delta = BigDecimal.valueOf((pdfMax * xMax - cdfMax) / pdfMax).doubleValue();
 
         int deltaIndex = IntStream.range(0, pdf.length)
-                .filter(i ->  x[i] >= delta)
-                .findFirst() // first occurrence
-                .orElse(-1);
+            .filter(i ->  x[i] >= delta)
+            .findFirst() // first occurrence
+            .orElse(-1);
 
         // Body
         double bodyLambda = Double.MAX_VALUE;
 
         for(int i = deltaIndex; i < pdf.length; i++){
             //if(cdf[i] > 0  &&  cdf[i] < 1){
-                try {
-                    bodyLambda = Math.min(
-                            bodyLambda,
-                            zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
-                                private double delta;
-                                private double b;
-                                private double time;
-                                private double histogram;
+            try {
+                bodyLambda = Math.min(
+                    bodyLambda,
+                    zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
+                        private double delta;
+                        private double b;
+                        private double time;
+                        private double histogram;
 
-                                @Override
-                                public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
-                                    // t should be our lambda
-                                    DerivativeStructure p = t.multiply(delta - time).expm1();
-                                    DerivativeStructure q = t.multiply(delta - b).expm1();
+                        @Override
+                        public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
+                            // t should be our lambda
+                            DerivativeStructure p = t.multiply(delta - time).expm1();
+                            DerivativeStructure q = t.multiply(delta - b).expm1();
 
-                                    return p.divide(q).subtract(histogram);
-                                }
+                            return p.divide(q).subtract(histogram);
+                        }
 
-                                @Override
-                                public double value(double x) {
-                                    // Here x is the lambda of the function
-                                    return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
-                                }
+                        @Override
+                        public double value(double x) {
+                            // Here x is the lambda of the function
+                            return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
+                        }
 
-                                public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram) {
-                                    this.delta = delta;
-                                    this.b = b;
-                                    this.time = time;
-                                    this.histogram = histogram;
-                                    return this;
-                                }
-                            }.init(delta, upp, x[i], cdf[i]), 0.0001)
-                    );
-                } catch (Exception e){
-                    System.out.println("Eccezione...");
-                }
-            //}
+                        public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram) {
+                            this.delta = delta;
+                            this.b = b;
+                            this.time = time;
+                            this.histogram = histogram;
+                            return this;
+                        }
+                    }.init(delta, upp, x[i], cdf[i]), 0.0001)
+                );
+            } catch (Exception e){
+                System.out.println("Eccezione...");
+            }
+        //}
         }
 
         bodyLambda = BigDecimal.valueOf(bodyLambda).setScale(3, RoundingMode.HALF_UP).doubleValue();
 
-        features.add(StochasticTransitionFeature.newExpolynomial(
+        features.add(Pair.of(
+            BigDecimal.ONE,
+            StochasticTransitionFeature.newExpolynomial(
                 bodyLambda * Math.exp(bodyLambda * delta) / (1 - Math.exp(-bodyLambda * (upp - delta))) + " * Exp[-" + bodyLambda + " x]",
                 new OmegaBigDecimal(String.valueOf(delta)),
                 new OmegaBigDecimal(String.valueOf(upp))
+            )
         ));
 
-        stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(1.0));
         return features;
     }
 }

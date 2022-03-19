@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +30,7 @@ class GraphTest {
 
     @Test
     void testFlatten() {
-        Analytical a = Analytical.uniform("A", BigDecimal.ZERO, BigDecimal.ONE);
+        Simple a = Simple.uniform("A", BigDecimal.ZERO, BigDecimal.ONE);
         Numerical b = Numerical.uniform("B", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
         Numerical c = Numerical.uniform("C", BigDecimal.ZERO, BigDecimal.ONE, new BigDecimal("0.1"));
         
@@ -246,8 +246,8 @@ class GraphTest {
     @Test
     void testSequenceSupport(){
         DAG sequence = DAG.sequence("Test",
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
         );
 
         assertEquals(sequence.low().compareTo(BigDecimal.valueOf(2)), 0);
@@ -257,8 +257,8 @@ class GraphTest {
     @Test
     void testAndSupport(){
         DAG and = DAG.forkJoin("Test",
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
         );
 
         assertEquals(and.low().compareTo(BigDecimal.valueOf(2)), 0);
@@ -269,8 +269,8 @@ class GraphTest {
     @Test
     void testXorSupport(){
         Xor xor = new Xor("Test", List.of(
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
-                new Analytical("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("0", "3")),
+                new Simple("T1", StochasticTransitionFeature.newUniformInstance("2", "4.2"))
             ), List.of(0.3, 0.7)
         );
 

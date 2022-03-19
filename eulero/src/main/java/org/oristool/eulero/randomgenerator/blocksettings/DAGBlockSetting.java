@@ -20,6 +20,17 @@ public class DAGBlockSetting extends BlockTypeSetting{
         this.minimumNodeConnection = minimumNodeConnection;
     }
 
+    public DAGBlockSetting(double probability){
+        super("DAG", probability);
+        this.minimumLevels = 2;
+        this.maximumLevels = 3;
+        this.minimumLevelBreadth = 2;
+        this.maximumLevelBreadth = 3;
+        this.maximumAdjacencyDistance = 1;
+        this.maximumNodeConnection = 2;
+        this.minimumNodeConnection = 1;
+    }
+
     public int getMinimumLevels() {
         return minimumLevels;
     }

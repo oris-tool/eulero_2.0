@@ -1,4 +1,4 @@
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

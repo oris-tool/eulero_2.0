@@ -1,6 +1,6 @@
 package org.oristool.eulero.randomgenerator;
 
-import org.oristool.eulero.graph.*;
+import org.oristool.eulero.workflow.*;
 import org.oristool.eulero.randomgenerator.blocksettings.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -267,7 +267,7 @@ public class RandomGenerator {
 
         //We reach the end of the tree --> generate an activity
         String name = "A" + activityNameCounter[0]++;
-        return new Analytical(name, this.features, this.weights);
+        return new Simple(name, this.features, this.weights);
     }
 
 }

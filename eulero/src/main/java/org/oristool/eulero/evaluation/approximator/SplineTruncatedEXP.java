@@ -1,5 +1,6 @@
 package org.oristool.eulero.evaluation.approximator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
@@ -21,15 +22,13 @@ public class SplineTruncatedEXP extends Approximator{
     }
 
     @Override
-    public StochasticTransitionFeature getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
+    public Pair<BigDecimal,StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step) {
         return null;
     }
 
     @Override
-    public ArrayList<StochasticTransitionFeature> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
-        // Clean weights vector
-        stochasticTransitionFeatureWeights().clear();
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
+    public ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step) {
+        ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> features = new ArrayList<>();
 
         // Ricorda che la cdf è data da 0 a upp; low si usa se serve sapere il supporto reale.
         if(cdf.length < (upp - low)/step.doubleValue()){
@@ -50,18 +49,18 @@ public class SplineTruncatedEXP extends Approximator{
 
         double pdfMax = Arrays.stream(pdf, 0, pdf.length - 1).max().getAsDouble();
         int xMaxIndex = IntStream.range(0, pdf.length - 1)
-                .filter(i ->  pdf[i] == pdfMax)
-                //.reduce((first, second) -> second)
-                .findFirst().orElse(-1);
+            .filter(i ->  pdf[i] == pdfMax)
+            //.reduce((first, second) -> second)
+            .findFirst().orElse(-1);
 
         double xMax = x[xMaxIndex];
         double cdfMax = cdf[xMaxIndex];
 
         double delta = (pdfMax * xMax - cdfMax) / pdfMax;
         int deltaIndex = IntStream.range(0, pdf.length)
-                .filter(i ->  x[i] >= delta)
-                .findFirst() // first occurrence
-                .orElse(-1);
+            .filter(i ->  x[i] >= delta)
+            .findFirst() // first occurrence
+            .orElse(-1);
 
         int bodyPieceWidth = (int) ((upp - delta) / step.doubleValue() / (double) bodyPieces);
 
@@ -83,39 +82,39 @@ public class SplineTruncatedEXP extends Approximator{
 
                 try {
                     bodyLambda = Math.min(
-                            bodyLambda,
-                            zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
-                                private double delta;
-                                private double b;
-                                private double time;
-                                private double histogram;
+                        bodyLambda,
+                        zeroSolver.solve(10000, new UnivariateDifferentiableFunction() {
+                            private double delta;
+                            private double b;
+                            private double time;
+                            private double histogram;
 
-                                @Override
-                                public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
-                                    // t should be our lambda
-                                    DerivativeStructure p = t.multiply(delta - time).expm1();
-                                    DerivativeStructure q = t.multiply(delta - b).expm1();
+                            @Override
+                            public DerivativeStructure value(DerivativeStructure t) throws DimensionMismatchException {
+                                // t should be our lambda
+                                DerivativeStructure p = t.multiply(delta - time).expm1();
+                                DerivativeStructure q = t.multiply(delta - b).expm1();
 
-                                    return p.divide(q).subtract(histogram);
-                                }
+                                return p.divide(q).subtract(histogram);
+                            }
 
-                                @Override
-                                public double value(double x) {
-                                    // Here x is the lambda of the function
-                                    return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
-                                }
+                            @Override
+                            public double value(double x) {
+                                // Here x is the lambda of the function
+                                return (1 - Math.exp(-x * (time - delta))) / (1 - Math.exp(-x * (b - delta))) - histogram;
+                            }
 
-                                public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram) {
-                                    this.delta = delta;
-                                    this.b = b;
-                                    this.time = time;
-                                    this.histogram = histogram;
-                                    return this;
-                                }
-                            }.init(BigDecimal.valueOf(bodyPieceStartingIndex * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
-                                    BigDecimal.valueOf(bodyPieceEndingIndex * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
-                                    BigDecimal.valueOf(j * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
-                                    cdfValue), 0.0000001)
+                            public UnivariateDifferentiableFunction init(double delta, double b, double time, double histogram) {
+                                this.delta = delta;
+                                this.b = b;
+                                this.time = time;
+                                this.histogram = histogram;
+                                return this;
+                            }
+                        }.init(BigDecimal.valueOf(bodyPieceStartingIndex * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
+                            BigDecimal.valueOf(bodyPieceEndingIndex * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
+                            BigDecimal.valueOf(j * timeTick).setScale(step.scale(), RoundingMode.HALF_DOWN).doubleValue(),
+                            cdfValue), 0.0000001)
                     );
                 } catch(Exception e){
                     System.out.println("Eccezione: il valore utilizzato era " + cdfValue);
@@ -124,12 +123,14 @@ public class SplineTruncatedEXP extends Approximator{
             }
 
             bodyLambda = BigDecimal.valueOf(bodyLambda).setScale(4, RoundingMode.HALF_DOWN).doubleValue();
-            features.add(StochasticTransitionFeature.newExpolynomial(
+            features.add(Pair.of(
+                BigDecimal.valueOf(cdf[bodyPieceEndingIndex] - cdf[bodyPieceStartingIndex]),
+                StochasticTransitionFeature.newExpolynomial(
                     bodyLambda * Math.exp(bodyLambda * bodyPieceStartingIndex * timeTick) / (1 - Math.exp(-bodyLambda * (bodyPieceEndingIndex * timeTick - bodyPieceStartingIndex * timeTick))) + " * Exp[-" + bodyLambda + " x]",
                     new OmegaBigDecimal(String.valueOf(bodyPieceStartingIndex * timeTick)),
                     new OmegaBigDecimal(String.valueOf(bodyPieceEndingIndex * timeTick))
+                )
             ));
-            stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(cdf[bodyPieceEndingIndex] - cdf[bodyPieceStartingIndex]));
 
         }
         return features;

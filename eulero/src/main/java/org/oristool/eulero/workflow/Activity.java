@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.graph;
+package org.oristool.eulero.workflow;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -61,7 +61,7 @@ import org.oristool.util.Pair;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
     @XmlElements({
-            @XmlElement(name="EFT",type=Analytical.class, required = true),
+            @XmlElement(name="EFT",type= Simple.class, required = true),
             @XmlElement(name="EFT",type=SEQ.class, required = true),
             @XmlElement(name="EFT",type=AND.class, required = true),
             @XmlElement(name="EFT",type=Xor.class, required = true),
@@ -70,7 +70,7 @@ public abstract class Activity implements Serializable {
     private BigDecimal EFT;
 
     @XmlElements({
-            @XmlElement(name="LFT",type=Analytical.class, required = true),
+            @XmlElement(name="LFT",type= Simple.class, required = true),
             @XmlElement(name="LFT",type=SEQ.class, required = true),
             @XmlElement(name="LFT",type=AND.class, required = true),
             @XmlElement(name="LFT",type=Xor.class, required = true),
@@ -92,7 +92,7 @@ public abstract class Activity implements Serializable {
     private List<Activity> post = new ArrayList<>();
 
     @XmlElements({
-            @XmlElement(name="name",type=Analytical.class, required = true),
+            @XmlElement(name="name",type= Simple.class, required = true),
             @XmlElement(name="name",type=SEQ.class, required = true),
             @XmlElement(name="name",type=AND.class, required = true),
             @XmlElement(name="name",type=Xor.class, required = true),
