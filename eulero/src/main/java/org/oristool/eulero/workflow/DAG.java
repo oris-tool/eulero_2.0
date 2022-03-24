@@ -872,12 +872,12 @@
 
         @Override
         public BigDecimal low() {
-            return getSupportLowerBound(this.end);
+            return getEFTBound(this.end);
         }
 
         @Override
         public BigDecimal upp() {
-            return getSupportUpperBound(this.end);
+            return getLFTBound(this.end);
         }
 
         public List<Activity> activities() {
@@ -893,27 +893,27 @@
             return false;
         }
 
-        public BigDecimal getSupportLowerBound(Activity activity){
+        public BigDecimal getEFTBound(Activity activity){
             if(activity.equals(this.begin)){
                 return activity.low();
             }
 
             BigDecimal maximumPredecessorLow = BigDecimal.ZERO;
             for(Activity predecessor: activity.pre()){
-                maximumPredecessorLow = maximumPredecessorLow.max(getSupportLowerBound(predecessor));
+                maximumPredecessorLow = maximumPredecessorLow.max(getEFTBound(predecessor));
             }
 
             return activity.low().add(maximumPredecessorLow);
         }
 
-        public BigDecimal getSupportUpperBound(Activity activity){
+        public BigDecimal getLFTBound(Activity activity){
             if(activity.equals(this.begin)){
                 return activity.upp();
             }
 
             BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
             for(Activity predecessor: activity.pre()){
-                maximumPredecessorUpp = maximumPredecessorUpp.max(getSupportUpperBound(predecessor));
+                maximumPredecessorUpp = maximumPredecessorUpp.max(getLFTBound(predecessor));
             }
 
             return activity.upp().add(maximumPredecessorUpp);

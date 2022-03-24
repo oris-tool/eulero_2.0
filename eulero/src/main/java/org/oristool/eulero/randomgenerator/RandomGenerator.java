@@ -13,12 +13,10 @@ import java.util.stream.Collectors;
 public class RandomGenerator {
     private ArrayList<StochasticTransitionFeature> features;
     private ArrayList<BigDecimal> weights;
-    private int treeDepth;
     private ArrayList<Set<BlockTypeSetting>> settings;
 
     public RandomGenerator(StochasticTransitionFeature feature, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
-        this.treeDepth = settings.size();
         this.features = new ArrayList<>();
         features.add(feature);
         this.weights = new ArrayList<>();
@@ -27,14 +25,13 @@ public class RandomGenerator {
 
     public RandomGenerator(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
-        this.treeDepth = settings.size();
         this.features = features;
         this.weights = weights;
     }
 
     public Activity generateBlock(int depthLevel, int[] activityNameCounter){
         if(depthLevel > 0) {
-            Set<BlockTypeSetting> levelSetting = settings.get(treeDepth - depthLevel);
+            Set<BlockTypeSetting> levelSetting = settings.get(settings.size() - depthLevel);
 
             //Choosing Block Type
             double randomSample = Math.random();
