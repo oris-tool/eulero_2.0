@@ -666,8 +666,6 @@
 
             copy.setEFT(copy.low());
             copy.setLFT(copy.upp());
-            //activitiesBetween.removeIf(t -> t.name().contains("_END") || t.name().contains("_BEGIN"));
-            //copy.setActivities(Lists.newArrayList(activitiesBetween));
             copy.setActivities(createdActivities);
             return copy;
         }
@@ -690,7 +688,6 @@
                 }
 
                 activitiesBetween.removeAll(activitiesBetween(begin(), end()));
-                //this.setActivities(List.copyOf(activitiesBetween));
             }
 
             List<Activity> all = this.nested();
@@ -725,7 +722,6 @@
         public DAG nest(Activity end) {
             DAG copy = this.copyRecursive(this.begin(), end, "_up".replace(this.name(),""));
 
-            List<Activity> endPost = new ArrayList<>(end.post());
             this.removeBetween(this.begin(), end, false);
             DAG restOfDAG = this.copyRecursive("_down");
 
@@ -733,15 +729,13 @@
             Activity down = restOfDAG;
 
             if(copy.checkWellNesting()){
-                // verifica che non ci siano due begin di seguito, altrimenti non si è fatto niente.
-                up = copy.wellNestIt(copy.begin().post());
+                up = wellNestIt(copy.begin().post());
             }
 
             if(restOfDAG.checkWellNesting()){
-                down = restOfDAG.wellNestIt(restOfDAG.begin().post());
+                down = wellNestIt(restOfDAG.begin().post());
             }
 
-            //return copy;
             return DAG.forkJoin(this.name() + "_N",
                     up,
                     down
@@ -786,12 +780,12 @@
         public static Activity wellNestIt(List<Activity> nodes){
             if (nodes.size() > 1){
                 Set<Activity> theseNodeSuccessors = new HashSet<>();
-                // Estraggo i nodi del livello successivo
+                // Get nodes from successive level
                 for(Activity act: nodes){
                     theseNodeSuccessors.addAll(act.post());
                 }
 
-                // Se i nodi hanno un unico successore comune, e questo era END, allora creo un ForkJoin che a cui passo le attivitè
+                // If nodes share a single successor, and this is an END, then create a fork-join
                 if (theseNodeSuccessors.size() == 1){
                     StringBuilder name = new StringBuilder("AND(");
                     for(Activity act: nodes){
@@ -851,18 +845,7 @@
                 return DAG.sequence(name.toString(), sequenceNodes.toArray(Activity[]::new));
             }
 
-            /*if(nodes.size() == 1 && nodes.get(0).post().size() == 1 && !nodes.get(0).post().get(0).LFT().equals(BigDecimal.ZERO)){
-                List<Activity> sequenceNodes = new ArrayList<>();
-                StringBuilder name = new StringBuilder("SEQ(");
-                sequenceNodes.add(nodes.get(0));
-                sequenceNodes.add(wellNestIt(nodes.get(0).post()));
-                for(Activity act: sequenceNodes){
-                    name.append((sequenceNodes.indexOf(act) == sequenceNodes.size() - 1) ? act.name() + ")" : act.name() + ", ");
-                }
-                return DAG.sequence(name.toString(), sequenceNodes.toArray(Activity[]::new));
-            }*/
-             // Nodes.size == 1
-             return nodes.get(0);
+            return nodes.get(0);
         }
 
         public static List<Activity> findJoinPoint(Activity startingNode){

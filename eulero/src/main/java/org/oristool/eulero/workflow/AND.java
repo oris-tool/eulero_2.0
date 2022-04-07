@@ -39,19 +39,5 @@ public class AND extends DAG {
         return copy;
 
     }
-    /*@Override
-    public double[] getNumericalCDF(BigDecimal timeLimit, BigDecimal step) {
-        double[] cdf = activities.get(0).getNumericalCDF(timeLimit, step);
-
-        for (int i = 1; i < activities.size(); i++) {
-            double[] factorCdf = activities.get(i).getNumericalCDF(timeLimit, step);
-
-            for (int x = 0; x < cdf.length; x++) {
-                // CDF of max is F(x)*G(x)
-                cdf[x] *= factorCdf[x];
-            }
-        }
-        return cdf;
-    }*/
 }
 

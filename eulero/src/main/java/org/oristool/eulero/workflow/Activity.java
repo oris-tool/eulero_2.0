@@ -80,13 +80,7 @@ public abstract class Activity implements Serializable {
 
     private BigInteger C;
 
-    @XmlTransient
-    private BigInteger R;
-
     private BigInteger Q;
-
-    @XmlTransient
-    private BigInteger simplifiedR;
 
     private BigInteger simplifiedC;
 
@@ -156,20 +150,12 @@ public abstract class Activity implements Serializable {
         return !Objects.isNull(C) ? C : computeC(false);
     }
 
-    public BigInteger R() {
-        return !Objects.isNull(R) ? R : computeR(false);
-    }
-
     public BigInteger Q() {
         return !Objects.isNull(Q) ? Q : computeQ(false);
     }
 
     public BigInteger simplifiedC() {
         return !Objects.isNull(simplifiedC) ? simplifiedC : computeC(true);
-    }
-
-    public BigInteger simplifiedR() {
-        return !Objects.isNull(simplifiedR) ? simplifiedR : computeR(true);
     }
 
     public BigInteger simplifiedQ() {
@@ -195,16 +181,8 @@ public abstract class Activity implements Serializable {
         this.C = C;
     }
 
-    public void setR(BigInteger R) {
-        this.R = R;
-    }
-
     public void setQ(BigInteger Q) {
         this.Q = Q;
-    }
-
-    public void setSimplifiedR(BigInteger simplifiedR) {
-        this.simplifiedR = simplifiedR;
     }
 
     public void setSimplifiedC(BigInteger simplifiedC) {
@@ -286,150 +264,20 @@ public abstract class Activity implements Serializable {
         return getSimplified ? simplifiedMaxC : maxC;
     }
 
-    public BigInteger computeR(boolean getSimplified){
-        //System.out.println("Calcolo R");
-        long time = System.nanoTime();
-
-        PetriNet pn = new PetriNet();
-        Place in = pn.addPlace("pBEGIN");
-        Place out = pn.addPlace("pEND");
-        buildTPN(pn, in, out, 1);
-
-        Marking m = new Marking();
-        m.addTokens(in, 1);
-
-        TimedAnalysis.Builder builder = TimedAnalysis.builder();
-        builder.includeAge(true);
-        builder.markRegenerations(true);
-        builder.excludeZeroProb(true);
-
-        TimedAnalysis analysis = builder.build();
-        SuccessionGraph graph = analysis.compute(pn, m);
-
-        // Get R
-        Deque<Node> regenerativeStack = new LinkedList<Node>();
-        regenerativeStack.push(graph.getRoot());
-        BigInteger maxR = BigInteger.ZERO;
-        BigInteger simplifiedMaxR = BigInteger.ZERO;
-        while (!regenerativeStack.isEmpty()) {
-            // Ogni volta che re-itero, sto verificando una rigenerazione di partenza diversa
-            Node n = regenerativeStack.pop();
-            //System.out.println("new regenerative node: " + n.toString());
-            if (n != null) {
-                BigInteger nodePathLength = computeMaximumRegenerationEpoch(graph, n, regenerativeStack, false);
-                BigInteger nodeSimplifiedPathLength = computeMaximumRegenerationEpoch(graph, n, regenerativeStack, true);
-
-                if(nodePathLength.compareTo(maxR) > 0){
-                    maxR = nodePathLength;
-                }
-
-                if(nodeSimplifiedPathLength.compareTo(simplifiedMaxR) > 0){
-                    simplifiedMaxR = nodeSimplifiedPathLength;
-                }
-            }
-        }
-
-        setR(maxR);
-        setSimplifiedR(simplifiedMaxR);
-
-        /*System.out.println("R computed in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");*/
-
-        return getSimplified ? simplifiedMaxR : maxR;
-    }
+    public abstract  BigInteger computeQ(boolean getSimplified);
 
     public abstract void resetSupportBounds();
 
-    /*public BigInteger computeS(boolean getSimplified){
-        System.out.println("Calcolo S");
-
-        long time = System.nanoTime();
-        PetriNet pn = new PetriNet();
-        Place in = pn.addPlace("pBEGIN");
-        Place out = pn.addPlace("pEND");
-        buildTimedPetriNet(pn, in, out, 1);
-
-        Marking m = new Marking();
-        m.addTokens(in, 1);
-
-        TimedAnalysis.Builder builder = TimedAnalysis.builder();
-        builder.includeAge(true);
-        builder.markRegenerations(true);
-        builder.excludeZeroProb(true);
-
-        TimedAnalysis analysis = builder.build();
-
-        SuccessionGraph graph = analysis.compute(pn, m);
-
-        // Get C
-        BigInteger maxC = BigInteger.ZERO;
-        BigInteger simplifiedMaxC = BigInteger.ZERO;
-        for (State s: graph.getStates()) {
-            BigInteger maximumTestValue = BigInteger.ZERO;
-            BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
-            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
-                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
-                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
-                    simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
-                }
-            }
-
-            if(maximumTestValue.compareTo(maxC) > 0){
-                maxC = maximumTestValue;
-            }
-            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxC) > 0){
-                simplifiedMaxC = simplifiedMaximumTestValue;
-            }
-        }
-
-        setC(maxC);
-        setSimplifiedC(simplifiedMaxC);
-        System.out.println("C computed in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");
-
-        return getSimplified ? simplifiedMaxC : maxC;
-    }*/
-
-    private BigInteger computeMaximumRegenerationEpoch(SuccessionGraph graph, Node node, Deque<Node> stack, boolean getSimplified){
-        /*BigInteger maximumR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
-                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
-                .mapToInt(t -> t.getFeature(RegenerationEpochLengthTransitionFeature.class).getR().intValue()).sum());
-        BigInteger maximumSimplifiedR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
-                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
-                .mapToInt(t -> 1).sum());*/
-
-        BigInteger maximumR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
-                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
-                .mapToInt(t -> t.getFeature(RegenerationEpochLengthTransitionFeature.class).getR().intValue()).max().orElse(0));
-        BigInteger maximumSimplifiedR = BigInteger.valueOf(graph.getState(node).getFeature(PetriStateFeature.class).getEnabled()
-                .stream().filter(t -> !t.getFeature(TimedTransitionFeature.class).isImmediate())
-                .mapToInt(t -> 1).max().orElse(0));
-
-        BigInteger maximumChoice = BigInteger.ZERO;
-        BigInteger maximumSimplifiedChoice = BigInteger.ZERO;
-        for(Node n: graph.getSuccessors(node)){
-            if(graph.getState(n).hasFeature(Regeneration.class)){
-                stack.push(n);
-            } else {
-                BigInteger nodePathLength = computeMaximumRegenerationEpoch(graph, n, stack, false);
-                BigInteger nodeSimplifiedPathLength = computeMaximumRegenerationEpoch(graph, n, stack, true);
-
-                if(nodePathLength.compareTo(maximumChoice) > 0){
-                    maximumChoice = nodePathLength;
-                }
-
-                if(nodeSimplifiedPathLength.compareTo(maximumSimplifiedChoice) > 0){
-                    maximumSimplifiedChoice = nodeSimplifiedPathLength;
-                }
-            }
-        }
-
-        return getSimplified ?  maximumSimplifiedR.add(maximumSimplifiedChoice) : maximumR.add(maximumChoice);
-    }
-
-    public abstract  BigInteger computeQ(boolean getSimplified);
-
     public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
+
+    /**
+     * Adds the activity as an STPN transition.
+     *
+     * @param pn STPN where the activity is added
+     * @param prio initial priority of the transitions of this activity
+     * @return next priority level for the rest of the network
+     */
+    public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
     
     @Override
     public final String toString() {
@@ -484,7 +332,6 @@ public abstract class Activity implements Serializable {
      * if the visit is interrupted by the observer.
      */
     public final boolean dfs(boolean pre, DFSObserver observer) {
-        
         Set<Activity> opened = new HashSet<>();
         Deque<Activity> open = new ArrayDeque<>();
         Deque<Iterator<Activity>> openAdj = new ArrayDeque<>();
@@ -652,15 +499,6 @@ public abstract class Activity implements Serializable {
         
         return b.toString();
     }
-    
-    /**
-     * Adds the activity as an STPN transition.
-     * 
-     * @param pn STPN where the activity is added
-     * @param prio initial priority of the transitions of this activity
-     * @return next priority level for the rest of the network
-     */
-    public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
 
     public abstract BigDecimal low();
 
@@ -730,7 +568,7 @@ public abstract class Activity implements Serializable {
     }
 
     public TransientSolution<Marking, RewardRate>
-    forwardAnalyze(String timeBound, String timeStep, String error) {
+            forwardAnalyze(String timeBound, String timeStep, String error) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -840,7 +678,7 @@ public abstract class Activity implements Serializable {
     }
 
     public TransientSolution<DeterministicEnablingState, RewardRate>
-    simulate(String timeBound, String timeStep, long timeout) {
+            simulate(String timeBound, String timeStep, long timeout) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
