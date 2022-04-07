@@ -15,7 +15,7 @@ public class AnalysisHeuristic3 extends AnalysisHeuristicStrategy{
     public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars) {
         if(model instanceof Repeat) {
             if (!(model.simplifiedC().compareTo(model.C()) == 0) && !(model.simplifiedR().compareTo(model.R()) == 0)) {
-                if(model.C().compareTo(this.CThreshold()) > 0 || model.R().compareTo(this.SThreshold()) > 0) {
+                if(model.C().compareTo(this.CThreshold()) > 0 || model.R().compareTo(this.QThreshold()) > 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing REP Inner Block Analysis on " + model.name());
                     return REPInnerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
@@ -32,20 +32,20 @@ public class AnalysisHeuristic3 extends AnalysisHeuristicStrategy{
 
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedR().compareTo(model.R()) == 0)) {
-                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedR().compareTo(this.SThreshold()) >= 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedR().compareTo(this.QThreshold()) >= 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     //return InnerBlockReplicationAnalysis(model, timeLimit, step, error, tabSpaceChars);
                     return InnerBlockReplicationAnalysisAndApproximation(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
 
-                if(model.C().compareTo(this.CThreshold()) >= 0 || model.R().compareTo(this.SThreshold()) >= 0){
+                if(model.C().compareTo(this.CThreshold()) >= 0 || model.R().compareTo(this.QThreshold()) >= 0){
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
                     return DAGInnerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
             } else {
-                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedR().compareTo(this.SThreshold()) >= 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedR().compareTo(this.QThreshold()) >= 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);

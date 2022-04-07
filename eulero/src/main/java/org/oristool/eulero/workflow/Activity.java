@@ -61,28 +61,35 @@ import org.oristool.util.Pair;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
     @XmlElements({
-            @XmlElement(name="EFT",type= Simple.class, required = true),
-            @XmlElement(name="EFT",type=SEQ.class, required = true),
-            @XmlElement(name="EFT",type=AND.class, required = true),
-            @XmlElement(name="EFT",type=Xor.class, required = true),
-            @XmlElement(name="EFT",type=DAG.class, required = true),
+            @XmlElement(name = "EFT", type = Simple.class, required = true),
+            @XmlElement(name = "EFT", type = SEQ.class, required = true),
+            @XmlElement(name = "EFT", type = AND.class, required = true),
+            @XmlElement(name = "EFT", type = Xor.class, required = true),
+            @XmlElement(name = "EFT", type = DAG.class, required = true),
     })
     private BigDecimal EFT;
 
     @XmlElements({
-            @XmlElement(name="LFT",type= Simple.class, required = true),
-            @XmlElement(name="LFT",type=SEQ.class, required = true),
-            @XmlElement(name="LFT",type=AND.class, required = true),
-            @XmlElement(name="LFT",type=Xor.class, required = true),
-            @XmlElement(name="LFT",type=DAG.class, required = true),
+            @XmlElement(name = "LFT", type = Simple.class, required = true),
+            @XmlElement(name = "LFT", type = SEQ.class, required = true),
+            @XmlElement(name = "LFT", type = AND.class, required = true),
+            @XmlElement(name = "LFT", type = Xor.class, required = true),
+            @XmlElement(name = "LFT", type = DAG.class, required = true),
     })
     private BigDecimal LFT;
 
     private BigInteger C;
+
+    @XmlTransient
     private BigInteger R;
+
     private BigInteger Q;
+
+    @XmlTransient
     private BigInteger simplifiedR;
+
     private BigInteger simplifiedC;
+
     private BigInteger simplifiedQ;
 
     @XmlTransient
@@ -92,13 +99,15 @@ public abstract class Activity implements Serializable {
     private List<Activity> post = new ArrayList<>();
 
     @XmlElements({
-            @XmlElement(name="name",type= Simple.class, required = true),
-            @XmlElement(name="name",type=SEQ.class, required = true),
-            @XmlElement(name="name",type=AND.class, required = true),
-            @XmlElement(name="name",type=Xor.class, required = true),
-            @XmlElement(name="name",type=DAG.class, required = true),
+            @XmlElement(name = "name", type = Simple.class, required = true),
+            @XmlElement(name = "name", type = SEQ.class, required = true),
+            @XmlElement(name = "name", type = AND.class, required = true),
+            @XmlElement(name = "name", type = Xor.class, required = true),
+            @XmlElement(name = "name", type = DAG.class, required = true),
     })
     private String name;
+
+    public Activity(){}
     
     /**
      * The activities that this activity directly depends on.
@@ -163,7 +172,7 @@ public abstract class Activity implements Serializable {
         return !Objects.isNull(simplifiedR) ? simplifiedR : computeR(true);
     }
 
-    public BigInteger simplifiedS() {
+    public BigInteger simplifiedQ() {
         return !Objects.isNull(simplifiedQ) ? simplifiedQ : computeQ(true);
     }
 
@@ -204,6 +213,16 @@ public abstract class Activity implements Serializable {
 
     public void setSimplifiedQ(BigInteger simplifiedQ) {
         this.simplifiedQ = simplifiedQ;
+    }
+
+    public BigDecimal getFairTimeTick(){
+        double aux = this.LFT().doubleValue();
+        int mag = 1;
+        while (aux > 10) {
+            mag = mag * 10;
+            aux = aux / 10;
+        }
+        return BigDecimal.valueOf(mag * Math.pow(10, -2));
     }
 
     /** Activities that are part of this one */
@@ -318,6 +337,8 @@ public abstract class Activity implements Serializable {
 
         return getSimplified ? simplifiedMaxR : maxR;
     }
+
+    public abstract void resetSupportBounds();
 
     /*public BigInteger computeS(boolean getSimplified){
         System.out.println("Calcolo S");

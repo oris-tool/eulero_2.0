@@ -74,6 +74,21 @@ public class Xor extends Activity {
     }
 
     @Override
+    public void resetSupportBounds() {
+        double min = Double.MAX_VALUE;
+        double max = 0;
+
+        for(Activity alternative: alternatives){
+            alternative.resetSupportBounds();
+            min = Math.min(min, alternative.EFT().doubleValue());
+            max = Math.max(max, alternative.LFT().doubleValue());
+        }
+
+        setEFT(BigDecimal.valueOf(min));
+        setLFT(BigDecimal.valueOf(max));
+    }
+
+    @Override
     public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
         // input/output places of alternative activities
         List<Place> act_ins = new ArrayList<>();
