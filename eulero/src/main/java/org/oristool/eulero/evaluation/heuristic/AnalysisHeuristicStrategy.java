@@ -19,26 +19,26 @@ import java.util.stream.Collectors;
 public abstract class AnalysisHeuristicStrategy {
     private final String heuristicName;
     private final BigInteger CThreshold;
-    private final BigInteger SThreshold;
+    private final BigInteger QThreshold;
     private final Approximator approximator;
     private final boolean plotIntermediate;
     private final boolean verbose;
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose, boolean plotIntermediate){
+    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose, boolean plotIntermediate){
         this.heuristicName = heuristicName;
         this.CThreshold = CThreshold;
-        this.SThreshold = SThreshold;
+        this.QThreshold = QThreshold;
         this.approximator = approximator;
         this.plotIntermediate = plotIntermediate;
         this.verbose = verbose;
     }
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger RThreshold, Approximator approximator){
-        this(heuristicName, CThreshold, RThreshold, approximator, false, false);
+    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator){
+        this(heuristicName, CThreshold, QThreshold, approximator, false, false);
     }
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger RThreshold, Approximator approximator, boolean verbose){
-        this(heuristicName, CThreshold, RThreshold, approximator, verbose, false);
+    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose){
+        this(heuristicName, CThreshold, QThreshold, approximator, verbose, false);
     }
 
 
@@ -58,8 +58,8 @@ public abstract class AnalysisHeuristicStrategy {
         return CThreshold;
     }
 
-    public BigInteger SThreshold() {
-        return SThreshold;
+    public BigInteger QThreshold() {
+        return QThreshold;
     }
 
     public Approximator approximator() {
@@ -430,7 +430,7 @@ public abstract class AnalysisHeuristicStrategy {
         Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
         boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof Xor || mostComplexActivity instanceof Simple;
 
-        if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(SThreshold) > 0){
+        if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(QThreshold) > 0){
             return getDeepestComplexDAG(mostComplexActivity);
         }
 
@@ -444,7 +444,7 @@ public abstract class AnalysisHeuristicStrategy {
         ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.Q().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::Q)).collect(Collectors.toCollection(ArrayList::new));
         Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
 
-        if(mostComplexActivity.C().compareTo(CThreshold) > 0 || mostComplexActivity.Q().compareTo(SThreshold) > 0){
+        if(mostComplexActivity.C().compareTo(CThreshold) > 0 || mostComplexActivity.Q().compareTo(QThreshold) > 0){
             return getDeepestComplexBlock(mostComplexActivity);
         }
 
@@ -455,21 +455,37 @@ public abstract class AnalysisHeuristicStrategy {
     }
 
     public double[] InnerBlockReplicationAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars){
-        ArrayList<DAG> innerBlocks = new ArrayList<>();
-        ArrayList<DAG> sortedInnerBlocks = new ArrayList<>();
+        ArrayList<DAG> replicatedBlocks = new ArrayList<>();
+        ArrayList<DAG> sortedReplicatedBlocks = new ArrayList<>();
         for(Activity activity: ((DAG) model).end().pre()){
-            DAG innerBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_before_" + activity.name());
-            innerBlocks.add(innerBlock);
-            innerBlock.C();
-            innerBlock.Q();
-            sortedInnerBlocks.add(innerBlock);
+            DAG replicatedBlock = ((DAG) model).copyRecursive(((DAG) model).begin(), activity, "_before_" + activity.name());
+            replicatedBlocks.add(replicatedBlock);
+            replicatedBlock.C();
+            replicatedBlock.Q();
+            sortedReplicatedBlocks.add(replicatedBlock);
         }
 
-        sortedInnerBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::Q));
+        sortedReplicatedBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::Q));
+        DAG chosenReplicatedBlock = sortedReplicatedBlocks.get(sortedReplicatedBlocks.size() - 1);
 
-        DAG nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(innerBlocks.indexOf(sortedInnerBlocks.get(sortedInnerBlocks.size() - 1))));
+        DAG nestedDAG;
+        if(sortedReplicatedBlocks.size() > 1){
+            nestedDAG = ((DAG) model).nest(((DAG) model).end().pre().get(replicatedBlocks.indexOf(chosenReplicatedBlock)));
+        } else {
+            Activity endActivity = chosenReplicatedBlock.end().pre().get(0);
+            chosenReplicatedBlock.end().removePrecondition(endActivity);
+            for(Activity activity: endActivity.pre()){
+                chosenReplicatedBlock.end().addPrecondition(activity);
+            }
+            while(endActivity.pre().size() > 0){
+                endActivity.removePrecondition(endActivity.pre().get(endActivity.pre().size() - 1));
+            }
+            nestedDAG = DAG.sequence(model.name() + "_sequenced",
+                    chosenReplicatedBlock, endActivity);
+        }
+
         if(verbose)
-            System.out.println(tabSpaceChars + "---"  + " Replicated block before " + sortedInnerBlocks.get(sortedInnerBlocks.size() - 1).name().split("_before_")[1]);
+            System.out.println(tabSpaceChars + "---"  + " Replicated block before " + sortedReplicatedBlocks.get(sortedReplicatedBlocks.size() - 1).name().split("_before_")[1]);
 
         nestedDAG.setEFT(nestedDAG.low());
         nestedDAG.setLFT(nestedDAG.upp());

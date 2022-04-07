@@ -59,7 +59,9 @@ public class Simple extends Activity {
         setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
         setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
+        setQ(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
+        setSimplifiedQ(BigInteger.ONE);
         this.pdfFeatures = new ArrayList<>();
         this.pdfFeatures.add(pdf);
         this.pdfWeights = new ArrayList<>();
@@ -88,6 +90,15 @@ public class Simple extends Activity {
     @Override
     public Simple copyRecursive(String suffix) {
         return new Simple(this.name() + suffix, this.pdfFeatures, this.pdfWeights);
+    }
+
+    @Override
+    public void resetSupportBounds() {
+        setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
+        setLFT(BigDecimal.valueOf(
+                Double.isInfinite(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble()) ? Double.MAX_VALUE :
+                        pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
+        );
     }
 
     @Override

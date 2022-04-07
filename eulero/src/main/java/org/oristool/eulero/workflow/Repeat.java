@@ -54,6 +54,11 @@ public class Repeat extends Activity {
     }
 
     @Override
+    public void resetSupportBounds() {
+
+    }
+
+    @Override
     public BigInteger computeQ(boolean getSimplified) {
         return null;
     }

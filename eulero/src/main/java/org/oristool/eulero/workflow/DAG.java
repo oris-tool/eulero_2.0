@@ -132,6 +132,12 @@
         }
 
         @Override
+        public void resetSupportBounds() {
+            setEFT(getEFTBound(this.end));
+            setLFT(getLFTBound(this.end));
+        }
+
+        @Override
         public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
             Map<Activity, Place> actOut = new LinkedHashMap<>();
             Map<Activity, Transition> actPost = new LinkedHashMap<>();
@@ -634,6 +640,7 @@
             }
 
             Set<Activity> activitiesBetween = activitiesBetween(begin, end);
+            ArrayList<Activity> createdActivities = new ArrayList<>();
             for (Activity a : activitiesBetween) {
                 Activity ax = nodeCopies.computeIfAbsent(a, k -> k.copyRecursive(suffix));
                 if (!a.equals(begin)) {
@@ -642,6 +649,8 @@
                             .map(p -> nodeCopies.computeIfAbsent(p, k -> k.copyRecursive(suffix)))
                             .collect(Collectors.toCollection(ArrayList::new));
                     ax.setPre(aprex);
+
+                    createdActivities.add(ax);
                 }
 
                 if (!a.equals(end)) {
@@ -650,13 +659,16 @@
                             .map(p -> nodeCopies.computeIfAbsent(p, k -> k.copyRecursive(suffix)))
                             .collect(Collectors.toCollection(ArrayList::new));
                     ax.setPost(apostx);
+
+                    createdActivities.add(ax);
                 }
             }
 
             copy.setEFT(copy.low());
             copy.setLFT(copy.upp());
-            activitiesBetween.removeIf(t -> t.name().contains("_END") || t.name().contains("_BEGIN"));
-            copy.setActivities(Lists.newArrayList(activitiesBetween));
+            //activitiesBetween.removeIf(t -> t.name().contains("_END") || t.name().contains("_BEGIN"));
+            //copy.setActivities(Lists.newArrayList(activitiesBetween));
+            copy.setActivities(createdActivities);
             return copy;
         }
 
@@ -711,7 +723,6 @@
          * @return the nested DAG with endPre and its predecessors
          */
         public DAG nest(Activity end) {
-
             DAG copy = this.copyRecursive(this.begin(), end, "_up".replace(this.name(),""));
 
             List<Activity> endPost = new ArrayList<>(end.post());
@@ -750,7 +761,7 @@
                     theOtherNodes.remove(act);
 
                     for (Activity other : theOtherNodes) {
-                        boolean samePredecessors = act.pre().containsAll(other.pre()) && act.pre().size() == other.pre().size();
+                        boolean samePredecessors = act.pre().containsAll(other.pre()) && act.pre().size() == 1 && other.pre().size() == 1;
                         boolean disjointPrecedessors = act.pre().stream().filter(other.pre()::contains).collect(Collectors.toList()).isEmpty();
 
                         boolean isWellNested = (samePredecessors || disjointPrecedessors);
