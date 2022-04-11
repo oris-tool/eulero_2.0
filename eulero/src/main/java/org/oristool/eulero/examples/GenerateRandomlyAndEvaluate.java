@@ -2,9 +2,9 @@ package org.oristool.eulero.examples;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristic1;
-import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristicStrategy;
-import org.oristool.eulero.evaluation.heuristic.EvaluationResult;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.randomgenerator.RandomGenerator;
 import org.oristool.eulero.randomgenerator.blocksettings.ANDBlockSetting;
 import org.oristool.eulero.randomgenerator.blocksettings.BlockTypeSetting;
@@ -49,7 +49,7 @@ public class GenerateRandomlyAndEvaluate {
         BigDecimal timeLimit = model.LFT();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy strategy = new AnalysisHeuristic1(tC, tQ, approximator);
+        AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
         double[] cdf = strategy.analyze(model, timeLimit.add(BigDecimal.ONE), step);
 
         ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(

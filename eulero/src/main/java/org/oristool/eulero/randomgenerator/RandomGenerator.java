@@ -76,7 +76,7 @@ public class RandomGenerator {
                     for (int i = 0; i < breadth; i++) {
                         weights.add((1 / (double) activities.size()));
                     }
-                    Activity xor = new Xor(name, activities, weights);
+                    Activity xor = new XOR(name, activities, weights);
                     return xor;
                 }
             }

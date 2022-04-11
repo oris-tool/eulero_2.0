@@ -3,18 +3,21 @@ package org.oristool.eulero.examples;
 import com.google.common.collect.Lists;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristic1;
-import org.oristool.eulero.evaluation.heuristic.AnalysisHeuristicStrategy;
-import org.oristool.eulero.evaluation.heuristic.EvaluationResult;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.eulero.workflow.Activity;
 import org.oristool.eulero.workflow.DAG;
 import org.oristool.eulero.workflow.Simple;
-import org.oristool.eulero.workflow.Xor;
+import org.oristool.eulero.workflow.XOR;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class BuildAndEvaluate {
@@ -34,7 +37,7 @@ public class BuildAndEvaluate {
         );
 
         Activity R = DAG.forkJoin("R",
-                new Xor("R1",
+                new XOR("R1",
                         List.of(
                                 new Simple("R1A", feature),
                                 new Simple("R1b", feature)
@@ -87,11 +90,39 @@ public class BuildAndEvaluate {
         BigDecimal timeLimit = top.LFT();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicStrategy strategy = new AnalysisHeuristic1(tC, tQ, approximator);
-        double[] cdf = strategy.analyze(top, timeLimit.add(BigDecimal.ONE), step);
+        AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
+        double[] evaluation = strategy.analyze(top, timeLimit.add(BigDecimal.ONE), step);
+        EvaluationResult result = new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, top.getFairTimeTick().doubleValue(), 0);
 
-        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(
-                new EvaluationResult("Heuristic 1", cdf, 0, cdf.length, top.getFairTimeTick().doubleValue(), 0)
-        ));
+        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(result));
+
+        double[] cdf = result.cdf();
+        double[] pdf = result.pdf();
+
+        StringBuilder cdfString = new StringBuilder();
+        StringBuilder pdfString = new StringBuilder();
+        for(int j = 0; j < cdf.length; j++){
+            BigDecimal x = BigDecimal.valueOf((result.min() + j) * result.step())
+                    .setScale(BigDecimal.valueOf(result.step()).scale(), RoundingMode.HALF_DOWN);
+            cdfString.append(x.toString()).append(", ").append(cdf[j]).append("\n");
+            pdfString.append(x.toString()).append(", ").append(pdf[j]).append("\n");
+        }
+
+        try {
+            FileWriter cdfWriter = new FileWriter("/Users/riccardoreali/Desktop/Esempio/CDF/" + result.title() + ".txt");
+            FileWriter pdfWriter = new FileWriter("/Users/riccardoreali/Desktop/Esempio/PDF/" + result.title() + ".txt");
+
+            cdfWriter.write(cdfString.toString());
+            cdfWriter.close();
+            pdfWriter.write(pdfString.toString());
+            pdfWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+
+
+
     }
 }

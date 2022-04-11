@@ -39,7 +39,7 @@ import org.oristool.petrinet.Transition;
  * XOR: A random choice between activities
  */
 @XmlRootElement(name = "XOR")
-public class Xor extends Activity {
+public class XOR extends Activity {
     @XmlElementWrapper(name = "probs")
     @XmlElement(name = "prob", required = true)
     private List<Double> probs;
@@ -48,11 +48,11 @@ public class Xor extends Activity {
     @XmlElement(name = "activity", required = true)
     private List<Activity> alternatives;
 
-    public Xor(){
+    public XOR(){
         super("");
     };
     
-    public Xor(String name, List<Activity> alternatives, List<Double> probs) {
+    public XOR(String name, List<Activity> alternatives, List<Double> probs) {
         super(name);
         if (alternatives.size() != probs.size())
             throw new IllegalArgumentException("Each alternative must have one probability");
@@ -65,12 +65,12 @@ public class Xor extends Activity {
     }
 
     @Override
-    public Xor copyRecursive(String suffix) {
+    public XOR copyRecursive(String suffix) {
         List<Activity> alternativesCopy = alternatives.stream()
                 .map(a -> a.copyRecursive(suffix))
                 .collect(Collectors.toList());
         
-        return new Xor(this.name() + suffix, alternativesCopy, new ArrayList<>(probs));
+        return new XOR(this.name() + suffix, alternativesCopy, new ArrayList<>(probs));
     }
 
     @Override

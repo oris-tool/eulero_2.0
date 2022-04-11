@@ -1,4 +1,4 @@
-package org.oristool.eulero.evaluation.heuristic;
+package org.oristool.eulero.evaluation.heuristics;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.workflow.*;
@@ -16,7 +16,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class AnalysisHeuristicStrategy {
+public abstract class AnalysisHeuristicsStrategy {
     private final String heuristicName;
     private final BigInteger CThreshold;
     private final BigInteger QThreshold;
@@ -24,7 +24,7 @@ public abstract class AnalysisHeuristicStrategy {
     private final boolean plotIntermediate;
     private final boolean verbose;
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose, boolean plotIntermediate){
+    public AnalysisHeuristicsStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose, boolean plotIntermediate){
         this.heuristicName = heuristicName;
         this.CThreshold = CThreshold;
         this.QThreshold = QThreshold;
@@ -33,11 +33,11 @@ public abstract class AnalysisHeuristicStrategy {
         this.verbose = verbose;
     }
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator){
+    public AnalysisHeuristicsStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator){
         this(heuristicName, CThreshold, QThreshold, approximator, false, false);
     }
 
-    public AnalysisHeuristicStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose){
+    public AnalysisHeuristicsStrategy(String heuristicName, BigInteger CThreshold, BigInteger QThreshold, Approximator approximator, boolean verbose){
         this(heuristicName, CThreshold, QThreshold, approximator, verbose, false);
     }
 
@@ -81,9 +81,9 @@ public abstract class AnalysisHeuristicStrategy {
             System.out.println(tabSpaceChars + " Numerical XOR Analysis of " + model.name());
 
         long time = System.nanoTime();
-        for(Activity act: ((Xor) model).alternatives()){
+        for(Activity act: ((XOR) model).alternatives()){
             double[] activityCDF = analyze(act, timeLimit, step, forwardReductionFactor, error, tabSpaceChars + "---");
-            double prob = ((Xor) model).probs().get(((Xor) model).alternatives().indexOf(act));
+            double prob = ((XOR) model).probs().get(((XOR) model).alternatives().indexOf(act));
             for(int t = 0; t < solution.length; t++){
                 solution[t] += prob * activityCDF[t];
             }
@@ -211,7 +211,7 @@ public abstract class AnalysisHeuristicStrategy {
     public Map<String, Activity> getDeepestComplexDAG(Activity model){
         ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.Q().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::Q)).collect(Collectors.toCollection(ArrayList::new));
         Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
-        boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof Xor || mostComplexActivity instanceof Simple;
+        boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof XOR || mostComplexActivity instanceof Simple;
 
         if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(QThreshold) > 0){
             return getDeepestComplexDAG(mostComplexActivity);

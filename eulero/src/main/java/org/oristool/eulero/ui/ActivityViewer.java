@@ -52,7 +52,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.oristool.eulero.evaluation.heuristic.EvaluationResult;
+import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.models.stpn.TransientSolution;
 
 /**

@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 import jakarta.xml.bind.annotation.*;
-import org.oristool.analyzer.graph.Node;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
@@ -33,9 +32,7 @@ import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trans.RegTransient;
 import org.oristool.models.stpn.trans.TreeTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
-import org.oristool.models.stpn.trees.Regeneration;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
-import org.oristool.models.tpn.RegenerationEpochLengthTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
 import org.oristool.models.tpn.TimedAnalysis.Builder;
 import org.oristool.models.tpn.TimedTransitionFeature;
@@ -64,7 +61,7 @@ public abstract class Activity implements Serializable {
             @XmlElement(name = "EFT", type = Simple.class, required = true),
             @XmlElement(name = "EFT", type = SEQ.class, required = true),
             @XmlElement(name = "EFT", type = AND.class, required = true),
-            @XmlElement(name = "EFT", type = Xor.class, required = true),
+            @XmlElement(name = "EFT", type = XOR.class, required = true),
             @XmlElement(name = "EFT", type = DAG.class, required = true),
     })
     private BigDecimal EFT;
@@ -73,7 +70,7 @@ public abstract class Activity implements Serializable {
             @XmlElement(name = "LFT", type = Simple.class, required = true),
             @XmlElement(name = "LFT", type = SEQ.class, required = true),
             @XmlElement(name = "LFT", type = AND.class, required = true),
-            @XmlElement(name = "LFT", type = Xor.class, required = true),
+            @XmlElement(name = "LFT", type = XOR.class, required = true),
             @XmlElement(name = "LFT", type = DAG.class, required = true),
     })
     private BigDecimal LFT;
@@ -96,7 +93,7 @@ public abstract class Activity implements Serializable {
             @XmlElement(name = "name", type = Simple.class, required = true),
             @XmlElement(name = "name", type = SEQ.class, required = true),
             @XmlElement(name = "name", type = AND.class, required = true),
-            @XmlElement(name = "name", type = Xor.class, required = true),
+            @XmlElement(name = "name", type = XOR.class, required = true),
             @XmlElement(name = "name", type = DAG.class, required = true),
     })
     private String name;

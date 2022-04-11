@@ -1,4 +1,4 @@
-package org.oristool.eulero.evaluation.heuristic;
+package org.oristool.eulero.evaluation.heuristics;
 
 import org.oristool.models.stpn.TransientSolution;
 
