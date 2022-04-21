@@ -1,6 +1,6 @@
 package org.oristool.eulero.randomgenerator;
 
-import org.oristool.eulero.workflow.*;
+import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.randomgenerator.blocksettings.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -163,8 +163,8 @@ public class RandomGenerator {
 
                 dag.setEdges(edges);
 
-                dag.setEFT(dag.low());
-                dag.setLFT(dag.upp());
+                dag.setMin(dag.low());
+                dag.setMax(dag.upp());
                 return dag;
             }
         }

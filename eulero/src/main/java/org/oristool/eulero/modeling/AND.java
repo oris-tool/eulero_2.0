@@ -1,4 +1,4 @@
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -14,8 +14,8 @@ public class AND extends DAG {
 
     protected AND(String name, List<Activity> activities) {
         super(name);
-        setEFT(this.low());
-        setLFT(this.upp());
+        setMin(this.low());
+        setMax(this.upp());
         setActivities(activities);
     }
 
@@ -32,8 +32,8 @@ public class AND extends DAG {
     public DAG copyRecursive(String suffix){
         DAG copy = DAG.forkJoin(this.name() + "_" + suffix, activities().stream()
                 .map(a -> a.copyRecursive(suffix)).toArray(Activity[]::new));
-        copy.setEFT(copy.low());
-        copy.setLFT(copy.upp());
+        copy.setMin(copy.low());
+        copy.setMax(copy.upp());
         copy.C();
         copy.Q();
         return copy;

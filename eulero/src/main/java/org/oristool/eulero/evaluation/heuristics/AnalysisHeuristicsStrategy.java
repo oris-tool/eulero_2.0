@@ -1,7 +1,7 @@
 package org.oristool.eulero.evaluation.heuristics;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.workflow.*;
+import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
@@ -159,7 +159,7 @@ public abstract class AnalysisHeuristicsStrategy {
         Map<String, Activity> toBeSimplifiedActivityMap = getDeepestComplexDAG(model);
         Activity toBeSimplifiedActivity = toBeSimplifiedActivityMap.get("activity");
         Activity toBeSimplifiedActivityParent = toBeSimplifiedActivityMap.get("parent");
-        double aux = toBeSimplifiedActivity.LFT().doubleValue();
+        double aux = toBeSimplifiedActivity.max().doubleValue();
         int mag = 1;
         while (aux > 10) {
             mag = mag * 10;
@@ -168,8 +168,8 @@ public abstract class AnalysisHeuristicsStrategy {
         BigDecimal innerActivityStep = BigDecimal.valueOf(mag * Math.pow(10, -2));
 
         ArrayList<Pair<BigDecimal, StochasticTransitionFeature>> approximationFeature =  approximator().getApproximatedStochasticTransitionFeatures(
-                analyze(toBeSimplifiedActivity, toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
-                toBeSimplifiedActivity.EFT().doubleValue(), (toBeSimplifiedActivity.LFT().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.LFT()).doubleValue(), innerActivityStep);
+                analyze(toBeSimplifiedActivity, toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max(), innerActivityStep, forwardReductionFactor, error, tabSpaceChars + "---"  ),
+                toBeSimplifiedActivity.min().doubleValue(), (toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max()).doubleValue(), innerActivityStep);
 
         Activity newActivity = new Simple(toBeSimplifiedActivity.name() + "_N",
                 approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
@@ -256,8 +256,8 @@ public abstract class AnalysisHeuristicsStrategy {
         if(verbose)
             System.out.println(tabSpaceChars + "---"  + " Replicated block before " + sortedReplicatedBlocks.get(sortedReplicatedBlocks.size() - 1).name().split("_before_")[1]);
 
-        nestedDAG.setEFT(nestedDAG.low());
-        nestedDAG.setLFT(nestedDAG.upp());
+        nestedDAG.setMin(nestedDAG.low());
+        nestedDAG.setMax(nestedDAG.upp());
 
         if(plotIntermediate){
             TransientSolution<DeterministicEnablingState, RewardRate> simulate = model.simulate(timeLimit.toString(), step.toString(), 5000);

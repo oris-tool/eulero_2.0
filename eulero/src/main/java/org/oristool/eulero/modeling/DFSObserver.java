@@ -15,14 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 /**
- * Callbacks for nested DFS.
+ * Callbacks for DFS.
+ * 
+ * The observer can modify the dependencies of a node during 
+ * onOpen and onClose.
  * 
  * If a method returns false, the visit stops immediately.
  */
-public interface DFSNestedObserver extends DFSObserver {
-    default boolean onNestedStart(Activity nested) { return true; };
-    default boolean onNestedEnd(Activity nested) { return true; };
+public interface DFSObserver {
+    default boolean onOpen(Activity opened, Activity from) { return true; };
+    default boolean onClose(Activity closed) { return true; };
+    default boolean onSkip(Activity skipped, Activity from) { return true; };
 }

@@ -1,6 +1,6 @@
 package org.oristool.eulero.evaluation.heuristics;
 
-import org.oristool.eulero.workflow.*;
+import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 
 import java.math.BigDecimal;

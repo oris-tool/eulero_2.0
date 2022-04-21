@@ -1,4 +1,4 @@
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -9,8 +9,8 @@ import java.util.List;
 public class SEQ extends DAG{
     protected SEQ(String name, List<Activity> activities){
         super(name);
-        setEFT(this.low());
-        setLFT(this.upp());
+        setMin(this.low());
+        setMax(this.upp());
         setActivities(activities);
         initEdges();
     }
@@ -32,8 +32,8 @@ public class SEQ extends DAG{
     public DAG copyRecursive(String suffix){
         DAG copy = DAG.sequence(this.name() + "_" + suffix, activities().stream()
                 .map(a -> a.copyRecursive(suffix)).toArray(Activity[]::new));
-        copy.setEFT(copy.low());
-        copy.setLFT(copy.upp());
+        copy.setMin(copy.low());
+        copy.setMax(copy.upp());
         copy.C();
         copy.Q();
         return copy;

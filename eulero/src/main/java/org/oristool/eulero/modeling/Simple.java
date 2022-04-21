@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -56,8 +56,8 @@ public class Simple extends Activity {
      */
     public Simple(String name, StochasticTransitionFeature pdf) {
         super(name);
-        setEFT(pdf.density().getDomainsEFT().bigDecimalValue());
-        setLFT((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
+        setMin(pdf.density().getDomainsEFT().bigDecimalValue());
+        setMax((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
         setQ(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
@@ -70,8 +70,8 @@ public class Simple extends Activity {
 
     public Simple(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
         super(name);
-        setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
-        setLFT(BigDecimal.valueOf(
+        setMin(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
+        setMax(BigDecimal.valueOf(
                 Double.isInfinite(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble()) ? Double.MAX_VALUE :
                 pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
         );
@@ -94,8 +94,8 @@ public class Simple extends Activity {
 
     @Override
     public void resetSupportBounds() {
-        setEFT(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
-        setLFT(BigDecimal.valueOf(
+        setMin(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
+        setMax(BigDecimal.valueOf(
                 Double.isInfinite(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble()) ? Double.MAX_VALUE :
                         pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble())
         );
@@ -200,12 +200,12 @@ public class Simple extends Activity {
 
     @Override
     public BigDecimal low() {
-        return this.EFT();
+        return this.min();
     }
 
     @Override
     public BigDecimal upp() {
-        return this.LFT();
+        return this.max();
     }
 
     public void setFeatures(ArrayList<StochasticTransitionFeature> pdfFeatures) {

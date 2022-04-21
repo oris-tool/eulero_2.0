@@ -7,10 +7,10 @@ import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.ui.ActivityViewer;
-import org.oristool.eulero.workflow.Activity;
-import org.oristool.eulero.workflow.DAG;
-import org.oristool.eulero.workflow.Simple;
-import org.oristool.eulero.workflow.XOR;
+import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.DAG;
+import org.oristool.eulero.modeling.Simple;
+import org.oristool.eulero.modeling.XOR;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.FileWriter;
@@ -81,13 +81,13 @@ public class BuildAndEvaluate {
         T.addPrecondition(R);
         S.addPrecondition(R, Q);
         top.end().addPrecondition(T, S);
-        top.setEFT(top.getEFTBound(top.end()));
-        top.setLFT(top.getLFTBound(top.end()));
+        top.setMin(top.getMinBound(top.end()));
+        top.setMax(top.getMaxBound(top.end()));
         top.setActivities(Lists.newArrayList(Q, R, S, T));
 
         BigInteger tC = BigInteger.valueOf(3);
         BigInteger tQ = BigInteger.valueOf(7);
-        BigDecimal timeLimit = top.LFT();
+        BigDecimal timeLimit = top.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);

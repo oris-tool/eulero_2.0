@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -57,8 +57,8 @@ public class XOR extends Activity {
         if (alternatives.size() != probs.size())
             throw new IllegalArgumentException("Each alternative must have one probability");
 
-        setEFT(alternatives.stream().reduce((a,b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
-        setLFT(alternatives.stream().reduce((a,b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
+        setMin(alternatives.stream().reduce((a, b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
+        setMax(alternatives.stream().reduce((a, b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
         this.probs = probs;
         this.alternatives = alternatives;
 
@@ -80,12 +80,12 @@ public class XOR extends Activity {
 
         for(Activity alternative: alternatives){
             alternative.resetSupportBounds();
-            min = Math.min(min, alternative.EFT().doubleValue());
-            max = Math.max(max, alternative.LFT().doubleValue());
+            min = Math.min(min, alternative.min().doubleValue());
+            max = Math.max(max, alternative.max().doubleValue());
         }
 
-        setEFT(BigDecimal.valueOf(min));
-        setLFT(BigDecimal.valueOf(max));
+        setMin(BigDecimal.valueOf(min));
+        setMax(BigDecimal.valueOf(max));
     }
 
     @Override
@@ -113,8 +113,8 @@ public class XOR extends Activity {
 
         for (int i = 0; i < alternatives.size(); i++) {
             Transition t = pn.addTransition(alternatives().get(i).name() + "_timed");
-            t.addFeature(StochasticTransitionFeature.newUniformInstance(alternatives().get(i).EFT(), alternatives().get(i).LFT()));
-            t.addFeature(new TimedTransitionFeature(alternatives().get(i).EFT().toString(), alternatives().get(i).LFT().toString()));
+            t.addFeature(StochasticTransitionFeature.newUniformInstance(alternatives().get(i).min(), alternatives().get(i).max()));
+            t.addFeature(new TimedTransitionFeature(alternatives().get(i).min().toString(), alternatives().get(i).max().toString()));
             t.addFeature(new ConcurrencyTransitionFeature(alternatives().get(i).C()));
             //t.addFeature(new RegenerationEpochLengthTransitionFeature(alternatives().get(i).R()));
 
@@ -213,12 +213,12 @@ public class XOR extends Activity {
 
     @Override
     public BigDecimal low() {
-        return this.EFT();
+        return this.min();
     }
 
     @Override
     public BigDecimal upp() {
-        return this.LFT();
+        return this.max();
     }
 
     @Override

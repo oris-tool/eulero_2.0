@@ -15,7 +15,7 @@
      * along with this program.  If not, see <https://www.gnu.org/licenses/>.
      */
 
-    package org.oristool.eulero.workflow;
+    package org.oristool.eulero.modeling;
 
     import java.math.BigDecimal;
     import java.math.BigInteger;
@@ -80,8 +80,8 @@
 
             dag.end().addPrecondition(prev);
 
-            dag.setEFT(dag.low());
-            dag.setLFT(dag.upp());
+            dag.setMin(dag.low());
+            dag.setMax(dag.upp());
 
             return dag;
         }
@@ -109,8 +109,8 @@
                 dag.end().addPrecondition(a);
             }
 
-            dag.setEFT(dag.low());
-            dag.setLFT(dag.upp());
+            dag.setMin(dag.low());
+            dag.setMax(dag.upp());
 
             return dag;
         }
@@ -133,8 +133,8 @@
 
         @Override
         public void resetSupportBounds() {
-            setEFT(getEFTBound(this.end));
-            setLFT(getLFTBound(this.end));
+            setMin(getMinBound(this.end));
+            setMax(getMaxBound(this.end));
         }
 
         @Override
@@ -241,8 +241,8 @@
             // recursively add nested activities
             for (int i = act.size() - 1; i >= 0; i--) {
                 Activity a = act.get(i);
-                a.setEFT(a.low());
-                a.setLFT(a.upp());
+                a.setMin(a.low());
+                a.setMax(a.upp());
 
                 if (a.equals(begin())) {
                     if (useBegin) {
@@ -264,8 +264,8 @@
 
                     Transition t = pn.addTransition(a.name() + "_untimed");
                     // A fake stochastic feature to make the timed analysis properly work.
-                    t.addFeature(StochasticTransitionFeature.newUniformInstance(a.EFT().toString(), a.LFT().toString()));
-                    t.addFeature(new TimedTransitionFeature(a.EFT().toString(), a.LFT().toString()));
+                    t.addFeature(StochasticTransitionFeature.newUniformInstance(a.min().toString(), a.max().toString()));
+                    t.addFeature(new TimedTransitionFeature(a.min().toString(), a.max().toString()));
                     t.addFeature(new ConcurrencyTransitionFeature(a.C()));
                     //t.addFeature(new RegenerationEpochLengthTransitionFeature(a.R()));
                     pn.addPostcondition(t, aOut);
@@ -664,8 +664,8 @@
                 }
             }
 
-            copy.setEFT(copy.low());
-            copy.setLFT(copy.upp());
+            copy.setMin(copy.low());
+            copy.setMax(copy.upp());
             copy.setActivities(createdActivities);
             return copy;
         }
@@ -793,7 +793,7 @@
                     }
                     Activity forkJoin = DAG.forkJoin(name.toString(), nodes.toArray(Activity[]::new));
 
-                    if(!List.copyOf(theseNodeSuccessors).get(0).LFT().equals(BigDecimal.ZERO)){
+                    if(!List.copyOf(theseNodeSuccessors).get(0).max().equals(BigDecimal.ZERO)){
                         ArrayList<Activity> theSequence = new ArrayList<>();
                         theSequence.add(forkJoin);
                         Activity sequenceLastNode = wellNestIt(Lists.newArrayList(theseNodeSuccessors));
@@ -821,7 +821,7 @@
                  sequenceNodes.add(nodes.get(0));
                  sequenceNodes.add(wellNestIt(nodes.get(0).post()));
                  List<Activity> joinPoint = findJoinPoint(nodes.get(0));
-                 if(!joinPoint.isEmpty() && !joinPoint.get(0).LFT().equals(BigDecimal.ZERO)){
+                 if(!joinPoint.isEmpty() && !joinPoint.get(0).max().equals(BigDecimal.ZERO)){
                      sequenceNodes.add(wellNestIt(joinPoint));
                  }
 
@@ -831,7 +831,7 @@
                  return DAG.sequence(name.toString(), sequenceNodes.toArray(Activity[]::new));
             }
 
-            if(nodes.size() == 1 && nodes.get(0).post().size() == 1 && !nodes.get(0).post().get(0).LFT().equals(BigDecimal.ZERO)){
+            if(nodes.size() == 1 && nodes.get(0).post().size() == 1 && !nodes.get(0).post().get(0).max().equals(BigDecimal.ZERO)){
                 List<Activity> sequenceNodes = new ArrayList<>();
                 StringBuilder name = new StringBuilder("SEQ(");
                 sequenceNodes.add(nodes.get(0));
@@ -856,7 +856,7 @@
             while(theSetOfSuccessors.size() > 1){
                 Set<Activity> nextSetOfSuccessors = new HashSet<>();
                 for(Activity act: theSetOfSuccessors){
-                    nextSetOfSuccessors.addAll(act.post().stream().filter(t -> !t.LFT().equals(BigDecimal.ZERO)).collect(Collectors.toList()));
+                    nextSetOfSuccessors.addAll(act.post().stream().filter(t -> !t.max().equals(BigDecimal.ZERO)).collect(Collectors.toList()));
                 }
 
                 theSetOfSuccessors = nextSetOfSuccessors;
@@ -866,12 +866,12 @@
 
         @Override
         public BigDecimal low() {
-            return getEFTBound(this.end);
+            return getMinBound(this.end);
         }
 
         @Override
         public BigDecimal upp() {
-            return getLFTBound(this.end);
+            return getMaxBound(this.end);
         }
 
         public List<Activity> activities() {
@@ -887,27 +887,27 @@
             return false;
         }
 
-        public BigDecimal getEFTBound(Activity activity){
+        public BigDecimal getMinBound(Activity activity){
             if(activity.equals(this.begin)){
                 return activity.low();
             }
 
             BigDecimal maximumPredecessorLow = BigDecimal.ZERO;
             for(Activity predecessor: activity.pre()){
-                maximumPredecessorLow = maximumPredecessorLow.max(getEFTBound(predecessor));
+                maximumPredecessorLow = maximumPredecessorLow.max(getMinBound(predecessor));
             }
 
             return activity.low().add(maximumPredecessorLow);
         }
 
-        public BigDecimal getLFTBound(Activity activity){
+        public BigDecimal getMaxBound(Activity activity){
             if(activity.equals(this.begin)){
                 return activity.upp();
             }
 
             BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
             for(Activity predecessor: activity.pre()){
-                maximumPredecessorUpp = maximumPredecessorUpp.max(getLFTBound(predecessor));
+                maximumPredecessorUpp = maximumPredecessorUpp.max(getMaxBound(predecessor));
             }
 
             return activity.upp().add(maximumPredecessorUpp);

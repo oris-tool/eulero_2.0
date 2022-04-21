@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.workflow;
+package org.oristool.eulero.modeling;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -64,7 +64,7 @@ public abstract class Activity implements Serializable {
             @XmlElement(name = "EFT", type = XOR.class, required = true),
             @XmlElement(name = "EFT", type = DAG.class, required = true),
     })
-    private BigDecimal EFT;
+    private BigDecimal min;
 
     @XmlElements({
             @XmlElement(name = "LFT", type = Simple.class, required = true),
@@ -73,7 +73,7 @@ public abstract class Activity implements Serializable {
             @XmlElement(name = "LFT", type = XOR.class, required = true),
             @XmlElement(name = "LFT", type = DAG.class, required = true),
     })
-    private BigDecimal LFT;
+    private BigDecimal max;
 
     private BigInteger C;
 
@@ -135,12 +135,12 @@ public abstract class Activity implements Serializable {
         return name;
     }
 
-    public BigDecimal EFT() {
-        return EFT;
+    public BigDecimal min() {
+        return min;
     }
 
-    public BigDecimal LFT() {
-        return LFT;
+    public BigDecimal max() {
+        return max;
     }
 
     public BigInteger C() {
@@ -166,12 +166,16 @@ public abstract class Activity implements Serializable {
         computeQ(false);
     }
 
-    public void setEFT(BigDecimal EFT) {
-        this.EFT = EFT;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setLFT(BigDecimal LFT) {
-        this.LFT = LFT;
+    public void setMin(BigDecimal min) {
+        this.min = min;
+    }
+
+    public void setMax(BigDecimal max) {
+        this.max = max;
     }
 
     public void setC(BigInteger C) {
@@ -191,7 +195,7 @@ public abstract class Activity implements Serializable {
     }
 
     public BigDecimal getFairTimeTick(){
-        double aux = this.LFT().doubleValue();
+        double aux = this.max().doubleValue();
         int mag = 1;
         while (aux > 10) {
             mag = mag * 10;

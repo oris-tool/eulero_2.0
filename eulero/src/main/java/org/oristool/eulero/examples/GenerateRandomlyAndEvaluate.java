@@ -11,7 +11,7 @@ import org.oristool.eulero.randomgenerator.blocksettings.BlockTypeSetting;
 import org.oristool.eulero.randomgenerator.blocksettings.DAGBlockSetting;
 import org.oristool.eulero.randomgenerator.blocksettings.SEQBlockSetting;
 import org.oristool.eulero.ui.ActivityViewer;
-import org.oristool.eulero.workflow.Activity;
+import org.oristool.eulero.modeling.Activity;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -46,7 +46,7 @@ public class GenerateRandomlyAndEvaluate {
 
         BigInteger tC = BigInteger.valueOf(3);
         BigInteger tQ = BigInteger.valueOf(7);
-        BigDecimal timeLimit = model.LFT();
+        BigDecimal timeLimit = model.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
