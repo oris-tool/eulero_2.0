@@ -269,6 +269,8 @@ public abstract class Activity implements Serializable {
 
     public abstract void resetSupportBounds();
 
+    private final int test = 0;
+
     public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
 
     /**
