@@ -166,10 +166,6 @@ public abstract class Activity implements Serializable {
         computeQ(false);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public void setMin(BigDecimal min) {
         this.min = min;
     }
@@ -268,8 +264,6 @@ public abstract class Activity implements Serializable {
     public abstract  BigInteger computeQ(boolean getSimplified);
 
     public abstract void resetSupportBounds();
-
-    private final int test = 0;
 
     public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
 

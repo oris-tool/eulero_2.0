@@ -1,4 +1,4 @@
-package org.oristool.eulero.randomgenerator.blocksettings;
+package org.oristool.eulero.modelgeneration.blocksettings;
 
 public class SEQBlockSetting extends WellNestedBlockSetting{
     public SEQBlockSetting(double probability, int maximumBreadth) {

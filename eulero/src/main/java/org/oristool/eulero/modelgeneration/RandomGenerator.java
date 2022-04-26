@@ -1,7 +1,7 @@
-package org.oristool.eulero.randomgenerator;
+package org.oristool.eulero.modelgeneration;
 
 import org.oristool.eulero.modeling.*;
-import org.oristool.eulero.randomgenerator.blocksettings.*;
+import org.oristool.eulero.modelgeneration.blocksettings.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -30,6 +30,10 @@ public class RandomGenerator {
     }
 
     public Activity generateBlock(int depthLevel, int[] activityNameCounter){
+        return generateBlock(depthLevel, activityNameCounter, "", "");
+    }
+
+    public Activity generateBlock(int depthLevel, int[] activityNameCounter, String simpleActivityPrefix,  String simpleActivitySuffix){
         if(depthLevel > 0) {
             Set<BlockTypeSetting> levelSetting = settings.get(settings.size() - depthLevel);
 
@@ -55,7 +59,7 @@ public class RandomGenerator {
 
                 ArrayList<Activity> activities = new ArrayList<>();
                 for (int i = 0; i < breadth; i++) {
-                    activities.add(generateBlock(depthLevel - 1, activityNameCounter));
+                    activities.add(generateBlock(depthLevel - 1, activityNameCounter, simpleActivityPrefix, simpleActivitySuffix));
                 }
 
                 if (chosenBlock instanceof ANDBlockSetting) {
@@ -93,7 +97,7 @@ public class RandomGenerator {
                     int nodeNumber = rand.nextInt((((DAGBlockSetting) chosenBlock).getMaximumLevelBreadth() - ((DAGBlockSetting) chosenBlock).getMinimumLevelBreadth()) + 1) + ((DAGBlockSetting) chosenBlock).getMinimumLevelBreadth();
 
                     for(int j = 0; j < nodeNumber; j++){
-                        Activity node = generateBlock(depthLevel - 1, activityNameCounter);
+                        Activity node = generateBlock(depthLevel - 1, activityNameCounter, simpleActivityPrefix, simpleActivitySuffix);
                         name.append(node.name()).append(j != nodeNumber - 1 ? ", " : "");
                         level.add(node);
                         dagActivities.add(node);
@@ -170,7 +174,7 @@ public class RandomGenerator {
         }
 
         //We reach the end of the tree --> generate an activity
-        String name = "A" + activityNameCounter[0]++;
+        String name = simpleActivityPrefix + "A" + activityNameCounter[0]++ + simpleActivitySuffix;
         return new Simple(name, this.features, this.weights);
     }
 

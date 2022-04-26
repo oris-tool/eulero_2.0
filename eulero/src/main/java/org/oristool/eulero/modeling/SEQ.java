@@ -43,7 +43,7 @@ public class SEQ extends DAG{
         ArrayList<DAGEdge> edges = new ArrayList<>();
         Activity prev = activities().get(0);
         for(int i = 1; i < activities().size(); i++){
-            edges.add(new DAGEdge(activities().get(i).name(), prev.name()));
+            edges.add(new DAGEdge(prev.name(), activities().get(i).name()));
             prev = activities().get(i);
         }
         setEdges(edges);
