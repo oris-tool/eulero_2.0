@@ -15,18 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.solver;
+package org.oristool.eulero.modelgeneration.blocksettings;
 
-import org.oristool.analyzer.graph.SuccessionGraph;
-import org.oristool.petrinet.PetriNet;
-import org.oristool.util.Pair;
-
-/**
- * Estimates the cost of regenerative transient analysis from a class graph.
- */
-public class CostEstimator {
-    public static double edgeCount(Pair<SuccessionGraph, PetriNet> input) {
-        SuccessionGraph graph = input.first();
-        return graph.getSuccessions().size();
+public class ANDBlockSetting extends WellNestedBlockSetting {
+    public ANDBlockSetting(double probability, int maximumBreadth) {
+        super("AND", probability, maximumBreadth);
     }
 }

@@ -15,18 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.solver;
-
-import org.oristool.analyzer.graph.SuccessionGraph;
-import org.oristool.petrinet.PetriNet;
-import org.oristool.util.Pair;
+package org.oristool.eulero.modeling;
 
 /**
- * Estimates the cost of regenerative transient analysis from a class graph.
+ * Callbacks for nested DFS.
+ * 
+ * If a method returns false, the visit stops immediately.
  */
-public class CostEstimator {
-    public static double edgeCount(Pair<SuccessionGraph, PetriNet> input) {
-        SuccessionGraph graph = input.first();
-        return graph.getSuccessions().size();
-    }
+public interface DFSNestedObserver extends DFSObserver {
+    default boolean onNestedStart(Activity nested) { return true; };
+    default boolean onNestedEnd(Activity nested) { return true; };
 }
