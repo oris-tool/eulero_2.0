@@ -58,7 +58,7 @@ public class GenerateRandomlyAndEvaluate {
 
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance("0", "1");
         RandomGenerator randomGenerator = new RandomGenerator(feature, settings);
-        Activity model = randomGenerator.generateBlock(settings.size(), new int[1]);
+        Activity model = randomGenerator.generateBlock(settings.size());
 
 
         BigInteger tC = BigInteger.valueOf(3);

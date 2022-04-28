@@ -46,7 +46,8 @@ public class RandomGenerator {
         this.weights = weights;
     }
 
-    public Activity generateBlock(int depthLevel, int[] activityNameCounter){
+    public Activity generateBlock(int depthLevel){
+        int[] activityNameCounter = new int[1];
         return generateBlock(depthLevel, activityNameCounter, "", "");
     }
 
