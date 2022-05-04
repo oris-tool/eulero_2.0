@@ -30,6 +30,7 @@ import org.oristool.eulero.modeling.Simple;
 import org.oristool.eulero.modeling.XOR;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -102,7 +103,7 @@ public class BuildAndEvaluate {
         top.setMax(top.getMaxBound(top.end()));
         top.setActivities(Lists.newArrayList(Q, R, S, T));
 
-        BigInteger tC = BigInteger.valueOf(3);
+        BigInteger tC = BigInteger.valueOf(2);
         BigInteger tQ = BigInteger.valueOf(7);
         BigDecimal timeLimit = top.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
@@ -113,21 +114,30 @@ public class BuildAndEvaluate {
 
         ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(result));
 
+        // To Store results...
+        String directoryPath = System.getProperty("user.dir") + "/BuildAndEvaluateExample/";
+        File thisExampleFolder = new File(directoryPath);
+        if(!thisExampleFolder.exists()){
+            thisExampleFolder.mkdirs();
+        }
+
         double[] cdf = result.cdf();
         double[] pdf = result.pdf();
 
         StringBuilder cdfString = new StringBuilder();
         StringBuilder pdfString = new StringBuilder();
+        cdfString.append("t,f");
+        pdfString.append("t,f");
         for(int j = 0; j < cdf.length; j++){
             BigDecimal x = BigDecimal.valueOf((result.min() + j) * result.step())
                     .setScale(BigDecimal.valueOf(result.step()).scale(), RoundingMode.HALF_DOWN);
-            cdfString.append(x.toString()).append(", ").append(cdf[j]).append("\n");
-            pdfString.append(x.toString()).append(", ").append(pdf[j]).append("\n");
+            cdfString.append(x.toString()).append(",").append(cdf[j]).append("\n");
+            pdfString.append(x.toString()).append(",").append(pdf[j]).append("\n");
         }
 
         try {
-            FileWriter cdfWriter = new FileWriter("/Users/riccardoreali/Desktop/Esempio/CDF/" + result.title() + ".txt");
-            FileWriter pdfWriter = new FileWriter("/Users/riccardoreali/Desktop/Esempio/PDF/" + result.title() + ".txt");
+            FileWriter cdfWriter = new FileWriter(directoryPath + "CDF.txt");
+            FileWriter pdfWriter = new FileWriter(directoryPath + "CDF.txt");
 
             cdfWriter.write(cdfString.toString());
             cdfWriter.close();
@@ -137,9 +147,5 @@ public class BuildAndEvaluate {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-
-
-
-
     }
 }

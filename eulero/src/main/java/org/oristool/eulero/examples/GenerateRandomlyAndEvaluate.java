@@ -31,8 +31,12 @@ import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,16 +65,49 @@ public class GenerateRandomlyAndEvaluate {
         Activity model = randomGenerator.generateBlock(settings.size());
 
 
-        BigInteger tC = BigInteger.valueOf(3);
+        BigInteger tC = BigInteger.valueOf(2);
         BigInteger tQ = BigInteger.valueOf(7);
         BigDecimal timeLimit = model.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
         AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
-        double[] cdf = strategy.analyze(model, timeLimit.add(BigDecimal.ONE), step);
+        double[] evaluation = strategy.analyze(model, timeLimit.add(BigDecimal.ONE), step);
+        EvaluationResult result =  new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, model.getFairTimeTick().doubleValue(), 0);
 
-        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(
-                new EvaluationResult("Heuristic 1", cdf, 0, cdf.length, model.getFairTimeTick().doubleValue(), 0)
-        ));
+        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(result));
+
+        // To Store results...
+        String directoryPath = System.getProperty("user.dir") + "/GenerateRandomlyAndEvaluateExample/";
+        File thisExampleFolder = new File(directoryPath);
+        if(!thisExampleFolder.exists()){
+            thisExampleFolder.mkdirs();
+        }
+
+        double[] cdf = result.cdf();
+        double[] pdf = result.pdf();
+
+        StringBuilder cdfString = new StringBuilder();
+        StringBuilder pdfString = new StringBuilder();
+        cdfString.append("t,f");
+        pdfString.append("t,f");
+        for(int j = 0; j < cdf.length; j++){
+            BigDecimal x = BigDecimal.valueOf((result.min() + j) * result.step())
+                    .setScale(BigDecimal.valueOf(result.step()).scale(), RoundingMode.HALF_DOWN);
+            cdfString.append(x.toString()).append(",").append(cdf[j]).append("\n");
+            pdfString.append(x.toString()).append(",").append(pdf[j]).append("\n");
+        }
+
+        try {
+            FileWriter cdfWriter = new FileWriter(directoryPath + "CDF.txt");
+            FileWriter pdfWriter = new FileWriter(directoryPath + "CDF.txt");
+
+            cdfWriter.write(cdfString.toString());
+            cdfWriter.close();
+            pdfWriter.write(pdfString.toString());
+            pdfWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }
