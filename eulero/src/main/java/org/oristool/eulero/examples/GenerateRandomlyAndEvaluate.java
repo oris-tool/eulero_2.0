@@ -27,7 +27,6 @@ import org.oristool.eulero.modelgeneration.blocksettings.ANDBlockSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.BlockTypeSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.DAGBlockSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.SEQBlockSetting;
-import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -39,7 +38,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class GenerateRandomlyAndEvaluate {
@@ -74,8 +72,6 @@ public class GenerateRandomlyAndEvaluate {
         double[] evaluation = strategy.analyze(model, timeLimit.add(BigDecimal.ONE), step);
         EvaluationResult result =  new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, model.getFairTimeTick().doubleValue(), 0);
 
-        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(result));
-
         // To Store results...
         String directoryPath = System.getProperty("user.dir") + "/GenerateRandomlyAndEvaluateExample/";
         File thisExampleFolder = new File(directoryPath);
@@ -88,8 +84,8 @@ public class GenerateRandomlyAndEvaluate {
 
         StringBuilder cdfString = new StringBuilder();
         StringBuilder pdfString = new StringBuilder();
-        cdfString.append("t,f");
-        pdfString.append("t,f");
+        cdfString.append("t,f\n");
+        pdfString.append("t,f\n");
         for(int j = 0; j < cdf.length; j++){
             BigDecimal x = BigDecimal.valueOf((result.min() + j) * result.step())
                     .setScale(BigDecimal.valueOf(result.step()).scale(), RoundingMode.HALF_DOWN);
@@ -99,7 +95,7 @@ public class GenerateRandomlyAndEvaluate {
 
         try {
             FileWriter cdfWriter = new FileWriter(directoryPath + "CDF.txt");
-            FileWriter pdfWriter = new FileWriter(directoryPath + "CDF.txt");
+            FileWriter pdfWriter = new FileWriter(directoryPath + "PDF.txt");
 
             cdfWriter.write(cdfString.toString());
             cdfWriter.close();

@@ -103,7 +103,7 @@ public class BuildAndEvaluate {
         top.setMax(top.getMaxBound(top.end()));
         top.setActivities(Lists.newArrayList(Q, R, S, T));
 
-        BigInteger tC = BigInteger.valueOf(2);
+        BigInteger tC = BigInteger.valueOf(3);
         BigInteger tQ = BigInteger.valueOf(7);
         BigDecimal timeLimit = top.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
@@ -111,8 +111,6 @@ public class BuildAndEvaluate {
         AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
         double[] evaluation = strategy.analyze(top, timeLimit.add(BigDecimal.ONE), step);
         EvaluationResult result = new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, top.getFairTimeTick().doubleValue(), 0);
-
-        ActivityViewer.CompareResults("Example", List.of("Heuristic 1"), List.of(result));
 
         // To Store results...
         String directoryPath = System.getProperty("user.dir") + "/BuildAndEvaluateExample/";
@@ -126,8 +124,8 @@ public class BuildAndEvaluate {
 
         StringBuilder cdfString = new StringBuilder();
         StringBuilder pdfString = new StringBuilder();
-        cdfString.append("t,f");
-        pdfString.append("t,f");
+        cdfString.append("t,f\n");
+        pdfString.append("t,f\n");
         for(int j = 0; j < cdf.length; j++){
             BigDecimal x = BigDecimal.valueOf((result.min() + j) * result.step())
                     .setScale(BigDecimal.valueOf(result.step()).scale(), RoundingMode.HALF_DOWN);
@@ -137,7 +135,7 @@ public class BuildAndEvaluate {
 
         try {
             FileWriter cdfWriter = new FileWriter(directoryPath + "CDF.txt");
-            FileWriter pdfWriter = new FileWriter(directoryPath + "CDF.txt");
+            FileWriter pdfWriter = new FileWriter(directoryPath + "PDF.txt");
 
             cdfWriter.write(cdfString.toString());
             cdfWriter.close();
