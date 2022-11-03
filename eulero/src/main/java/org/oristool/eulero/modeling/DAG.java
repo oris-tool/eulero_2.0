@@ -27,6 +27,7 @@
     import jakarta.xml.bind.annotation.XmlElementWrapper;
     import jakarta.xml.bind.annotation.XmlRootElement;
     import jakarta.xml.bind.annotation.XmlSeeAlso;
+    import org.checkerframework.common.value.qual.DoubleVal;
     import org.oristool.models.pn.Priority;
     import org.oristool.models.stpn.trees.StochasticTransitionFeature;
     import org.oristool.models.tpn.ConcurrencyTransitionFeature;
@@ -908,6 +909,9 @@
             BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
             for(Activity predecessor: activity.pre()){
                 maximumPredecessorUpp = maximumPredecessorUpp.max(getMaxBound(predecessor));
+                if(maximumPredecessorUpp.doubleValue() >= Double.MAX_VALUE){
+                    return BigDecimal.valueOf(Double.MAX_VALUE);
+                }
             }
 
             return activity.upp().add(maximumPredecessorUpp);

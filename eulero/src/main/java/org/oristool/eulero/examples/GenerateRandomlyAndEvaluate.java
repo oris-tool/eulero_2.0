@@ -17,6 +17,7 @@
 
 package org.oristool.eulero.examples;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
@@ -38,6 +39,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class GenerateRandomlyAndEvaluate {
@@ -59,7 +61,7 @@ public class GenerateRandomlyAndEvaluate {
         settings.add(l2Settings);
 
         StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance("0", "1");
-        RandomGenerator randomGenerator = new RandomGenerator(feature, settings);
+        RandomGenerator randomGenerator = new RandomGenerator(Set.of(Pair.of(List.of(feature), List.of(BigDecimal.ONE))), settings);
         Activity model = randomGenerator.generateBlock(settings.size());
 
 

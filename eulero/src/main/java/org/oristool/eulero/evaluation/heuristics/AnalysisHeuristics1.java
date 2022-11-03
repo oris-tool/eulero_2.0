@@ -47,9 +47,10 @@ public class AnalysisHeuristics1 extends AnalysisHeuristicsStrategy {
         }
 
         if(model instanceof DAG) {
+            model.resetComplexityMeasure();
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedQ().compareTo(model.Q()) == 0)) {
-                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedQ().compareTo(this.QThreshold()) >= 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
@@ -61,7 +62,7 @@ public class AnalysisHeuristics1 extends AnalysisHeuristicsStrategy {
                     return DAGInnerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
             } else {
-                if (model.simplifiedC().compareTo(this.CThreshold()) >= 0 || model.simplifiedQ().compareTo(this.QThreshold()) >= 0) {
+                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
                     System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return InnerBlockReplicationAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }

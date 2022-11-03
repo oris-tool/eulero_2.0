@@ -293,7 +293,6 @@ public abstract class Activity implements Serializable {
                 throw new IllegalArgumentException(this + " already present in " + other);
             pre.add(other);
             other.post.add(this);
-
         }
     }
        

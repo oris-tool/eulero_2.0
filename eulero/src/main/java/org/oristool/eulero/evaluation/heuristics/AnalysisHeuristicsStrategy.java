@@ -196,7 +196,7 @@ public abstract class AnalysisHeuristicsStrategy {
             System.out.println(tabSpaceChars + "---"  + " Block Analysis: Choose inner block " + toBeSimplifiedActivity.name());
 
         if(plotIntermediate){
-            TransientSolution<DeterministicEnablingState, RewardRate> testAct = toBeSimplifiedActivity.simulate(timeLimit.toString(), step.toString(), 1000);
+            TransientSolution<DeterministicEnablingState, RewardRate> testAct = toBeSimplifiedActivity.simulate(timeLimit.toString(), step.toString(), 5000);
             double[] testActCDF = new double[testAct.getSolution().length];
             for(int i = 0; i < testActCDF.length; i++){
                 testActCDF[i] = testAct.getSolution()[i][0][0];
@@ -209,7 +209,9 @@ public abstract class AnalysisHeuristicsStrategy {
             }
 
             toBeSimplifiedActivity.replace(newActivity);
-
+            int activityIndex = ((DAG) toBeSimplifiedActivityParent).activities().indexOf(toBeSimplifiedActivity);
+            ((DAG) toBeSimplifiedActivityParent).activities().set(activityIndex, newActivity);
+            toBeSimplifiedActivityParent.resetComplexityMeasure();
             ActivityViewer.CompareResults(newActivity.name(), List.of("Real", "Appr"), List.of(new EvaluationResult("real", testActCDF, 0, testActCDF.length, step.doubleValue(), 0), new EvaluationResult("appr", newActcdf, 0, newActcdf.length, step.doubleValue(), 0)));
         } else {
             toBeSimplifiedActivity.replace(newActivity);

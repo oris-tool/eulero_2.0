@@ -17,6 +17,7 @@
 
 package org.oristool.eulero.examples;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.modelgeneration.RandomGenerator;
@@ -24,6 +25,8 @@ import org.oristool.eulero.modeling.Activity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class GenerateModelSuiteAndEvaluate {
     public static void main(String[] args) throws Exception {
@@ -43,7 +46,7 @@ public class GenerateModelSuiteAndEvaluate {
             for(int i = 0; i < ModelSuiteGenerationParameter.casePerSetting; i++){
                 String directory = suiteDirectoryName + "/" + "depth_" + settings.size();
 
-                RandomGenerator randomGenerator = new RandomGenerator(ModelSuiteGenerationParameter.feature, settings);
+                RandomGenerator randomGenerator = new RandomGenerator(Set.of(Pair.of(List.of(ModelSuiteGenerationParameter.feature), List.of(BigDecimal.ONE))), settings);
                 Activity model = randomGenerator.generateBlock(settings.size());
 
                 ExampleHelper.jaxbObjectToXML(model, directory + "/model_" + String.format("%02d" , i));

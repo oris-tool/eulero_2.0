@@ -17,33 +17,27 @@
 
 package org.oristool.eulero.modelgeneration;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.modelgeneration.blocksettings.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Set;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RandomGenerator {
-    private ArrayList<StochasticTransitionFeature> features;
-    private ArrayList<BigDecimal> weights;
+    private Set<Pair<List<StochasticTransitionFeature>, List<BigDecimal>>> features;
     private ArrayList<Set<BlockTypeSetting>> settings;
 
     public RandomGenerator(StochasticTransitionFeature feature, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
-        this.features = new ArrayList<>();
-        features.add(feature);
-        this.weights = new ArrayList<>();
-        weights.add(BigDecimal.ONE);
+        this.features = Set.of(Pair.of(List.of(feature), List.of(BigDecimal.ONE)));
     }
-
-    public RandomGenerator(ArrayList<StochasticTransitionFeature> features, ArrayList<BigDecimal> weights, ArrayList<Set<BlockTypeSetting>> settings){
+    public RandomGenerator(Set<Pair<List<StochasticTransitionFeature>, List<BigDecimal>>> features, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
         this.features = features;
-        this.weights = weights;
     }
 
     public Activity generateBlock(int depthLevel){
@@ -193,7 +187,9 @@ public class RandomGenerator {
 
         //We reach the end of the tree --> generate an activity
         String name = simpleActivityPrefix + "A" + activityNameCounter[0]++ + simpleActivitySuffix;
-        return new Simple(name, this.features, this.weights);
+        List<Pair<List<StochasticTransitionFeature>, List<BigDecimal>>> myList = new ArrayList<>(this.features);
+        Collections.shuffle(myList);
+        return new Simple(name, new ArrayList<>(myList.get(0).getLeft()), new ArrayList<>(myList.get(0).getRight()));
     }
 
 }
