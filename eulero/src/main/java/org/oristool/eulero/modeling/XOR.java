@@ -44,29 +44,25 @@ public class XOR extends Activity {
     @XmlElement(name = "prob", required = true)
     private List<Double> probs;
 
-    @XmlElementWrapper(name = "alternatives")
-    @XmlElement(name = "activity", required = true)
-    private List<Activity> alternatives;
-
     public XOR(){
         super("");
+        setEnumType(ActivityEnumType.XOR);
     };
     
-    public XOR(String name, List<Activity> alternatives, List<Double> probs) {
+    public XOR(String name, List<Activity> activities, List<Double> probs) {
         super(name);
-        if (alternatives.size() != probs.size())
+        if (activities.size() != probs.size())
             throw new IllegalArgumentException("Each alternative must have one probability");
-
-        setMin(alternatives.stream().reduce((a, b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
-        setMax(alternatives.stream().reduce((a, b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
+        setActivities(activities);
+        setMin(activities.stream().reduce((a, b)-> a.low().compareTo(b.low()) != 1 ? a : b).get().low());
+        setMax(activities.stream().reduce((a, b)-> a.upp().compareTo(b.upp()) != -1 ? a : b).get().upp());
+        setEnumType(ActivityEnumType.XOR);
         this.probs = probs;
-        this.alternatives = alternatives;
-
     }
 
     @Override
-    public XOR copyRecursive(String suffix) {
-        List<Activity> alternativesCopy = alternatives.stream()
+    public Activity copyRecursive(String suffix) {
+        List<Activity> alternativesCopy = activities().stream()
                 .map(a -> a.copyRecursive(suffix))
                 .collect(Collectors.toList());
         
@@ -78,7 +74,7 @@ public class XOR extends Activity {
         double min = Double.MAX_VALUE;
         double max = 0;
 
-        for(Activity alternative: alternatives){
+        for(Activity alternative: activities()){
             alternative.resetSupportBounds();
             min = Math.min(min, alternative.min().doubleValue());
             max = Math.max(max, alternative.max().doubleValue());
@@ -94,7 +90,7 @@ public class XOR extends Activity {
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
 
-        for (int i = 0; i < alternatives.size(); i++) {
+        for (int i = 0; i < activities().size(); i++) {
             Transition branch = pn.addTransition(name() + "_case" + i);
             // same priority for all branches to create conflict
             branch.addFeature(new Priority(prio));
@@ -111,18 +107,18 @@ public class XOR extends Activity {
             act_outs.add(act_out);
         }
 
-        for (int i = 0; i < alternatives.size(); i++) {
-            Transition t = pn.addTransition(alternatives().get(i).name() + "_timed");
-            t.addFeature(StochasticTransitionFeature.newUniformInstance(alternatives().get(i).min(), alternatives().get(i).max()));
-            t.addFeature(new TimedTransitionFeature(alternatives().get(i).min().toString(), alternatives().get(i).max().toString()));
-            t.addFeature(new ConcurrencyTransitionFeature(alternatives().get(i).C()));
+        for (int i = 0; i < activities().size(); i++) {
+            Transition t = pn.addTransition(activities().get(i).name() + "_timed");
+            t.addFeature(StochasticTransitionFeature.newUniformInstance(activities().get(i).min(), activities().get(i).max()));
+            t.addFeature(new TimedTransitionFeature(activities().get(i).min().toString(), activities().get(i).max().toString()));
+            t.addFeature(new ConcurrencyTransitionFeature(activities().get(i).C()));
             //t.addFeature(new RegenerationEpochLengthTransitionFeature(alternatives().get(i).R()));
 
             pn.addPrecondition(act_ins.get(i), t);
             pn.addPostcondition(t, act_outs.get(i));
         }
 
-        for (int i = 0; i < alternatives.size(); i++) {
+        for (int i = 0; i < activities().size(); i++) {
             Transition merge = pn.addTransition(name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO));
@@ -137,14 +133,10 @@ public class XOR extends Activity {
     public List<Double> probs() {
         return probs;
     }
-    
-    public List<Activity> alternatives() {
-        return alternatives;
-    }
-    
+
     @Override
     public List<Activity> nested() {
-        return alternatives;
+        return activities();
     }
     
     @Override
@@ -155,7 +147,7 @@ public class XOR extends Activity {
                 .map(d -> String.format("%.3f", d))
                 .collect(Collectors.joining(", "))));
         
-        b.append(String.format("  alternatives: [%s]\n", alternatives.stream()
+        b.append(String.format("  alternatives: [%s]\n", activities().stream()
                 .map(a -> a.name())
                 .collect(Collectors.joining(", "))));
         
@@ -168,7 +160,7 @@ public class XOR extends Activity {
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
         
-        for (int i = 0; i < alternatives.size(); i++) {
+        for (int i = 0; i < activities().size(); i++) {
             Transition branch = pn.addTransition(name() + "_case" + i);
             // same priority for all branches to create conflict
             branch.addFeature(new Priority(prio));
@@ -184,11 +176,11 @@ public class XOR extends Activity {
             act_outs.add(act_out);
         }
 
-        for (int i = 0; i < alternatives.size(); i++) {
-            alternatives.get(i).buildSTPN(pn, act_ins.get(i), act_outs.get(i), prio++);
+        for (int i = 0; i < activities().size(); i++) {
+            activities().get(i).buildSTPN(pn, act_ins.get(i), act_outs.get(i), prio++);
         }
         
-        for (int i = 0; i < alternatives.size(); i++) {
+        for (int i = 0; i < activities().size(); i++) {
             Transition merge = pn.addTransition(name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                 .newDeterministicInstance(BigDecimal.ZERO));
@@ -204,7 +196,7 @@ public class XOR extends Activity {
     @Override
     public BigInteger computeQ(boolean getSimplified) {
         int maximumS = 0;
-        for(Activity act: alternatives){
+        for(Activity act: activities()){
             maximumS = Math.max(maximumS, act.Q().intValue());
         }
 
@@ -224,7 +216,7 @@ public class XOR extends Activity {
     @Override
     public boolean isWellNested() {
         boolean isWellNested = true;
-        for (Activity block: this.alternatives()) {
+        for (Activity block: this.activities()) {
             isWellNested = isWellNested && block.isWellNested();
         }
         return isWellNested;

@@ -26,6 +26,7 @@ import jakarta.xml.bind.annotation.*;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
+import org.oristool.eulero.modeling.updates.activitytypes.ActivityType;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
@@ -57,6 +58,13 @@ import org.oristool.util.Pair;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
+
+    @XmlElementWrapper(name = "activities")
+    @XmlElement(name = "activity", required = true)
+    private List<Activity> activities;
+    private ActivityEnumType enumType;
+
+    private ActivityType type;
     @XmlElements({
             @XmlElement(name = "EFT", type = Simple.class, required = true),
             @XmlElement(name = "EFT", type = SEQ.class, required = true),
@@ -128,6 +136,14 @@ public abstract class Activity implements Serializable {
         this.post = post;
     }
 
+    public List<Activity> activities() {
+        return activities;
+    }
+
+    public void setActivities(List<Activity> activities) {
+        this.activities = activities;
+    }
+
     /**
      * The name of this activity.
      */
@@ -164,6 +180,13 @@ public abstract class Activity implements Serializable {
         computeC(false);
         computeQ(true);
         computeQ(false);
+    }
+
+    public ActivityEnumType type(){
+        return enumType;
+    }
+    public void setEnumType(ActivityEnumType enumType){
+        this.enumType = enumType;
     }
 
     public void setMin(BigDecimal min) {
@@ -207,6 +230,12 @@ public abstract class Activity implements Serializable {
 
     public Activity(String name) {
         this.name = name;
+    }
+
+    public Activity(String name, ActivityType type, ActivityEnumType enumType) {
+        this.name = name;
+        this.type = type;
+        this.enumType = enumType;
     }
     
     public abstract Activity copyRecursive(String suffix);
@@ -261,7 +290,7 @@ public abstract class Activity implements Serializable {
         return getSimplified ? simplifiedMaxC : maxC;
     }
 
-    public abstract  BigInteger computeQ(boolean getSimplified);
+    public abstract BigInteger computeQ(boolean getSimplified);
 
     public abstract void resetSupportBounds();
 
@@ -718,5 +747,9 @@ public abstract class Activity implements Serializable {
         }
 
         return result;
+    }
+
+    public ActivityType getType() {
+        return type;
     }
 }

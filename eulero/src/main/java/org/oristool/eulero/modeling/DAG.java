@@ -27,7 +27,6 @@
     import jakarta.xml.bind.annotation.XmlElementWrapper;
     import jakarta.xml.bind.annotation.XmlRootElement;
     import jakarta.xml.bind.annotation.XmlSeeAlso;
-    import org.checkerframework.common.value.qual.DoubleVal;
     import org.oristool.models.pn.Priority;
     import org.oristool.models.stpn.trees.StochasticTransitionFeature;
     import org.oristool.models.tpn.ConcurrencyTransitionFeature;
@@ -47,10 +46,6 @@
 
         @XmlElement(name = "end", required = true)
         private Activity end;
-
-        @XmlElementWrapper(name = "activities")
-        @XmlElement(name = "activity", required = true)
-        private List<Activity> activities = new ArrayList<>();
 
         @XmlElementWrapper(name = "edges")
         @XmlElement(name = "edge", required = true)
@@ -118,6 +113,7 @@
 
         public DAG(){
             super("");
+            setEnumType(ActivityEnumType.DAG);
         };
 
         protected DAG(String name) {  // force use of static methods
@@ -126,6 +122,7 @@
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
             this.end = new Simple(name + "_END",
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+            setEnumType(ActivityEnumType.DAG);
         }
 
         @Override public DAG copyRecursive(String suffix) {
@@ -875,10 +872,6 @@
             return getMaxBound(this.end);
         }
 
-        public List<Activity> activities() {
-            return activities;
-        }
-
         public List<DAGEdge> edges() {
             return edges;
         }
@@ -915,10 +908,6 @@
             }
 
             return activity.upp().add(maximumPredecessorUpp);
-        }
-
-        public void setActivities( List<Activity> activities){
-            this.activities = activities;
         }
 
         public void setEdges( List<DAGEdge> edges){

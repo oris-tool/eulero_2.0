@@ -1,25 +1,9 @@
-/* This program is called EULERO.
- * Copyright (C) 2022 The EULERO Authors.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.oristool.eulero.evaluation.heuristics;
+package org.oristool.eulero.evaluation.heuristics.backup;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
+import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
+import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
@@ -93,15 +77,6 @@ public abstract class AnalysisHeuristicsStrategy {
         return this.analyze(model, timeLimit, step, forwardReductionFactor, error, "---");
     }
 
-    public double[] numericalAnalysis(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars, boolean verbose){
-        double[] solution = new double[timeLimit.divide(step).intValue() + 1];
-
-        if(verbose)
-            System.out.println(tabSpaceChars + " Numerical XOR Analysis of " + model.name());
-
-        long time = System.nanoTime();
-        return model.getType().numericalAnalysis(model, timeLimit, step, this);
-    }
     public double[] numericalXOR(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars, boolean verbose){
         double[] solution = new double[timeLimit.divide(step).intValue() + 1];
 
@@ -112,14 +87,8 @@ public abstract class AnalysisHeuristicsStrategy {
         for(Activity act: model.activities()){
             double[] activityCDF = analyze(act, timeLimit, step, forwardReductionFactor, error, tabSpaceChars + "---");
 
-            try {
-                Method probs = model.getType().getClass().getMethod("probs");
-                double prob = ((List<Double>)(probs.invoke(model.getType()))).get(model.activities().indexOf(act));
-                for(int t = 0; t < solution.length; t++){
-                    solution[t] += prob * activityCDF[t];
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NullPointerException e) {
-                System.out.println("NON CI SIAMO");
+            for(int t = 0; t < solution.length; t++){
+                solution[t] += ((XOR)model).probs().get(model.activities().indexOf(act)) * activityCDF[t];
             }
         }
 
@@ -152,7 +121,7 @@ public abstract class AnalysisHeuristicsStrategy {
 
         if(verbose)
             System.out.println(tabSpaceChars +  " Analysis of " +  model.name() + " done in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");
+                    (System.nanoTime() - time)/1e9) + "...");
 
         return solution;
     }
@@ -184,7 +153,7 @@ public abstract class AnalysisHeuristicsStrategy {
 
         if(verbose)
             System.out.println(tabSpaceChars +  " Analysis of " +  model.name() + " done in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");
+                    (System.nanoTime() - time)/1e9) + "...");
 
         return solution;
     }
@@ -319,7 +288,7 @@ public abstract class AnalysisHeuristicsStrategy {
         TransientSolution<DeterministicEnablingState, RewardRate> transientSolution = model.analyze(timeLimit.toString(), step.divide(sampleFactor).toString(), error.toString());
         if(verbose)
             System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");
+                    (System.nanoTime() - time)/1e9) + "...");
 
         double[] solution = new double[timeLimit.divide(step, RoundingMode.HALF_DOWN).intValue()];
         for(int i = 0; i < solution.length; i++){
@@ -338,7 +307,7 @@ public abstract class AnalysisHeuristicsStrategy {
 
         if(verbose)
             System.out.println(tabSpaceChars +  " Analysis done in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");
+                    (System.nanoTime() - time)/1e9) + "...");
 
         double[] solution = new double[transientSolution.getSolution().length];
         for(int i = 0; i < solution.length; i++){

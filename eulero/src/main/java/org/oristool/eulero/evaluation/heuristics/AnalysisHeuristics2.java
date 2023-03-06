@@ -34,37 +34,37 @@ public class AnalysisHeuristics2 extends AnalysisHeuristicsStrategy {
 
     @Override
     public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars) {
-        if(model instanceof XOR){
+        if(model.type().equals(ActivityEnumType.XOR)){
             return numericalXOR(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof AND){
+        if(model.type().equals(ActivityEnumType.AND)){
             return numericalAND(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof SEQ) {
+        if(model.type().equals(ActivityEnumType.SEQ)) {
             return numericalSEQ(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof DAG) {
+        if(model.type().equals(ActivityEnumType.DAG)) {
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedQ().compareTo(model.Q()) == 0)) {
                 if(model.C().compareTo(this.CThreshold()) > 0 || model.Q().compareTo(this.QThreshold()) > 0){
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
-                    return DAGInnerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+                    return innerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
 
                 if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
-                    return InnerBlockReplicationAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+                    return innerBlockReplication(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
             } else {
                 if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
-                    return InnerBlockReplicationAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+                    return innerBlockReplication(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
             }
         }

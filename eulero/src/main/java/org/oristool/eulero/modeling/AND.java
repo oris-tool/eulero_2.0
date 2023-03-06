@@ -23,14 +23,14 @@ import java.util.List;
 
 @XmlRootElement(name = "AND")
 public class AND extends DAG {
-
-
     public AND(){
         super("");
+        setEnumType(ActivityEnumType.AND);
     };
 
     protected AND(String name, List<Activity> activities) {
         super(name);
+        setEnumType(ActivityEnumType.AND);
         setMin(this.low());
         setMax(this.upp());
         setActivities(activities);

@@ -30,10 +30,12 @@ public class SEQ extends DAG{
         setMax(this.upp());
         setActivities(activities);
         initEdges();
+        setEnumType(ActivityEnumType.SEQ);
     }
 
     public SEQ(){
         super("");
+        setEnumType(ActivityEnumType.SEQ);
     };
 
     @Override

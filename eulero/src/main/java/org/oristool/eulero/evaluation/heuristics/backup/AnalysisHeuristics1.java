@@ -15,10 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.evaluation.heuristics;
+package org.oristool.eulero.evaluation.heuristics.backup;
 
-import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.ActivityEnumType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -34,8 +36,16 @@ public class AnalysisHeuristics1 extends AnalysisHeuristicsStrategy {
 
     @Override
     public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars) {
-        if(model.type().equals(ActivityEnumType.XOR) || model.type().equals(ActivityEnumType.AND) || model.type().equals(ActivityEnumType.SEQ)){
-            return numericalAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+        if(model.type().equals(ActivityEnumType.XOR)){
+            return numericalXOR(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+        }
+
+        if(model.type().equals(ActivityEnumType.AND)){
+            return numericalAND(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+        }
+
+        if(model.type().equals(ActivityEnumType.SEQ)) {
+            return numericalSEQ(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
         if(model.type().equals(ActivityEnumType.DAG)) {

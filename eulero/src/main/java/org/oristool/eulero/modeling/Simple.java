@@ -60,8 +60,11 @@ public class Simple extends Activity {
         setMax((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
         setQ(BigInteger.ONE);
+        setEnumType(ActivityEnumType.SIMPLE);
         setSimplifiedC(BigInteger.ONE);
         setSimplifiedQ(BigInteger.ONE);
+        setEnumType(ActivityEnumType.SIMPLE);
+        setActivities(new ArrayList<>());
         this.pdfFeatures = new ArrayList<>();
         this.pdfFeatures.add(pdf);
         this.pdfWeights = new ArrayList<>();
@@ -79,16 +82,18 @@ public class Simple extends Activity {
         setQ(BigInteger.ONE);
         setSimplifiedC(BigInteger.ONE);
         setSimplifiedQ(BigInteger.ONE);
+        setEnumType(ActivityEnumType.SIMPLE);
         this.pdfFeatures = pdfFeatures;
         this.pdfWeights = pdfWeights;
     }
 
     public Simple(){
         super("");
+        setEnumType(ActivityEnumType.SIMPLE);
     }
 
     @Override
-    public Simple copyRecursive(String suffix) {
+    public Activity copyRecursive(String suffix) {
         return new Simple(this.name() + suffix, this.pdfFeatures, this.pdfWeights);
     }
 
@@ -112,6 +117,10 @@ public class Simple extends Activity {
 
     public StochasticTransitionFeature pdf() {
         return pdf;
+    }
+
+    public ArrayList<StochasticTransitionFeature> pdfFeatures() {
+        return pdfFeatures;
     }
     
     @Override

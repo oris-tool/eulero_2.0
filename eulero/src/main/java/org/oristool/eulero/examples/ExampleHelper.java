@@ -117,7 +117,7 @@ public class ExampleHelper {
         }
 
         if(model instanceof XOR){
-            for(Activity act: ((XOR) model).alternatives()){
+            for(Activity act: ((XOR) model).activities()){
                 attachFeatures(act, features, weights);
             }
         }
