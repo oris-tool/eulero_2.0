@@ -48,10 +48,6 @@
         @XmlElement(name = "end", required = true)
         private Activity end;
 
-        @XmlElementWrapper(name = "activities")
-        @XmlElement(name = "activity", required = true)
-        private List<Activity> activities = new ArrayList<>();
-
         @XmlElementWrapper(name = "edges")
         @XmlElement(name = "edge", required = true)
         private List<DAGEdge> edges = new ArrayList<>();
@@ -877,10 +873,6 @@
             return getMaxBound(this.end);
         }
 
-        public List<Activity> activities() {
-            return activities;
-        }
-
         public List<DAGEdge> edges() {
             return edges;
         }
@@ -917,10 +909,6 @@
             }
 
             return activity.upp().add(maximumPredecessorUpp);
-        }
-
-        public void setActivities( List<Activity> activities){
-            this.activities = activities;
         }
 
         public void setEdges( List<DAGEdge> edges){

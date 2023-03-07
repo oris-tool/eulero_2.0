@@ -46,6 +46,14 @@ public class Simple extends Activity {
     @XmlTransient
     private StochasticTransitionFeature pdf;
 
+    public ArrayList<StochasticTransitionFeature> pdfFeatures() {
+        return pdfFeatures;
+    }
+
+    public ArrayList<BigDecimal> pdfWeights() {
+        return pdfWeights;
+    }
+
     @XmlTransient
     private ArrayList<StochasticTransitionFeature> pdfFeatures;
     @XmlTransient

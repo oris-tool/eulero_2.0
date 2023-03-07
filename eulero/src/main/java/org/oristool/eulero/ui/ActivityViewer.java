@@ -141,6 +141,29 @@ public class ActivityViewer extends JFrame {
         v.setVisible(true);
     }
 
+    public static <R, S> void plot(String title, List<String> stringList, double timeLimit, double timeStep, double[]... pdf) {
+
+        ActivityViewer v = new ActivityViewer();
+
+        @SuppressWarnings("unchecked")
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < pdf.length; i++) {
+            labels.add(stringList.get(i));
+        }
+
+        ChartPanel pdfChart = solutionChart("PDF", labels, timeStep, timeLimit, pdf);
+
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.add("PDF", pdfChart);
+
+        v.setTitle("Activity Viewer " + title);
+        v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        v.add(tabs);
+        v.pack();
+        v.setLocationRelativeTo(null);
+        v.setVisible(true);
+    }
+
     private static ChartPanel solutionChart(
             String title, List<String> stringList, double step, double upper, double[]... graphs) {
 
