@@ -26,7 +26,7 @@ public class AND extends DAG {
 
 
     public AND(){
-        super("");
+        super("", ActivityType.AND);
     };
 
     protected AND(String name, List<Activity> activities) {

@@ -98,6 +98,8 @@ public abstract class Activity implements Serializable {
     })
     private String name;
 
+    private ActivityType type;
+
     public Activity(){}
     
     /**
@@ -207,6 +209,11 @@ public abstract class Activity implements Serializable {
 
     public Activity(String name) {
         this.name = name;
+    }
+
+    public Activity(String name, ActivityType type) {
+        this.name = name;
+        this.type = type;
     }
     
     public abstract Activity copyRecursive(String suffix);
