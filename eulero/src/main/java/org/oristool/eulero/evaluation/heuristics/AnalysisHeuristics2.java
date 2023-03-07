@@ -34,19 +34,19 @@ public class AnalysisHeuristics2 extends AnalysisHeuristicsStrategy {
 
     @Override
     public double[] analyze(Activity model, BigDecimal timeLimit, BigDecimal step, BigDecimal forwardReductionFactor, BigDecimal error, String tabSpaceChars) {
-        if(model instanceof XOR){
+        if(model.type().equals(ActivityType.XOR)){
             return numericalXOR(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof AND){
+        if(model.type().equals(ActivityType.AND)){
             return numericalAND(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof SEQ) {
+        if(model.type().equals(ActivityType.SEQ)) {
             return numericalSEQ(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
         }
 
-        if(model instanceof DAG) {
+        if(model.type().equals(ActivityType.DAG)) {
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedQ().compareTo(model.Q()) == 0)) {
                 if(model.C().compareTo(this.CThreshold()) > 0 || model.Q().compareTo(this.QThreshold()) > 0){

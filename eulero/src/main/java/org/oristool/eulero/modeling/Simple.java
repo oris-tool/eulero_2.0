@@ -56,6 +56,7 @@ public class Simple extends Activity {
      */
     public Simple(String name, StochasticTransitionFeature pdf) {
         super(name);
+        setType(ActivityType.SIMPLE);
         setMin(pdf.density().getDomainsEFT().bigDecimalValue());
         setMax((pdf.density().getDomainsLFT().bigDecimalValue() != null) ? pdf.density().getDomainsLFT().bigDecimalValue() : BigDecimal.valueOf(Double.MAX_VALUE));
         setC(BigInteger.ONE);
@@ -70,6 +71,7 @@ public class Simple extends Activity {
 
     public Simple(String name, ArrayList<StochasticTransitionFeature> pdfFeatures, ArrayList<BigDecimal> pdfWeights) {
         super(name);
+        setType(ActivityType.SIMPLE);
         setMin(BigDecimal.valueOf(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsEFT().doubleValue()).min().orElse(0)));
         setMax(BigDecimal.valueOf(
                 Double.isInfinite(pdfFeatures.stream().mapToDouble(t -> t.density().getDomainsLFT().doubleValue()).max().getAsDouble()) ? Double.MAX_VALUE :

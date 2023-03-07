@@ -211,8 +211,10 @@ public abstract class Activity implements Serializable {
         this.name = name;
     }
 
-    public Activity(String name, ActivityType type) {
-        this.name = name;
+    public ActivityType type(){
+        return type;
+    }
+    public void setType(ActivityType type){
         this.type = type;
     }
     

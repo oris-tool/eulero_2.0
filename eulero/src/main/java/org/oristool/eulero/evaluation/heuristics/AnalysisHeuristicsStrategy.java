@@ -98,9 +98,9 @@ public abstract class AnalysisHeuristicsStrategy {
             System.out.println(tabSpaceChars + " Numerical XOR Analysis of " + model.name());
 
         long time = System.nanoTime();
-        for(Activity act: ((XOR) model).alternatives()){
+        for(Activity act: ((XOR) model).activities()){
             double[] activityCDF = analyze(act, timeLimit, step, forwardReductionFactor, error, tabSpaceChars + "---");
-            double prob = ((XOR) model).probs().get(((XOR) model).alternatives().indexOf(act));
+            double prob = ((XOR) model).probs().get(((XOR) model).activities().indexOf(act));
             for(int t = 0; t < solution.length; t++){
                 solution[t] += prob * activityCDF[t];
             }
@@ -230,7 +230,7 @@ public abstract class AnalysisHeuristicsStrategy {
     public Map<String, Activity> getDeepestComplexDAG(Activity model){
         ArrayList<Activity> innerActivities = ((DAG) model).activities().stream().filter(t -> (t.C().doubleValue() > 1 || t.Q().doubleValue() > 1)).distinct().sorted(Comparator.comparing(Activity::C).thenComparing(Activity::Q)).collect(Collectors.toCollection(ArrayList::new));
         Activity mostComplexActivity = innerActivities.get(innerActivities.size() - 1);
-        boolean modelIsNotADag = mostComplexActivity instanceof AND || mostComplexActivity instanceof SEQ || mostComplexActivity instanceof XOR || mostComplexActivity instanceof Simple;
+        boolean modelIsNotADag = mostComplexActivity.type().equals(ActivityType.AND) || mostComplexActivity.type().equals(ActivityType.SEQ) || mostComplexActivity.type().equals(ActivityType.XOR) || mostComplexActivity.type().equals(ActivityType.SIMPLE);
 
         if(!modelIsNotADag && mostComplexActivity.C().compareTo(CThreshold) > 0 && mostComplexActivity.Q().compareTo(QThreshold) > 0){
             return getDeepestComplexDAG(mostComplexActivity);
