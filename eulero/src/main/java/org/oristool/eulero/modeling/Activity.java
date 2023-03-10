@@ -75,6 +75,10 @@ public abstract class Activity implements Serializable {
     })
     private BigDecimal max;
 
+    @XmlElementWrapper(name = "activities")
+    @XmlElement(name = "activity", required = true)
+    private List<Activity> activities = new ArrayList<>();
+
     private BigInteger C;
 
     private BigInteger Q;
@@ -98,7 +102,17 @@ public abstract class Activity implements Serializable {
     })
     private String name;
 
+    private ActivityType type;
+
     public Activity(){}
+
+    public List<Activity> activities() {
+        return activities;
+    }
+
+    public void setActivities( List<Activity> activities){
+        this.activities = activities;
+    }
     
     /**
      * The activities that this activity directly depends on.
@@ -207,6 +221,13 @@ public abstract class Activity implements Serializable {
 
     public Activity(String name) {
         this.name = name;
+    }
+
+    public ActivityType type(){
+        return type;
+    }
+    public void setType(ActivityType type){
+        this.type = type;
     }
     
     public abstract Activity copyRecursive(String suffix);

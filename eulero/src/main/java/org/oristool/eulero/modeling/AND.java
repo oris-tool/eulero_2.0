@@ -27,10 +27,12 @@ public class AND extends DAG {
 
     public AND(){
         super("");
+        setType(ActivityType.AND);
     };
 
     protected AND(String name, List<Activity> activities) {
         super(name);
+        setType(ActivityType.AND);
         setMin(this.low());
         setMax(this.upp());
         setActivities(activities);
