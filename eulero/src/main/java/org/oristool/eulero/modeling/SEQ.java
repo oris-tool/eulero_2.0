@@ -26,6 +26,7 @@ import java.util.List;
 public class SEQ extends DAG{
     protected SEQ(String name, List<Activity> activities){
         super(name);
+        setType(ActivityType.SEQ);
         setMin(this.low());
         setMax(this.upp());
         setActivities(activities);

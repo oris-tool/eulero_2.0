@@ -118,6 +118,7 @@
 
         protected DAG(String name) {  // force use of static methods
             super(name);
+            setType(ActivityType.DAG);
             this.begin = new Simple(name + "_BEGIN",
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
             this.end = new Simple(name + "_END",
