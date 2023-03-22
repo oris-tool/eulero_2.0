@@ -18,7 +18,7 @@
 package org.oristool.eulero.examples;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.modelgeneration.RandomGenerator;
 import org.oristool.eulero.modeling.Activity;
@@ -50,7 +50,7 @@ public class GenerateModelSuiteAndEvaluate {
                 Activity model = randomGenerator.generateBlock(settings.size());
 
                 ExampleHelper.jaxbObjectToXML(model, directory + "/model_" + String.format("%02d" , i));
-                AnalysisHeuristicsStrategy strategy = ModelSuiteGenerationParameter.strategy.get(0);
+                AnalysisHeuristicsVisitor strategy = ModelSuiteGenerationParameter.strategy.get(0);
                 double[] cdf = strategy.analyze(model, model.max().add(BigDecimal.ONE), model.getFairTimeTick());
 
                 EvaluationResult result = new EvaluationResult(

@@ -26,17 +26,25 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DAGEdge {
 
-    @XmlElement(name = "pre", required = true)
     private String pre;
+    private String post;
+
+    @XmlElement(name = "pre", required = true)
+    private Integer preInt;
 
     @XmlElement(name = "post", required = true)
-    private String post;
+    private Integer postInt;
 
     public DAGEdge(){}
 
     public DAGEdge(String pre, String post){
         this.pre = pre;
         this.post = post;
+    }
+
+    public DAGEdge(Integer preInt, Integer postInt){
+        this.preInt = preInt;
+        this.postInt = postInt;
     }
 
     public String getPre() {
@@ -47,7 +55,19 @@ public class DAGEdge {
         return post;
     }
 
+    public Integer getPreInt() {
+        return preInt;
+    }
+
+    public Integer getPostInt() {
+        return postInt;
+    }
+
     public static DAGEdge of(String pre, String post){
+        return new DAGEdge(pre, post);
+    }
+
+    public static DAGEdge of(Integer pre, Integer post){
         return new DAGEdge(pre, post);
     }
 }

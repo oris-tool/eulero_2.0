@@ -24,6 +24,7 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
@@ -206,6 +207,11 @@ public class Simple extends Activity {
             pn.addPostcondition(t, out);
         }
         return prio + 1;
+    }
+
+    @Override
+    public double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor) {
+        return new double[0];
     }
 
     @Override

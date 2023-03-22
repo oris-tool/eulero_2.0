@@ -26,6 +26,7 @@ import jakarta.xml.bind.annotation.*;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.updates.activitytypes.ActivityType;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
@@ -247,7 +248,7 @@ public abstract class Activity implements Serializable {
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
-        buildTPN(pn, in, out, 1);
+        getType().buildTPN(pn, in, out, 0);
 
         Marking m = new Marking();
         m.addTokens(in, 1);
@@ -304,6 +305,8 @@ public abstract class Activity implements Serializable {
      * @return next priority level for the rest of the network
      */
     public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
+
+    public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor);
     
     @Override
     public final String toString() {

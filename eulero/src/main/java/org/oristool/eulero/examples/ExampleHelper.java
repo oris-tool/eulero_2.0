@@ -134,7 +134,7 @@ public class ExampleHelper {
             activity.post().clear();
             activity.pre().clear();
             attachFeatures(activity, features, weights);
-            List<String> predecessorNames = edges.stream().filter(t -> t.getPost().equals(activity.name())).map(t -> t.getPre()).collect(Collectors.toList());
+            List<String> predecessorNames = edges.stream().filter(t -> t.getPostInt().equals(activity.name())).map(t -> t.getPreInt()).collect(Collectors.toList());
             if(predecessorNames.isEmpty()){
                 activity.addPrecondition(dag.begin());
             } else {
@@ -143,7 +143,7 @@ public class ExampleHelper {
             }
         }
 
-        List<String> lastNodeNames = edges.stream().map(t->t.getPre()).collect(Collectors.toList());
+        List<String> lastNodeNames = edges.stream().map(t->t.getPreInt()).collect(Collectors.toList());
         List<Activity> lastNodes = dag.activities().stream().filter(t -> !lastNodeNames.contains(t.name())).collect(Collectors.toList());
 
         dag.end().pre().clear();

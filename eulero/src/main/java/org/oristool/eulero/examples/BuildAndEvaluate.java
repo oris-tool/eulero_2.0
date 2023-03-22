@@ -20,10 +20,9 @@ package org.oristool.eulero.examples;
 import com.google.common.collect.Lists;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.DAG;
 import org.oristool.eulero.modeling.Simple;
@@ -108,7 +107,7 @@ public class BuildAndEvaluate {
         BigDecimal timeLimit = top.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
+        AnalysisHeuristicsVisitor strategy = new SDFHeuristicsVisitor(tC, tQ, approximator);
         double[] evaluation = strategy.analyze(top, timeLimit.add(BigDecimal.ONE), step);
         EvaluationResult result = new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, top.getFairTimeTick().doubleValue(), 0);
 

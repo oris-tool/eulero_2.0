@@ -20,8 +20,8 @@ package org.oristool.eulero.examples;
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.modelgeneration.RandomGenerator;
 import org.oristool.eulero.modelgeneration.blocksettings.ANDBlockSetting;
@@ -70,7 +70,7 @@ public class GenerateRandomlyAndEvaluate {
         BigDecimal timeLimit = model.max();
         BigDecimal step = BigDecimal.valueOf(0.01);
         Approximator approximator = new EXPMixtureApproximation();
-        AnalysisHeuristicsStrategy strategy = new AnalysisHeuristics1(tC, tQ, approximator);
+        AnalysisHeuristicsVisitor strategy = new SDFHeuristicsVisitor(tC, tQ, approximator);
         double[] evaluation = strategy.analyze(model, timeLimit.add(BigDecimal.ONE), step);
         EvaluationResult result =  new EvaluationResult("Heuristic 1", evaluation, 0, evaluation.length, model.getFairTimeTick().doubleValue(), 0);
 

@@ -1,14 +1,11 @@
 package org.oristool.eulero.examples;
 
-import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.eulero.modeling.*;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Objects;
 
 public class RegenerateModelSuiteAndEvaluate {
@@ -38,7 +35,7 @@ public class RegenerateModelSuiteAndEvaluate {
                 String modelReplicaPath = depthReplicaPath + '/' + modelFolder.getName();
                 ExampleHelper.jaxbObjectToXML(loadedModel, modelReplicaPath);
 
-                AnalysisHeuristicsStrategy strategy = ModelSuiteGenerationParameter.strategy.get(0);
+                AnalysisHeuristicsVisitor strategy = ModelSuiteGenerationParameter.strategy.get(0);
                 double[] cdf = strategy.analyze(loadedModel, loadedModel.max().add(BigDecimal.ONE), loadedModel.getFairTimeTick());
 
                 EvaluationResult result = new EvaluationResult(

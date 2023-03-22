@@ -27,6 +27,7 @@
     import jakarta.xml.bind.annotation.XmlElementWrapper;
     import jakarta.xml.bind.annotation.XmlRootElement;
     import jakarta.xml.bind.annotation.XmlSeeAlso;
+    import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
     import org.oristool.models.pn.Priority;
     import org.oristool.models.stpn.trees.StochasticTransitionFeature;
     import org.oristool.models.tpn.ConcurrencyTransitionFeature;
@@ -118,7 +119,6 @@
 
         protected DAG(String name) {  // force use of static methods
             super(name);
-            setType(ActivityType.DAG);
             this.begin = new Simple(name + "_BEGIN",
                     StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
             this.end = new Simple(name + "_END",
@@ -560,6 +560,11 @@
             }
 
             return priority[0];
+        }
+
+        @Override
+        public double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor) {
+            return new double[0];
         }
 
         /**

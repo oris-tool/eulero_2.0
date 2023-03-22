@@ -1,7 +1,9 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
+import org.oristool.eulero.modeling.XOR;
 import org.oristool.eulero.modeling.updates.Composite;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
@@ -20,7 +22,8 @@ import java.util.List;
 
 public class XORType extends ActivityType {
     private final List<Double> probs;
-    public XORType(List<Double> probs){
+    public XORType(ArrayList<Activity> children, List<Double> probs){
+        super(children);
         this.probs = probs;
     }
 
@@ -38,41 +41,41 @@ public class XORType extends ActivityType {
     }
 
     @Override
-    public void buildTPN(Composite activity, PetriNet pn, Place in, Place out, int prio) {
+    public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
         // input/output places of alternative activities
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            Transition branch = pn.addTransition(activity.name() + "_case" + i);
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            Transition branch = pn.addTransition(getActivity().name() + "_case" + i);
             // same priority for all branches to create conflict
             branch.addFeature(new Priority(prio));
             branch.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(this.probs.get(i))));
             branch.addFeature(new TimedTransitionFeature("0", "0"));
 
-            Place act_in = pn.addPlace("p" + activity.name() + "_case" + i);
+            Place act_in = pn.addPlace("p" + getActivity().name() + "_case" + i);
             pn.addPrecondition(in, branch);
             pn.addPostcondition(branch, act_in);
             act_ins.add(act_in);
 
-            Place act_out = pn.addPlace("p" + activity.name() + "_end" + i);
+            Place act_out = pn.addPlace("p" + getActivity().name() + "_end" + i);
             act_outs.add(act_out);
         }
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            Transition t = pn.addTransition(activity.activities().get(i).name() + "_timed");
-            t.addFeature(StochasticTransitionFeature.newUniformInstance(activity.activities().get(i).min(), activity.activities().get(i).max()));
-            t.addFeature(new TimedTransitionFeature(activity.activities().get(i).min().toString(), activity.activities().get(i).max().toString()));
-            t.addFeature(new ConcurrencyTransitionFeature(activity.activities().get(i).C()));
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            Transition t = pn.addTransition(getActivity().activities().get(i).name() + "_timed");
+            t.addFeature(StochasticTransitionFeature.newUniformInstance(getActivity().activities().get(i).min(), getActivity().activities().get(i).max()));
+            t.addFeature(new TimedTransitionFeature(getActivity().activities().get(i).min().toString(), getActivity().activities().get(i).max().toString()));
+            t.addFeature(new ConcurrencyTransitionFeature(getActivity().activities().get(i).C()));
             //t.addFeature(new RegenerationEpochLengthTransitionFeature(alternatives().get(i).R()));
 
             pn.addPrecondition(act_ins.get(i), t);
             pn.addPostcondition(t, act_outs.get(i));
         }
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            Transition merge = pn.addTransition(activity.name() + "_merge" + i);
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            Transition merge = pn.addTransition(getActivity().name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO));
             merge.addFeature(new TimedTransitionFeature("0", "0"));
@@ -84,33 +87,33 @@ public class XORType extends ActivityType {
     }
 
     @Override
-    public int buildSTPN(Composite activity, PetriNet pn, Place in, Place out, int prio) {
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
         // input/output places of alternative activities
         List<Place> act_ins = new ArrayList<>();
         List<Place> act_outs = new ArrayList<>();
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            Transition branch = pn.addTransition(activity.name() + "_case" + i);
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            Transition branch = pn.addTransition(getActivity().name() + "_case" + i);
             // same priority for all branches to create conflict
             branch.addFeature(new Priority(prio));
             branch.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(probs.get(i))));
 
-            Place act_in = pn.addPlace("p" + activity.name() + "_case" + i);
+            Place act_in = pn.addPlace("p" + getActivity().name() + "_case" + i);
             pn.addPrecondition(in, branch);
             pn.addPostcondition(branch, act_in);
             act_ins.add(act_in);
 
-            Place act_out = pn.addPlace("p" + activity.name() + "_end" + i);
+            Place act_out = pn.addPlace("p" + getActivity().name() + "_end" + i);
             act_outs.add(act_out);
         }
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            activity.activities().get(i).buildSTPN(pn, act_ins.get(i), act_outs.get(i), prio++);
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            getActivity().activities().get(i).buildSTPN(pn, act_ins.get(i), act_outs.get(i), prio++);
         }
 
-        for (int i = 0; i < activity.activities().size(); i++) {
-            Transition merge = pn.addTransition(activity.name() + "_merge" + i);
+        for (int i = 0; i < getActivity().activities().size(); i++) {
+            Transition merge = pn.addTransition(getActivity().name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO));
             // new priority not necessary: only one branch will be selected
@@ -130,5 +133,20 @@ public class XORType extends ActivityType {
         }
 
         return getSimplified ? BigInteger.ONE : BigInteger.valueOf(maximumS);
+    }
+
+    @Override
+    public Activity copyRecursive(String suffix) {
+        return null;
+    }
+
+    @Override
+    public double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor){
+        return visitor.analyze(this, timeLimit, timeTick);
+    }
+
+    @Override
+    public BigDecimal upp() {
+        return this.getActivity().max();
     }
 }

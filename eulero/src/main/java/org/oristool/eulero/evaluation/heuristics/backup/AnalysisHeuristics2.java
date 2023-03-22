@@ -18,7 +18,7 @@
 package org.oristool.eulero.evaluation.heuristics.backup;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 

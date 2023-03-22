@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -191,6 +192,11 @@ public class XOR extends Activity {
         }
         
         return prio;
+    }
+
+    @Override
+    public double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor) {
+        return new double[0];
     }
 
     @Override

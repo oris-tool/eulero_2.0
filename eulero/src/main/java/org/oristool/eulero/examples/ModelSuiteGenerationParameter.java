@@ -18,8 +18,8 @@
 package org.oristool.eulero.examples;
 
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristics1;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modelgeneration.blocksettings.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -33,8 +33,8 @@ public class ModelSuiteGenerationParameter {
     public static final String directoryPath = System.getProperty("user.dir") + "/model_suite";
     public static final int casePerSetting = 10;
     public static final StochasticTransitionFeature feature = StochasticTransitionFeature.newUniformInstance("0", "1");
-    public static final List<AnalysisHeuristicsStrategy> strategy = List.of(
-            new AnalysisHeuristics1(
+    public static final List<AnalysisHeuristicsVisitor> strategy = List.of(
+            new SDFHeuristicsVisitor(
                 BigInteger.valueOf(2),
                 BigInteger.valueOf(7),
                 new EXPMixtureApproximation()

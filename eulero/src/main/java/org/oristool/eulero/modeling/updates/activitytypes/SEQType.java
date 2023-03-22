@@ -1,14 +1,19 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 import org.oristool.eulero.modeling.DAGEdge;
 import org.oristool.eulero.modeling.updates.Composite;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SEQType extends DAGType{
+    public SEQType(ArrayList<Activity> children) {
+        super(children);
+    }
     /*@Override
     public void initActivity(Composite activity, Activity... children){
         if (children.length == 0)
@@ -36,4 +41,14 @@ public class SEQType extends DAGType{
     public void setEnumType(Composite activity) {
         activity.setEnumType(ActivityEnumType.SEQ);
     }
+
+    @Override
+    public Activity copyRecursive(String suffix) {
+        return null;
+    }
+
+    @Override
+    public double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor){
+        return visitor.analyze(this, timeLimit, timeTick);
+    };
 }

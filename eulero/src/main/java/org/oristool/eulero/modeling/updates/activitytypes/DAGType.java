@@ -1,6 +1,7 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 import org.oristool.eulero.modeling.DAGEdge;
@@ -20,6 +21,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class DAGType extends ActivityType{
+    public DAGType(ArrayList<Activity> children) {
+        super(children);
+    }
+
     @Override
     public void initActivity(Composite activity, Activity... children) {
         // check final and starting activity
@@ -31,7 +36,7 @@ public abstract class DAGType extends ActivityType{
     }
 
     @Override
-    public void buildTPN(Composite activity, PetriNet pn, Place in, Place out, int prio) {
+    public void buildTPN(PetriNet pn, Place in, Place out, int prio) {
         Map<Activity, Place> actOut = new LinkedHashMap<>();
         Map<Activity, Transition> actPost = new LinkedHashMap<>();
         Map<Activity, Transition> actPre = new LinkedHashMap<>();
@@ -40,10 +45,10 @@ public abstract class DAGType extends ActivityType{
         int[] priority = new int[] { prio };
         //int[] priority = new int[] { prio };  // to access in closure
 
-        boolean useBegin = activity.begin().post().size() > 1;
-        boolean useEnd = activity.end().pre().size() > 1;
+        boolean useBegin = getActivity().begin().post().size() > 1;
+        boolean useEnd = getActivity().end().pre().size() > 1;
 
-        activity.end().dfs(true, new DFSObserver() {
+        getActivity().end().dfs(true, new DFSObserver() {
             @Override public boolean onSkip(Activity opened, Activity from) {
                 return onOpenOrSkip(opened, from);
             }
@@ -53,7 +58,7 @@ public abstract class DAGType extends ActivityType{
             }
 
             private boolean onOpenOrSkip(Activity opened, Activity from) {
-                if (opened.equals(activity.begin()) && from.equals(activity.end())) {
+                if (opened.equals(getActivity().begin()) && from.equals(getActivity().end())) {
                     throw new IllegalStateException("Empty DAG");
                 }
 
@@ -73,7 +78,7 @@ public abstract class DAGType extends ActivityType{
                 // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
 
                 if (!actOut.containsKey(opened)) {
-                    Place openedOut = opened.equals(activity.begin()) && useBegin ? in :
+                    Place openedOut = opened.equals(getActivity().begin()) && useBegin ? in :
                             pn.addPlace("p" + opened + "_out");  // add pOPENED_out
                     actOut.put(opened, openedOut);
 
@@ -88,7 +93,7 @@ public abstract class DAGType extends ActivityType{
                 }
 
                 if (!actIn.containsKey(from)) {
-                    Place fromIn = from.equals(activity.end()) && useEnd ? out :
+                    Place fromIn = from.equals(getActivity().end()) && useEnd ? out :
                             pn.addPlace("p" + from + "_in");  // add pFROM_in
                     actIn.put(from, fromIn);
 
@@ -137,22 +142,22 @@ public abstract class DAGType extends ActivityType{
             a.setMin(a.low());
             a.setMax(a.upp());
 
-            if (a.equals(activity.begin())) {
+            if (a.equals(getActivity().begin())) {
                 if (useBegin) {
                     pn.addPrecondition(in, actPost.get(a));
                 }
 
-            } else if (a.equals(activity.end())) {
+            } else if (a.equals(getActivity().end())) {
                 if (useEnd) {
                     pn.addPostcondition(actPre.get(a), out);
                 }
 
             } else {
                 Place aIn = actIn.get(a);
-                if (aIn.equals(actOut.get(activity.begin())) && !useBegin)
+                if (aIn.equals(actOut.get(getActivity().begin())) && !useBegin)
                     aIn = in;
                 Place aOut = actOut.get(a);
-                if (aOut.equals(actIn.get(activity.end())) && !useEnd)
+                if (aOut.equals(actIn.get(getActivity().end())) && !useEnd)
                     aOut = out;
 
                 Transition t = pn.addTransition(a.name() + "_untimed");
@@ -170,7 +175,7 @@ public abstract class DAGType extends ActivityType{
     }
 
     @Override
-    public int buildSTPN(Composite activity, PetriNet pn, Place in, Place out, int prio) {
+    public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
         Map<Activity, Place> actOut = new LinkedHashMap<>();
         Map<Activity, Transition> actPost = new LinkedHashMap<>();
         Map<Activity, Transition> actPre = new LinkedHashMap<>();
@@ -178,10 +183,10 @@ public abstract class DAGType extends ActivityType{
         List<Activity> act = new ArrayList<>();
         int[] priority = new int[] { prio };  // to access in closure
 
-        boolean useBegin = activity.begin().post().size() > 1;
-        boolean useEnd = activity.end().pre().size() > 1;
+        boolean useBegin = getActivity().begin().post().size() > 1;
+        boolean useEnd = getActivity().end().pre().size() > 1;
 
-        activity.end().dfs(true, new DFSObserver() {
+        getActivity().end().dfs(true, new DFSObserver() {
             @Override public boolean onSkip(Activity opened, Activity from) {
                 return onOpenOrSkip(opened, from);
             }
@@ -191,7 +196,7 @@ public abstract class DAGType extends ActivityType{
             }
 
             private boolean onOpenOrSkip(Activity opened, Activity from) {
-                if (opened.equals(activity.begin()) && from.equals(activity.end())) {
+                if (opened.equals(getActivity().begin()) && from.equals(getActivity().end())) {
                     throw new IllegalStateException("Empty DAG");
                 }
 
@@ -211,7 +216,7 @@ public abstract class DAGType extends ActivityType{
                 // [FROM_PRE]  ->  (pFROM_in)     -> [FROM]
 
                 if (!actOut.containsKey(opened)) {
-                    Place openedOut = opened.equals(activity.begin()) && useBegin ? in :
+                    Place openedOut = opened.equals(getActivity().begin()) && useBegin ? in :
                             pn.addPlace("p" + opened + "_out");  // add pOPENED_out
                     actOut.put(opened, openedOut);
 
@@ -225,7 +230,7 @@ public abstract class DAGType extends ActivityType{
                 }
 
                 if (!actIn.containsKey(from)) {
-                    Place fromIn = from.equals(activity.end()) && useEnd ? out :
+                    Place fromIn = from.equals(getActivity().end()) && useEnd ? out :
                             pn.addPlace("p" + from + "_in");  // add pFROM_in
                     actIn.put(from, fromIn);
 
@@ -271,22 +276,22 @@ public abstract class DAGType extends ActivityType{
         for (int i = act.size() - 1; i >= 0; i--) {
             Activity a = act.get(i);
 
-            if (a.equals(activity.begin())) {
+            if (a.equals(getActivity().begin())) {
                 if (useBegin) {
                     pn.addPrecondition(in, actPost.get(a));
                 }
 
-            } else if (a.equals(activity.end())) {
+            } else if (a.equals(getActivity().end())) {
                 if (useEnd) {
                     pn.addPostcondition(actPre.get(a), out);
                 }
 
             } else {
                 Place aIn = actIn.get(a);
-                if (aIn.equals(actOut.get(activity.begin())) && !useBegin)
+                if (aIn.equals(actOut.get(getActivity().begin())) && !useBegin)
                     aIn = in;
                 Place aOut = actOut.get(a);
-                if (aOut.equals(actIn.get(activity.end())) && !useEnd)
+                if (aOut.equals(actIn.get(getActivity().end())) && !useEnd)
                     aOut = out;
                 a.buildSTPN(pn, aIn, aOut, priority[0]++);
             }
@@ -310,6 +315,32 @@ public abstract class DAGType extends ActivityType{
         return getSimplified ? BigInteger.valueOf(simplifiedS) : BigInteger.valueOf(S);
     }
 
+    @Override
+    public BigDecimal upp() {
+        return getMaxBound(this.getActivity().end());
+    }
+
+    private BigDecimal getMaxBound(Activity activity){
+        // TODO something not working here
+        System.out.println("\nCurrent activity: " + activity.name());
+        if(activity.equals(this.getActivity().begin())){
+            return activity.upp();
+        }
+
+        BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
+        for(Activity predecessor: activity.pre()){
+            System.out.println("\nPredecessor of activity " + activity.name() + ": is " + predecessor.name());
+            System.out.println("\nIts bound is " + getMaxBound(predecessor));
+            maximumPredecessorUpp = maximumPredecessorUpp.max(getMaxBound(predecessor));
+            if(maximumPredecessorUpp.doubleValue() >= Double.MAX_VALUE){
+                return BigDecimal.valueOf(Double.MAX_VALUE);
+            }
+        }
+
+        return activity.upp().add(maximumPredecessorUpp);
+    }
     public abstract void initPreconditions(Composite activity, Activity... children);
     public abstract void setEnumType(Composite activity);
+    public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor);
+
 }
