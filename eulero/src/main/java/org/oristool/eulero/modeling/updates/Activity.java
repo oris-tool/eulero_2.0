@@ -1,33 +1,12 @@
-/* This program is called EULERO.
- * Copyright (C) 2022 The EULERO Authors.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.oristool.eulero.modeling;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
+package org.oristool.eulero.modeling.updates;
 
 import jakarta.xml.bind.annotation.*;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.DFSObserver;
+import org.oristool.eulero.modeling.*;
+import org.oristool.eulero.modeling.Simple;
 import org.oristool.eulero.modeling.updates.activitytypes.ActivityType;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
@@ -37,15 +16,8 @@ import org.oristool.models.stpn.trans.TreeTransient;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
-import org.oristool.models.tpn.TimedAnalysis.Builder;
 import org.oristool.models.tpn.TimedTransitionFeature;
-import org.oristool.petrinet.Marking;
-import org.oristool.petrinet.MarkingCondition;
-import org.oristool.petrinet.PetriNet;
-import org.oristool.petrinet.Place;
-import org.oristool.petrinet.Postcondition;
-import org.oristool.petrinet.Precondition;
-import org.oristool.petrinet.Transition;
+import org.oristool.petrinet.*;
 import org.oristool.simulator.Sequencer;
 import org.oristool.simulator.TimeSeriesRewardResult;
 import org.oristool.simulator.rewards.ContinuousRewardTime;
@@ -55,12 +27,13 @@ import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
 import org.oristool.util.Pair;
 
-/**
- * Represents a node in an activity DAG.
- */
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable {
-
     @XmlElementWrapper(name = "activities")
     @XmlElement(name = "activity", required = true)
     private List<Activity> activities;
@@ -68,7 +41,7 @@ public abstract class Activity implements Serializable {
 
     private ActivityType type;
     @XmlElements({
-            @XmlElement(name = "EFT", type = Simple.class, required = true),
+            @XmlElement(name = "EFT", type = org.oristool.eulero.modeling.Simple.class, required = true),
             @XmlElement(name = "EFT", type = SEQ.class, required = true),
             @XmlElement(name = "EFT", type = AND.class, required = true),
             @XmlElement(name = "EFT", type = XOR.class, required = true),
@@ -77,7 +50,7 @@ public abstract class Activity implements Serializable {
     private BigDecimal min;
 
     @XmlElements({
-            @XmlElement(name = "LFT", type = Simple.class, required = true),
+            @XmlElement(name = "LFT", type = org.oristool.eulero.modeling.Simple.class, required = true),
             @XmlElement(name = "LFT", type = SEQ.class, required = true),
             @XmlElement(name = "LFT", type = AND.class, required = true),
             @XmlElement(name = "LFT", type = XOR.class, required = true),
@@ -109,7 +82,7 @@ public abstract class Activity implements Serializable {
     private String name;
 
     public Activity(){}
-    
+
     /**
      * The activities that this activity directly depends on.
      */
@@ -239,7 +212,7 @@ public abstract class Activity implements Serializable {
         this.type = type;
         this.enumType = enumType;
     }
-    
+
     public abstract Activity copyRecursive(String suffix);
 
     public BigInteger computeC(boolean getSimplified){
@@ -286,8 +259,8 @@ public abstract class Activity implements Serializable {
 
         setC(maxC);
         setSimplifiedC(simplifiedMaxC);
-        /*System.out.println("C computed in " + String.format("%.3f seconds",
-                (System.nanoTime() - time)/1e9) + "...");*/
+    /*System.out.println("C computed in " + String.format("%.3f seconds",
+            (System.nanoTime() - time)/1e9) + "...");*/
 
         return getSimplified ? simplifiedMaxC : maxC;
     }
@@ -308,15 +281,15 @@ public abstract class Activity implements Serializable {
     public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
 
     public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor);
-    
+
     @Override
     public final String toString() {
         return name;
     }
-    
+
     /**
      * Adds activities as a direct dependency; also adds this
-     * activity to the dependencies' post().  
+     * activity to the dependencies' post().
      */
     public void addPrecondition(Activity... others) {
         for (Activity other : others) {
@@ -328,10 +301,10 @@ public abstract class Activity implements Serializable {
             other.post.add(this);
         }
     }
-       
+
     /**
      * Removes an activity as a direct dependency; also removes
-     * this activity from the dependency's post().  
+     * this activity from the dependency's post().
      */
     public final void removePrecondition(Activity other) {
         if (!pre.remove(other))
@@ -339,9 +312,9 @@ public abstract class Activity implements Serializable {
         if (!other.post.remove(this))
             throw new IllegalArgumentException(this + " not present in " + other);
     }
-    
+
     /**
-     * Replaces this activity with another in all pre/post.  
+     * Replaces this activity with another in all pre/post.
      */
     public final void replace(Activity withOther) {
         for (Activity p : new ArrayList<>(pre)) {
@@ -367,7 +340,7 @@ public abstract class Activity implements Serializable {
 
         opened.add(this);
         if (!observer.onOpen(this, null))
-            return false;       
+            return false;
         open.push(this);
         openAdj.push(pre ? this.pre().iterator() : this.post().iterator());
 
@@ -396,32 +369,32 @@ public abstract class Activity implements Serializable {
                     return false;
             }
         }
-        
+
         return true;
     }
 
     /**
      * Explores, in DFS order, this activity and the activities that it
-     * transitively depends on. If any activity is has nested components, 
+     * transitively depends on. If any activity is has nested components,
      * explore them first.
-     * 
+     *
      * Returns false if the visit is interrupted by the observer.
      */
     public final boolean dfsNestedDepth(boolean pre, DFSNestedObserver observer) {
-        
+
         observer.onNestedStart(this);
         this.dfs(pre, new DFSObserver() {
             @Override public boolean onOpen(Activity opened, Activity from) {
                 if (!observer.onOpen(opened, from))
                     return false;
-                
+
                 for (Activity nested : opened.nested()) {
                     nested.dfsNestedDepth(pre, observer);
                 }
-                
+
                 return true;
             }
-            
+
             @Override public boolean onSkip(Activity skipped, Activity from) {
                 return observer.onSkip(skipped, from);
             }
@@ -430,57 +403,57 @@ public abstract class Activity implements Serializable {
             }
         });
         observer.onNestedEnd(this);
-        
+
         return true;
     }
-    
+
     /**
      * Explores, in DFS order, this activity and the activities that it
      * transitively depends on. Then explores their nested activities,
      * recursively (one nesting level at a time).
-     * 
+     *
      * Returns false if the visit is interrupted by the observer.
      */
     public final boolean dfsNestedLayers(boolean pre, DFSNestedObserver observer) {
         Deque<Activity> nested = new ArrayDeque<>();
-     
+
         nested.add(this);
         while (!nested.isEmpty()) {
             Activity next = nested.removeFirst();
-            
+
             if (!observer.onNestedStart(next))
                 return false;
-            
+
             next.dfs(pre, new DFSObserver() {
                 @Override public boolean onOpen(Activity opened, Activity from) {
                     if (opened.nested().size() > 0)
                         nested.addAll(opened.nested());
-                    
+
                     return observer.onOpen(opened, from);
                 }
-                
+
                 @Override public boolean onClose(Activity closed) {
                     return observer.onClose(closed);
                 }
-                
+
                 @Override public boolean onSkip(Activity skipped, Activity from) {
                     return observer.onSkip(skipped, from);
                 }
             });
-            
+
             if (!observer.onNestedEnd(next))
                 return false;
         }
-        
+
         return true;
     }
-   
+
     /**
      * Returns all activities explored by dfsNestedLayers.
      */
     public final List<Activity> activitiesNestedLayers(boolean pre) {
         List<Activity> visited = new ArrayList<>();
-        
+
         this.dfsNestedLayers(pre, new DFSNestedObserver() {
             @Override
             public boolean onOpen(Activity opened, Activity from) {
@@ -488,10 +461,10 @@ public abstract class Activity implements Serializable {
                 return true;
             }
         });
-        
+
         return visited;
     }
-    
+
     /**
      * Represents the activity as YAML.
      */
@@ -509,23 +482,23 @@ public abstract class Activity implements Serializable {
     public String yamlData() {
         return "";
     }
-    
+
     /**
      * Represents the activity and its nested components as YAML.
      */
     public final String yamlRecursive() {
         StringBuilder b = new StringBuilder();
         b.append(yaml());
-        
+
         List<Activity> nested = this.nested();
         if (nested.size() > 0) {
             b.append("  nested:\n");
         }
-        
+
         for (Activity a : nested) {
             b.append(a.yamlRecursive().replaceAll("(?m)^", "    "));
         }
-        
+
         return b.toString();
     }
 
@@ -536,18 +509,18 @@ public abstract class Activity implements Serializable {
     public abstract boolean isWellNested();
 
     /**
-     * Returns a string representation of the preconditions and postconditions 
+     * Returns a string representation of the preconditions and postconditions
      * for the STPN of this activity.
-     * 
-     * @return string representation of STPN edges 
+     *
+     * @return string representation of STPN edges
      */
     public String petriArcs() {
-        
+
         PetriNet pn = new PetriNet();
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
         this.buildSTPN(pn, in, out, 1);
-        
+
         StringBuilder b = new StringBuilder();
         for (Transition t : pn.getTransitions()) {
             for (Precondition p : pn.getPreconditions(t))
@@ -555,13 +528,13 @@ public abstract class Activity implements Serializable {
             for (Postcondition p : pn.getPostconditions(t))
                 System.out.println(p.getTransition() + " " + p.getPlace());
         }
-        
+
         return b.toString();
     }
-    
-    public TransientSolution<DeterministicEnablingState, RewardRate> 
-            analyze(String timeBound, String timeStep, String error) {
-        
+
+    public TransientSolution<DeterministicEnablingState, RewardRate>
+    analyze(String timeBound, String timeStep, String error) {
+
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
         BigDecimal step = new BigDecimal(timeStep);
@@ -573,10 +546,10 @@ public abstract class Activity implements Serializable {
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
         this.buildSTPN(pn, in, out, 1);
-        
+
         Marking m = new Marking();
         m.addTokens(in, 1);
-        
+
         // analyze
         RegTransient.Builder builder = RegTransient.builder();
         builder.timeBound(bound);
@@ -585,19 +558,19 @@ public abstract class Activity implements Serializable {
         builder.markingFilter(MarkingCondition.fromString(cond));
 
         RegTransient analysis = builder.build();
-        long start = System.nanoTime(); 
+        long start = System.nanoTime();
         TransientSolution<DeterministicEnablingState, Marking> probs =
                 analysis.compute(pn, m);
-        /*System.out.println(String.format("Analysis took %.3f seconds",
-                (System.nanoTime() - start)/1e9));*/
+    /*System.out.println(String.format("Analysis took %.3f seconds",
+            (System.nanoTime() - start)/1e9));*/
 
         // evaluate reward
-        return TransientSolution.computeRewards(false, probs, 
+        return TransientSolution.computeRewards(false, probs,
                 RewardRate.fromString(cond));
     }
 
     public TransientSolution<Marking, RewardRate>
-            forwardAnalyze(String timeBound, String timeStep, String error) {
+    forwardAnalyze(String timeBound, String timeStep, String error) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -625,16 +598,16 @@ public abstract class Activity implements Serializable {
         long start = System.nanoTime();
         TransientSolution<Marking, Marking> probs =
                 analysis.compute(pn, m);
-        /*System.out.println(String.format("Analysis took %.3f seconds",
-                (System.nanoTime() - start)/1e9));*/
+    /*System.out.println(String.format("Analysis took %.3f seconds",
+            (System.nanoTime() - start)/1e9));*/
 
         // evaluate reward
         return TransientSolution.computeRewards(false, probs,
                 RewardRate.fromString(cond));
     }
-    
+
     public Pair<SuccessionGraph, PetriNet> classGraph() {
-        
+
         // input data
         String cond = "pEND > 0";
 
@@ -643,25 +616,25 @@ public abstract class Activity implements Serializable {
         Place in = pn.addPlace("pBEGIN");
         Place out = pn.addPlace("pEND");
         this.buildSTPN(pn, in, out, 1);
-        
+
         Marking m = new Marking();
         m.addTokens(in, 1);
-        
+
         // analyze
-        Builder builder = TimedAnalysis.builder()
+        TimedAnalysis.Builder builder = TimedAnalysis.builder()
                 .excludeZeroProb(true)
                 .markRegenerations(true)
                 .stopOn(MarkingCondition.fromString(cond));
-               
+
         TimedAnalysis analysis = builder.build();
         SuccessionGraph graph = analysis.compute(pn, m);
-        
+
         return Pair.of(graph, pn);
     }
-    
-    public TransientSolution<DeterministicEnablingState, RewardRate> 
-            simulate(String timeBound, String timeStep, int runs) {
-        
+
+    public TransientSolution<DeterministicEnablingState, RewardRate>
+    simulate(String timeBound, String timeStep, int runs) {
+
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
         BigDecimal step = new BigDecimal(timeStep);
@@ -676,27 +649,27 @@ public abstract class Activity implements Serializable {
 
         Marking m = new Marking();
         m.addTokens(in, 1);
-        
+
         // simulate
         Sequencer s = new Sequencer(pn, m,
                 new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
-        TransientMarkingConditionProbability reward = 
-                new TransientMarkingConditionProbability(s, 
-                    new ContinuousRewardTime(step), samples, 
-                    MarkingCondition.fromString(cond));
+        TransientMarkingConditionProbability reward =
+                new TransientMarkingConditionProbability(s,
+                        new ContinuousRewardTime(step), samples,
+                        MarkingCondition.fromString(cond));
         RewardEvaluator rewardEvaluator = new RewardEvaluator(reward, runs);
-        long start = System.nanoTime(); 
+        long start = System.nanoTime();
         s.simulate();
-        /*System.out.println(String.format("Simulation took %.3f seconds",
-                (System.nanoTime() - start)/1e9));*/
-        
+    /*System.out.println(String.format("Simulation took %.3f seconds",
+            (System.nanoTime() - start)/1e9));*/
+
         // evaluate reward
         TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
         DeterministicEnablingState initialReg = new DeterministicEnablingState(m, pn);
-        TransientSolution<DeterministicEnablingState, RewardRate> result = 
-                new TransientSolution<>(bound, step, List.of(initialReg), 
+        TransientSolution<DeterministicEnablingState, RewardRate> result =
+                new TransientSolution<>(bound, step, List.of(initialReg),
                         List.of(RewardRate.fromString(cond)), initialReg);
-        
+
         for (int t = 0; t < result.getSolution().length; t++) {
             for (Marking x : probs.getMarkings()) {
                 result.getSolution()[t][0][0] += probs.getTimeSeries(x)[t].doubleValue();
@@ -707,7 +680,7 @@ public abstract class Activity implements Serializable {
     }
 
     public TransientSolution<DeterministicEnablingState, RewardRate>
-            simulate(String timeBound, String timeStep, long timeout) {
+    simulate(String timeBound, String timeStep, long timeout) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -757,3 +730,4 @@ public abstract class Activity implements Serializable {
         return type;
     }
 }
+

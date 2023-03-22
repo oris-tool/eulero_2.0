@@ -1,7 +1,8 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.*;
+import org.oristool.eulero.modeling.ActivityEnumType;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.Composite;
 
 import java.math.BigDecimal;

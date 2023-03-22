@@ -1,12 +1,9 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.ActivityEnumType;
-import org.oristool.eulero.modeling.DAGEdge;
-import org.oristool.eulero.modeling.DFSObserver;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.Composite;
+import org.oristool.eulero.modeling.updates.DFSObserver;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
@@ -18,7 +15,6 @@ import org.oristool.petrinet.Transition;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class DAGType extends ActivityType{
     public DAGType(ArrayList<Activity> children) {

@@ -3,6 +3,7 @@ package org.oristool.eulero.modeling;
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.modeling.updates.activitytypes.*;
 import org.oristool.eulero.modeling.updates.Composite;
+import org.oristool.eulero.modeling.updates.Activity;
 
 import java.util.ArrayList;
 import java.util.List;

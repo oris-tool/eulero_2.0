@@ -1,7 +1,7 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.Composite;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;

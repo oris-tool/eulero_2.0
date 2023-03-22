@@ -1,7 +1,6 @@
 package org.oristool.eulero.modeling.updates;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 import org.oristool.eulero.modeling.stochastictime.ExpolynomialTime;
 import org.oristool.eulero.modeling.stochastictime.ExponentialTime;

@@ -1,9 +1,9 @@
 package org.oristool.eulero.modeling.updates.activitytypes;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 import org.oristool.eulero.modeling.XOR;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.Composite;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;

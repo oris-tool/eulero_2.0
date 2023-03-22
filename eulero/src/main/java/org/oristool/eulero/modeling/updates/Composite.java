@@ -2,9 +2,8 @@ package org.oristool.eulero.modeling.updates;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
-import org.oristool.eulero.modeling.Simple;
+import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 import org.oristool.eulero.modeling.updates.activitytypes.ActivityType;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.PetriNet;
@@ -23,10 +22,10 @@ public class Composite extends Activity {
     public Composite(String name, ActivityType type, ActivityEnumType enumType){
         super(name, type, enumType);
         this.getType().setActivity(this);
-        this.begin = new org.oristool.eulero.modeling.Simple(name + "_BEGIN",
-                StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+        this.begin = new Simple(name + "_BEGIN",
+                new DeterministicTime(BigDecimal.ZERO));
         this.end = new Simple(name + "_END",
-                StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO));
+                new DeterministicTime(BigDecimal.ZERO));
     }
     @Override
     public Activity copyRecursive(String suffix) {

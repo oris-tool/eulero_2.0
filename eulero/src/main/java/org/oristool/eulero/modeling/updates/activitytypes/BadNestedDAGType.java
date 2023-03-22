@@ -3,11 +3,13 @@ package org.oristool.eulero.modeling.updates.activitytypes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ActivityEnumType;
 import org.oristool.eulero.modeling.DAGEdge;
-import org.oristool.eulero.modeling.Simple;
+
+import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.Composite;
+import org.oristool.eulero.modeling.updates.Simple;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -102,8 +104,10 @@ public class BadNestedDAGType extends DAGType{
                 toBeSimplifiedActivity.min().doubleValue(), (toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max()).doubleValue(), innerActivityStep);
 
         Activity newActivity = new Simple(toBeSimplifiedActivity.name() + "_N",
-                approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
-                approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new)));
+                new DeterministicTime(BigDecimal.ONE)
+                //approximationFeature.stream().map(Pair::getRight).collect(Collectors.toCollection(ArrayList::new)),
+                //approximationFeature.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new))
+                );
 
         toBeSimplifiedActivity.replace(newActivity);
         int activityIndex = toBeSimplifiedActivityParent.activities().indexOf(toBeSimplifiedActivity);

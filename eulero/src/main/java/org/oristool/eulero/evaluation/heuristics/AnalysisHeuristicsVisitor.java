@@ -17,27 +17,16 @@
 
 package org.oristool.eulero.evaluation.heuristics;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
+import org.oristool.eulero.modeling.updates.Activity;
 import org.oristool.eulero.modeling.updates.activitytypes.ANDType;
 import org.oristool.eulero.modeling.updates.activitytypes.BadNestedDAGType;
 import org.oristool.eulero.modeling.updates.activitytypes.SEQType;
 import org.oristool.eulero.modeling.updates.activitytypes.XORType;
-import org.oristool.eulero.ui.ActivityViewer;
-import org.oristool.models.stpn.RewardRate;
-import org.oristool.models.stpn.TransientSolution;
-import org.oristool.models.stpn.trees.DeterministicEnablingState;
-import org.oristool.models.stpn.trees.StochasticTransitionFeature;
-import org.oristool.petrinet.Marking;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class AnalysisHeuristicsVisitor {
     private final String heuristicName;
