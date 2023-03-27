@@ -49,7 +49,6 @@ public class HistogramTime extends StochasticTime {
     }
 
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        // TODO: riscrivi più facilmente il bvalueOf
         ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
         for(int i = 0; i < bins; i++){
             features.add(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.valueOf(getEFT().doubleValue() + i * (getLFT().doubleValue() - getEFT().doubleValue()) / (double) bins)));

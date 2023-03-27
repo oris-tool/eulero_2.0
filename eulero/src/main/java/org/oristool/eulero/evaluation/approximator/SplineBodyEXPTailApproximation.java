@@ -18,6 +18,7 @@
 package org.oristool.eulero.evaluation.approximator;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.function.GEN;
 import org.oristool.math.function.PartitionedGEN;
@@ -214,5 +215,10 @@ public class SplineBodyEXPTailApproximation extends Approximator {
         features.add(StochasticTransitionFeature.newExponentialInstance(BigDecimal.valueOf(tailLambda)));
         stochasticTransitionFeatureWeights().add(BigDecimal.valueOf(0.25));*/
         return features;
+    }
+
+    @Override
+    public StochasticTime getApproximatedStochasticTime(double[] cdf, double low, double upp, BigDecimal step) {
+        return null;
     }
 }

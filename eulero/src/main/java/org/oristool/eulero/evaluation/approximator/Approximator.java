@@ -18,6 +18,7 @@
 package org.oristool.eulero.evaluation.approximator;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -31,4 +32,6 @@ public abstract class Approximator {
     public abstract Pair<BigDecimal,StochasticTransitionFeature> getApproximatedStochasticTransitionFeature(double[] cdf, double low, double upp, BigDecimal step);
 
     public abstract ArrayList<Pair<BigDecimal,StochasticTransitionFeature>> getApproximatedStochasticTransitionFeatures(double[] cdf, double low, double upp, BigDecimal step);
+
+    public abstract StochasticTime getApproximatedStochasticTime(double[] cdf, double low, double upp, BigDecimal step);
 }

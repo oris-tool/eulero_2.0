@@ -18,6 +18,7 @@
 package org.oristool.eulero.evaluation.approximator;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -91,4 +92,9 @@ public class SOSplineApproximation extends Approximator{
             ));
         }
         return features;    }
+
+    @Override
+    public StochasticTime getApproximatedStochasticTime(double[] cdf, double low, double upp, BigDecimal step) {
+        return null;
+    }
 }

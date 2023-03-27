@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public abstract class ActivityType {
     private Composite activity;
-    private final ArrayList<Activity> children;
+    private ArrayList<Activity> children;
 
     public ActivityType(ArrayList<Activity> children){
         this.children = children;
@@ -24,6 +24,10 @@ public abstract class ActivityType {
 
     public Composite getActivity() {
         return activity;
+    }
+
+    public void setChildren(ArrayList<Activity> children){
+        this.children = children;
     }
 
     public void setActivity(Composite activity) {

@@ -22,6 +22,7 @@ import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
 import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
@@ -194,5 +195,10 @@ public class DoubleTruncatedEXPApproximation extends Approximator{
         }
 
         return features;
+    }
+
+    @Override
+    public StochasticTime getApproximatedStochasticTime(double[] cdf, double low, double upp, BigDecimal step) {
+        return null;
     }
 }

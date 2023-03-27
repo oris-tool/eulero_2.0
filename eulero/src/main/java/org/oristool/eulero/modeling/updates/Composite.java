@@ -100,15 +100,15 @@ public class Composite extends Activity {
 
     public BigDecimal getMaxBound(Activity activity){
         // TODO something not working here
-        System.out.println("\nCurrent activity: " + activity.name());
+        //System.out.println("\nCurrent activity: " + activity.name());
         if(activity.equals(this.begin)){
             return activity.upp();
         }
 
         BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
         for(Activity predecessor: activity.pre()){
-            System.out.println("\nPredecessor of activity " + activity.name() + ": is " + predecessor.name());
-            System.out.println("\nIts bound is " + getMaxBound(predecessor));
+            //System.out.println("\nPredecessor of activity " + activity.name() + ": is " + predecessor.name());
+            //System.out.println("\nIts bound is " + getMaxBound(predecessor));
             maximumPredecessorUpp = maximumPredecessorUpp.max(getMaxBound(predecessor));
             if(maximumPredecessorUpp.doubleValue() >= Double.MAX_VALUE){
                 return BigDecimal.valueOf(Double.MAX_VALUE);

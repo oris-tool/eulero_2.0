@@ -122,7 +122,7 @@ public abstract class Activity implements Serializable {
     /**
      * The name of this activity.
      */
-    public final String name() {
+    public String name() {
         return name;
     }
 

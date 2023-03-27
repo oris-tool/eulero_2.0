@@ -9,7 +9,7 @@ public class DeterministicTime extends StochasticTime{
     private final BigDecimal value;
 
     public DeterministicTime(BigDecimal value){
-        super();
+        super(value, value, SIRIOType.DET);
         this.value = value;
     }
     @Override

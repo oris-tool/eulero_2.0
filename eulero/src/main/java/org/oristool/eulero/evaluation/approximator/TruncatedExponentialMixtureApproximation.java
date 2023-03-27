@@ -22,6 +22,9 @@ import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
 import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.oristool.eulero.modeling.stochastictime.StochasticTime;
+import org.oristool.eulero.modeling.stochastictime.TruncatedExponentialMixtureTime;
+import org.oristool.eulero.modeling.stochastictime.TruncatedExponentialTime;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
@@ -146,6 +149,100 @@ public class TruncatedExponentialMixtureApproximation extends Approximator{
         }
 
         return features;
+    }
+
+    @Override
+    public StochasticTime getApproximatedStochasticTime(double[] cdf, double low, double upp, BigDecimal step) {
+        ArrayList<TruncatedExponentialTime> truncatedExponentialTimes = new ArrayList<>();
+        ArrayList<BigDecimal> pieceWeights = new ArrayList<>();
+
+        double simplificationWindowWidth = 0.5;
+        int simplificationWindowWidthInd = (int) (simplificationWindowWidth / step.doubleValue());
+
+        if(cdf.length < (int)(upp - low)/step.doubleValue()){
+            throw new RuntimeException("cdf has not enough samples with respect to provided support and time step value");
+        }
+
+        for(int i = 0; i < cdf.length - 1; i++){
+            cdf[i] = BigDecimal.valueOf(cdf[i]).doubleValue();
+        }
+        double timeTick = step.doubleValue();
+
+        double[] pdf = new double[cdf.length];
+        double[] pdfDerivative = new double[cdf.length];
+        double[] x = new double[cdf.length];
+        ArrayList<Integer> supportBreakpoints = new ArrayList<>();
+        for(int i = 1; i < cdf.length; i++){
+            pdf[i] = BigDecimal.valueOf((cdf[i] - cdf[i - 1]) / timeTick).doubleValue();
+            x[i] = i * timeTick;
+        }
+
+        int start = IntStream.range(0, cdf.length)
+                .filter(i ->  cdf[i] >= 0.001)
+                .findFirst().orElse(0);
+        int end = IntStream.range(0, cdf.length)
+                .filter(i ->  cdf[i] >= 0.999)
+                .findFirst().orElse(cdf.length);
+        supportBreakpoints.add(start);
+
+        for(int i = start; i <= end - 1; i++){
+            pdfDerivative[i] = BigDecimal.valueOf((pdf[i] - pdf[i - 1]) / timeTick).doubleValue();
+
+            if(Math.signum(pdfDerivative[i - 1]) != 0 && Math.signum(pdfDerivative[i - 1]) != 0 &&
+                    Math.signum(pdfDerivative[i - 1]) * Math.signum(pdfDerivative[i]) < 0 &&
+                    Math.abs(pdfDerivative[i] - pdfDerivative[i - 1]) <= step.doubleValue() * 10){
+
+                if((i - 1) - supportBreakpoints.get(supportBreakpoints.size() - 1) < simplificationWindowWidthInd){
+                    supportBreakpoints.remove(supportBreakpoints.size() - 1);
+                }
+                supportBreakpoints.add(i - 1);
+            }
+            if((Math.signum(pdfDerivative[i - 1]) == 0 || Math.signum(pdfDerivative[i]) == 0)
+                    && (Math.signum(pdfDerivative[i - 1]) < 0 || Math.signum(pdfDerivative[i]) < 0) &&
+                    Math.abs(pdfDerivative[i] - pdfDerivative[i - 1]) <= step.doubleValue() * 10){
+
+                if((i - 1) - supportBreakpoints.get(supportBreakpoints.size() - 1) < simplificationWindowWidthInd){
+                    supportBreakpoints.remove(supportBreakpoints.size() - 1);
+                }
+                supportBreakpoints.add(i - 1);
+            }
+        }
+
+        supportBreakpoints.add(end - 1);
+        for(int j = 0; j < supportBreakpoints.size() - 1; j++ ){
+            double lambda = pdfDerivative[supportBreakpoints.get(j) + 1] >= 0 ? 0 : Double.MAX_VALUE;
+            double featureWeight = j != 0 ? cdf[supportBreakpoints.get(j + 1)] - cdf[supportBreakpoints.get(j)] : cdf[supportBreakpoints.get(j + 1)];
+
+            int finalJ = j;
+            int cutStartingIndex = pdfDerivative[supportBreakpoints.get(j) + 1] >= 0 ?
+                    IntStream.range(supportBreakpoints.get(j), supportBreakpoints.get(j + 1))
+                            .filter(i ->  cdf[i] - cdf[supportBreakpoints.get(finalJ)] >= 0.001)
+                            .findFirst().orElse(supportBreakpoints.get(j)) : supportBreakpoints.get(j);
+            int cutEndingIndex = supportBreakpoints.get(j + 1);
+
+
+            for(int i = cutStartingIndex; i < cutEndingIndex; i++){
+                double normalizedCdfValue = (cdf[i] - cdf[supportBreakpoints.get(j)]) / featureWeight ;
+
+                try {
+                    lambda = pdfDerivative[supportBreakpoints.get(j) + 1] >= 0 ?
+                            Math.max(lambda, evaluatePositiveExpLambda(x[cutStartingIndex], x[cutEndingIndex], x[i], normalizedCdfValue)) :
+                            Math.min(lambda, evaluateNegativeExpLambda(x[cutStartingIndex], x[cutEndingIndex], x[i], normalizedCdfValue));
+                } catch (Exception e){
+                    System.out.println(e);
+                }
+            }
+
+            lambda = BigDecimal.valueOf(lambda).setScale(4, RoundingMode.HALF_DOWN).doubleValue();
+            lambda = pdfDerivative[supportBreakpoints.get(j) + 1] >= 0 ? -lambda : lambda;
+            //double b = lambda > 0 ? x[cutStartingIndex] : x[cutEndingIndex];
+            //Expolynomial density = Expolynomial.fromString(Math.abs(lambda) * Math.exp(lambda * b) / (1 - Math.exp(- Math.abs(lambda) * (x[cutEndingIndex] - x[cutStartingIndex]))) + " * Exp[" + (-lambda) + " x]");
+
+            truncatedExponentialTimes.add(new TruncatedExponentialTime(x[cutStartingIndex], x[cutEndingIndex], lambda));
+            pieceWeights.add(BigDecimal.valueOf(featureWeight));
+        }
+
+        return new TruncatedExponentialMixtureTime(truncatedExponentialTimes, pieceWeights);
     }
 
     public double evaluatePositiveExpLambda(double xLow, double xUpp, double x, double cdfValue){

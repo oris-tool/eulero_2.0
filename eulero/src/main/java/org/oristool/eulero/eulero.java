@@ -1,6 +1,8 @@
-package on_going_works;
+package org.oristool.eulero;
 
+import org.checkerframework.checker.units.qual.A;
 import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
+import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
 import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
@@ -20,6 +22,7 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 public class eulero {
@@ -28,12 +31,12 @@ public class eulero {
         Activity test1 = modelloDAG();
         org.oristool.eulero.modeling.Activity test2 = modelloDAGVecchio();
 
-        AnalysisHeuristicsStrategy strat = new AnalysisHeuristics1(BigInteger.valueOf(3), BigInteger.TEN, new EXPMixtureApproximation());
-        double[] cane = test1.analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(3), BigInteger.TEN, new EXPMixtureApproximation()));
+        AnalysisHeuristicsStrategy strat = new AnalysisHeuristics1(BigInteger.valueOf(2), BigInteger.TEN, new TruncatedExponentialMixtureApproximation());
+        double[] cdf = test1.analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(2), BigInteger.TEN, new TruncatedExponentialMixtureApproximation()));
         double[] cane2 = strat.analyze(test2, test2.max().add(BigDecimal.ONE), test2.getFairTimeTick());
         int i = 0;
         ActivityViewer.CompareResults("", List.of("Nuovo", "Vecchio"), List.of(
-                new EvaluationResult("nuovo", cane, 0, cane.length, 0.01, 0),
+                new EvaluationResult("nuovo", cdf, 0, cdf.length, 0.01, 0),
                 new EvaluationResult("nuovo", cane2, 0, cane2.length, 0.01, 0)
         ));
 
@@ -41,14 +44,14 @@ public class eulero {
 
 
     public static Activity modelloDAG() {
-        StochasticTransitionFeature feat = StochasticTransitionFeature.newUniformInstance("0", "1");
         StochasticTime time = new UniformTime(BigDecimal.ZERO, BigDecimal.ONE);
 
         Activity test = ModelFactory.DAG(
                 List.of(
                         DAGEdge.of(0, 2),
                         DAGEdge.of(0, 3),
-                        DAGEdge.of(1, 3)
+                        DAGEdge.of(1, 3),
+                        DAGEdge.of(4, 5)
                 ),
                 ModelFactory.forkJoin(
                         ModelFactory.forkJoin(
@@ -69,7 +72,9 @@ public class eulero {
                 ),
                 new Simple("B", time),
                 new Simple("C", time),
-                new Simple("D", time)
+                new Simple("D", time),
+                new Simple("E", time),
+                new Simple("F", time)
         );
 
         return test;
@@ -101,12 +106,16 @@ public class eulero {
         org.oristool.eulero.modeling.Simple b = new org.oristool.eulero.modeling.Simple("B", feat);
         org.oristool.eulero.modeling.Simple c = new org.oristool.eulero.modeling.Simple("C", feat);
         org.oristool.eulero.modeling.Simple d = new org.oristool.eulero.modeling.Simple("D", feat);
-        test2.end().addPrecondition(c,d);
+        org.oristool.eulero.modeling.Simple e = new org.oristool.eulero.modeling.Simple("E", feat);
+        org.oristool.eulero.modeling.Simple f = new org.oristool.eulero.modeling.Simple("F", feat);
+        test2.end().addPrecondition(c,d, f);
         c.addPrecondition(a);
         d.addPrecondition(a, b);
+        f.addPrecondition(e);
         a.addPrecondition(test2.begin());
         b.addPrecondition(test2.begin());
-        test2.setActivities(List.of(a, b, c, d));
+        e.addPrecondition(test2.begin());
+        test2.setActivities(new ArrayList<>(List.of(a, b, c, d, e, f)));
         test2.resetSupportBounds();
 
         return test2;

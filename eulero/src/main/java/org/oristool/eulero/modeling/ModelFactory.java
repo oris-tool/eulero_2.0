@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelFactory {
-    public static Activity sequence(Activity... activities){
+    public static Composite sequence(Activity... activities){
         StringBuilder name = new StringBuilder("SEQ(");
         for (Activity act: activities) {
             name.append(act.name()).append(", ");
@@ -22,7 +22,7 @@ public class ModelFactory {
         return sequence;
     };
 
-    public static Activity forkJoin(Activity... activities){
+    public static Composite forkJoin(Activity... activities){
         StringBuilder name = new StringBuilder("AND(");
         for (Activity act: activities) {
             name.append(act.name()).append(", ");
@@ -36,7 +36,7 @@ public class ModelFactory {
         return forkJoin;
     };
 
-    public static Activity DAG(List<DAGEdge> edges, Activity... activities){
+    public static Composite DAG(List<DAGEdge> edges, Activity... activities){
         StringBuilder name = new StringBuilder("DAG(");
         for (Activity act: activities) {
             name.append(act.name()).append(", ");
@@ -49,7 +49,7 @@ public class ModelFactory {
         return dag;
     };
 
-    public static Activity XOR(List<Double> probs, Activity... activities){
+    public static Composite XOR(List<Double> probs, Activity... activities){
         StringBuilder name = new StringBuilder("XOR(");
         for (Activity act: activities) {
             name.append(act.name()).append(", ");

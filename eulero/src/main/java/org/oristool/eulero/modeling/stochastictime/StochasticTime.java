@@ -18,9 +18,7 @@ public abstract class StochasticTime {
     private SIRIOType type;
     private BigDecimal EFT;
     private BigDecimal LFT;
-
     public StochasticTime(){}
-
     public StochasticTime(BigDecimal EFT, BigDecimal LFT, SIRIOType type){
         this.EFT = EFT;
         this.LFT = LFT;
@@ -40,8 +38,16 @@ public abstract class StochasticTime {
         return EFT;
     }
 
+    public void setEFT(BigDecimal EFT) {
+        this.EFT = EFT;
+    }
+
     public BigDecimal getLFT() {
         return LFT;
+    }
+
+    public void setLFT(BigDecimal LFT) {
+        this.LFT = LFT;
     }
 
     public double[] getNumericalPDF(double step, double limit){

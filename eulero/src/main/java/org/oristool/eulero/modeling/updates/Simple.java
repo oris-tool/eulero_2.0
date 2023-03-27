@@ -16,6 +16,7 @@ import org.oristool.petrinet.Transition;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Simple extends Activity {
     private StochasticTime pdf;
@@ -35,7 +36,7 @@ public class Simple extends Activity {
     }
     @Override
     public Activity copyRecursive(String suffix) {
-        return null;
+        return new Simple(this.name() + suffix, getPdf());
     }
 
     @Override
@@ -55,29 +56,32 @@ public class Simple extends Activity {
 
     @Override
     public int buildSTPN(PetriNet pn, Place in, Place out, int prio) {
-        if(pdf.getStochasticTransitionFeatures().size() == 1){
+        // TODO: metti la logica della STPN nel singolo stochastic time, perchè almeno disaccoppiamo questo metodo da lo specifico tipo di PDF
+        List<StochasticTransitionFeature> features = pdf.getStochasticTransitionFeatures();
+
+        if(features.size() == 1){
             Transition t = pn.addTransition(this.name());
             t.addFeature(new Priority(prio));
-            t.addFeature(pdf.getStochasticTransitionFeatures().get(0));
+            t.addFeature(features.get(0));
             pn.addPrecondition(in, t);
             pn.addPostcondition(t, out);
             return prio + 1;
         }
 
-        for(StochasticTransitionFeature feature: pdf.getStochasticTransitionFeatures()){
-            Transition immediateT = pn.addTransition(this.name() + "_imm_" + pdf.getStochasticTransitionFeatures().indexOf(feature));
+        for(StochasticTransitionFeature feature: features){
+            Transition immediateT = pn.addTransition(this.name() + "_imm_" + features.indexOf(feature));
             immediateT.addFeature(new Priority(prio));
-            immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdf.getWeights().get(pdf.getStochasticTransitionFeatures().indexOf(feature)).doubleValue())));
-            Place p = pn.addPlace("p_" + this.name() + "_" + pdf.getStochasticTransitionFeatures().indexOf(feature));
-            Transition t = pn.addTransition(this.name() + "_" + pdf.getStochasticTransitionFeatures().indexOf(feature));
+            immediateT.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.ZERO, MarkingExpr.of(pdf.getWeights().get(features.indexOf(feature)).doubleValue())));
+            Place p = pn.addPlace("p_" + this.name() + "_" + features.indexOf(feature));
+            Transition t = pn.addTransition(this.name() + "_" + features.indexOf(feature));
             t.addFeature(new Priority(prio));
             t.addFeature(feature);
 
             if(feature.isEXP()){
-                Place pDet = pn.addPlace("p_" + this.name() + "_" + pdf.getStochasticTransitionFeatures().indexOf(feature) + "DET");
+                Place pDet = pn.addPlace("p_" + this.name() + "_" + features.indexOf(feature) + "DET");
                 Transition tDet = pn.addTransition(this.name() + "_DET");
                 tDet.addFeature(new Priority(prio));
-                tDet.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.valueOf(pdf.getStochasticTransitionFeatures().stream().filter(feat -> !feat.isEXP()).mapToDouble(feat -> feat.density().getDomainsLFT().doubleValue()).max().orElse(0)), MarkingExpr.ONE));
+                tDet.addFeature(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.valueOf(features.stream().filter(feat -> !feat.isEXP()).mapToDouble(feat -> feat.density().getDomainsLFT().doubleValue()).max().orElse(0)), MarkingExpr.ONE));
 
                 pn.addPostcondition(immediateT, pDet);
                 pn.addPrecondition(pDet, tDet);
@@ -125,5 +129,13 @@ public class Simple extends Activity {
     public static Simple erlang(String name, int k, BigDecimal lambda) {
         // TODO
         return null;
+    }
+
+    public StochasticTime getPdf() {
+        return pdf;
+    }
+
+    public void setPdf(StochasticTime pdf) {
+        this.pdf = pdf;
     }
 }
