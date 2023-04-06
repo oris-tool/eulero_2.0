@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.modelgeneration;
+package org.oristool.eulero.modelgeneration.deprecated;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.modeling.*;

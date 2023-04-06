@@ -49,6 +49,14 @@ public class ModelFactory {
         return dag;
     };
 
+    public static Composite DAG(Activity... activities){
+        return null;
+    }
+
+    public static void setPrecondition(Activity... activities){
+
+    }
+
     public static Composite XOR(List<Double> probs, Activity... activities){
         StringBuilder name = new StringBuilder("XOR(");
         for (Activity act: activities) {

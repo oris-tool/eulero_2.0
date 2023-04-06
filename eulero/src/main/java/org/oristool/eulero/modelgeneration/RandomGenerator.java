@@ -1,2 +1,4 @@
-package org.oristool.eulero.modelgeneration;public class RandomGenerator {
+package org.oristool.eulero.modelgeneration;
+
+public class RandomGenerator {
 }

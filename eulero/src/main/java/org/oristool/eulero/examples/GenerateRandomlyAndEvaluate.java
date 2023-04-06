@@ -23,7 +23,7 @@ import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
 import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.modelgeneration.RandomGenerator;
+import org.oristool.eulero.modelgeneration.deprecated.RandomGenerator;
 import org.oristool.eulero.modelgeneration.blocksettings.ANDBlockSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.BlockTypeSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.DAGBlockSetting;

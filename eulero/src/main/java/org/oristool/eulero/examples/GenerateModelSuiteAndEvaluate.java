@@ -20,7 +20,7 @@ package org.oristool.eulero.examples;
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.modelgeneration.RandomGenerator;
+import org.oristool.eulero.modelgeneration.deprecated.RandomGenerator;
 import org.oristool.eulero.modeling.Activity;
 
 import java.math.BigDecimal;

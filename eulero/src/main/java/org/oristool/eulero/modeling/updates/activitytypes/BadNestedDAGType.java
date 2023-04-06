@@ -92,7 +92,7 @@ public class BadNestedDAGType extends DAGType{
     }
 
     public double[] innerBlockReplication(BigDecimal timeLimit, BigDecimal step, BigInteger CThreshold, BigInteger QThreshold, AnalysisHeuristicsVisitor visitor){
-        ArrayList<Activity> replicatedBlocks = new ArrayList<>();
+        /*ArrayList<Activity> replicatedBlocks = new ArrayList<>();
         ArrayList<Composite> sortedReplicatedBlocks = new ArrayList<>();
         for(Activity activity: getActivity().end().pre()){
             Activity replicatedBlock = this.copyRecursive((getActivity()).begin(), activity, "_before_" + activity.name());
@@ -103,9 +103,11 @@ public class BadNestedDAGType extends DAGType{
             replicatedBlock.C();
             replicatedBlock.Q();
             replicatedBlocks.add(replicatedBlock);
-        }
+        }*/
 
-        Composite newAND = ModelFactory.forkJoin(replicatedBlocks.toArray(new Activity[0]));
+        // TODO per ora sta trasformando tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
+
+        Activity newAND = treefy(getActivity().end().pre());
 
         return newAND.analyze(timeLimit, step, visitor);
     }
@@ -433,5 +435,54 @@ public class BadNestedDAGType extends DAGType{
             theSetOfSuccessors = nextSetOfSuccessors;
         }
         return List.copyOf(theSetOfSuccessors);
+    }
+
+    public Activity treefy(List<Activity> nodes){
+        if (nodes.size() > 1){
+            StringBuilder name = new StringBuilder("AND(");
+            ArrayList<Activity> forkJoinNodes = new ArrayList<>();
+            for(Activity act: nodes){
+                Activity andNode = treefy(Lists.newArrayList(act));
+                forkJoinNodes.add(andNode);
+            }
+
+            for(Activity act: forkJoinNodes){
+                name.append((forkJoinNodes.indexOf(act) == nodes.size() - 1) ? act.name() + ")" : act.name() + ", ");
+            }
+
+            return ModelFactory.forkJoin(forkJoinNodes.toArray(Activity[]::new));//ModelFactory.forkJoin(forkJoinNodes.toArray(Activity[]::new));
+        }
+
+        //!nodes.get(0).pre().get(0).max().equals(BigDecimal.ZERO
+        if(nodes.size() == 1 && nodes.get(0).pre().size() > 1 && nodes.get(0).pre().stream().noneMatch(t -> t.max().equals(BigDecimal.ZERO))){
+            List<Activity> sequenceNodes = new ArrayList<>();
+            StringBuilder name = new StringBuilder("SEQ(");
+
+            sequenceNodes.add(treefy(nodes.get(0).pre()));
+            sequenceNodes.add(nodes.get(0));
+
+            for(Activity act: sequenceNodes){
+                act.pre().clear();
+                act.post().clear();
+                name.append((sequenceNodes.indexOf(act) == sequenceNodes.size() - 1) ? act.name() + ")" : act.name() + ", ");
+            }
+            return ModelFactory.sequence(sequenceNodes.toArray(Activity[]::new));
+        }
+
+        if(nodes.size() == 1 && nodes.get(0).pre().size() == 1 && !nodes.get(0).pre().get(0).max().equals(BigDecimal.ZERO)){
+            List<Activity> sequenceNodes = new ArrayList<>();
+            StringBuilder name = new StringBuilder("SEQ(");
+            sequenceNodes.add(treefy(nodes.get(0).pre()));
+            sequenceNodes.add(nodes.get(0));
+
+            for(Activity act: sequenceNodes){
+                act.pre().clear();
+                act.post().clear();
+                name.append((sequenceNodes.indexOf(act) == sequenceNodes.size() - 1) ? act.name() + ")" : act.name() + ", ");
+            }
+            return ModelFactory.sequence(sequenceNodes.toArray(Activity[]::new));
+        }
+
+        return nodes.get(0);
     }
 }
