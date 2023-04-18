@@ -1,4 +1,7 @@
 /target/
+/eulero/.idea/
+/eulero/results/
 .project
 .classpath
 .DS_Store
+eulero/pom.xml

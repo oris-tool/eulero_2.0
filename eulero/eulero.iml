@@ -53,5 +53,7 @@
     <orderEntry type="library" name="Maven: org.ejml:ejml-fsparse:0.41" level="project" />
     <orderEntry type="library" name="Maven: org.la4j:la4j:0.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-csv:1.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.snakeyaml:snakeyaml-engine:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.11.1" level="project" />
   </component>
 </module>
