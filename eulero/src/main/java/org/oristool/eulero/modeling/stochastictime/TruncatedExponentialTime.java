@@ -40,6 +40,11 @@ public class TruncatedExponentialTime extends StochasticTime{
     }
 
     @Override
+    public double getExpectedValue() {
+        return 0;
+    }
+
+    @Override
     public double PDF(double t) {
         double rate = getRate().doubleValue();
         double a = getEFT().doubleValue();

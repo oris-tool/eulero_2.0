@@ -15,6 +15,10 @@ public class UniformTime extends StochasticTime {
         super(EFT, LFT, SIRIOType.UNI);
     }
 
+    public UniformTime(double EFT, double LFT) {
+        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT), SIRIOType.UNI);
+    }
+
     public StochasticTransitionFeature getStochasticTransitionFeature(){
         return StochasticTransitionFeature.newUniformInstance(getEFT(), getLFT());
     }
@@ -27,6 +31,11 @@ public class UniformTime extends StochasticTime {
     @Override
     public List<BigDecimal> getWeights() {
         return List.of(BigDecimal.ONE);
+    }
+
+    @Override
+    public double getExpectedValue() {
+        return 0;
     }
 
     @Override

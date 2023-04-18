@@ -28,6 +28,11 @@ public class DeterministicTime extends StochasticTime{
     }
 
     @Override
+    public double getExpectedValue() {
+        return 0;
+    }
+
+    @Override
     public double PDF(double t) {
         if(t == value.doubleValue()){
             return Double.MAX_VALUE;

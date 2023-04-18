@@ -45,6 +45,11 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
     }
 
     @Override
+    public double getExpectedValue() {
+        return 0;
+    }
+
+    @Override
     public double PDF(double t) {
         return 0;
     }

@@ -87,4 +87,9 @@ public class ExpolynomialTime extends StochasticTime {
 
         return  specularCDF;
     }
+
+    @Override
+    public double getExpectedValue() {
+        return 0;
+    }
 }

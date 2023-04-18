@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public abstract class StochasticTime {
     public double[] getNumericalCDF(double step, double limit){
         int counter = 0;
         ArrayList<Double> cdf = new ArrayList<>();
-        while(counter * step <= limit){
+        while(BigDecimal.valueOf(counter * step).setScale(BigDecimal.valueOf(step).scale(), RoundingMode.HALF_DOWN).doubleValue() <= limit){
             cdf.add(CDF(step * (double) counter));
             counter++;
         }
@@ -79,6 +80,8 @@ public abstract class StochasticTime {
 
         return specularCDF;
     }
+
+    public abstract double getExpectedValue();
 
     public abstract double PDF(double t);
     public abstract double CDF(double t);

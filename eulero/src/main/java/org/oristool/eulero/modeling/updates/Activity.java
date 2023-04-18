@@ -86,14 +86,14 @@ public abstract class Activity implements Serializable {
     /**
      * The activities that this activity directly depends on.
      */
-    public final List<Activity> pre() {
+    public List<Activity> pre() {
         return pre;
     }
 
     /**
      * The activities that directly depend on this one.
      */
-    public final List<Activity> post() {
+    public List<Activity> post() {
         return post;
     }
 
