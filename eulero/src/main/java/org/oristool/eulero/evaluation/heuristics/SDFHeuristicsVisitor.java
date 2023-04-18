@@ -17,16 +17,11 @@
 
 package org.oristool.eulero.evaluation.heuristics;
 
-import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.evaluation.approximator.Approximator;
-import org.oristool.eulero.modeling.updates.activitytypes.ANDType;
-import org.oristool.eulero.modeling.updates.activitytypes.BadNestedDAGType;
-import org.oristool.eulero.modeling.updates.activitytypes.SEQType;
-import org.oristool.eulero.modeling.updates.activitytypes.XORType;
+import org.oristool.eulero.modeling.activitytypes.BadNestedDAGType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 public class SDFHeuristicsVisitor extends AnalysisHeuristicsVisitor {
     public SDFHeuristicsVisitor(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose) {

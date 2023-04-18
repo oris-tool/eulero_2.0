@@ -15,23 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.oristool.eulero.evaluation.heuristics.backup;
+package org.oristool.eulero.evaluation.heuristics.deprecated;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.ActivityEnumType;
+import org.oristool.eulero.modeling.deprecated.Activity;
+import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class AnalysisHeuristics1 extends AnalysisHeuristicsStrategy {
-    public AnalysisHeuristics1(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose) {
-        super("Heuristic 1", CThreshold, SThreshold, approximator, verbose);
+public class AnalysisHeuristics2 extends AnalysisHeuristicsStrategy {
+    public AnalysisHeuristics2(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator, boolean verbose) {
+        super("Heuristic 2", CThreshold, SThreshold, approximator, verbose);
     }
 
-    public AnalysisHeuristics1(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator) {
-        super("Heuristic 1", CThreshold, SThreshold, approximator, true);
+    public AnalysisHeuristics2(BigInteger CThreshold, BigInteger SThreshold, Approximator approximator) {
+        super("Heuristic 2", CThreshold, SThreshold, approximator, true);
     }
 
     @Override
@@ -49,23 +48,23 @@ public class AnalysisHeuristics1 extends AnalysisHeuristicsStrategy {
         }
 
         if(model.type().equals(ActivityEnumType.DAG)) {
-            model.resetComplexityMeasure();
             // Check Complexity
             if (!(model.simplifiedC().compareTo(model.C()) == 0) || !(model.simplifiedQ().compareTo(model.Q()) == 0)) {
-                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
-                    if(verbose())
-                        System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
-                    return innerBlockReplication(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
-                }
-
                 if(model.C().compareTo(this.CThreshold()) > 0 || model.Q().compareTo(this.QThreshold()) > 0){
                     if(verbose())
                         System.out.println(tabSpaceChars + " Performing DAG Inner Block Analysis on " + model.name());
                     return innerBlockAnalysis(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
+
+                if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
+                    if(verbose())
+                        System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
+                    return innerBlockReplication(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
+                }
             } else {
                 if (model.simplifiedC().compareTo(this.CThreshold()) > 0 || model.simplifiedQ().compareTo(this.QThreshold()) > 0) {
-                    System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
+                    if(verbose())
+                        System.out.println(tabSpaceChars + " Performing Block Replication on " + model.name());
                     return innerBlockReplication(model, timeLimit, step, forwardReductionFactor, error, tabSpaceChars);
                 }
             }

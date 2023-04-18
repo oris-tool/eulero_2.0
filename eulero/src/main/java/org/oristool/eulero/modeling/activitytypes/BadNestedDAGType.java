@@ -1,66 +1,39 @@
-package org.oristool.eulero.modeling.updates.activitytypes;
+package org.oristool.eulero.modeling.activitytypes;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 
-import org.oristool.eulero.modeling.ActivityEnumType;
-import org.oristool.eulero.modeling.DAG;
-import org.oristool.eulero.modeling.DAGEdge;
+import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.ModelFactory;
-import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
-import org.oristool.eulero.modeling.updates.Activity;
-import org.oristool.eulero.modeling.updates.Composite;
-import org.oristool.eulero.modeling.updates.DFSObserver;
-import org.oristool.eulero.modeling.updates.Simple;
-import org.oristool.eulero.ui.ActivityViewer;
+import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.Composite;
+import org.oristool.eulero.modeling.DFSObserver;
+import org.oristool.eulero.modeling.Simple;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
-import org.oristool.models.stpn.trees.DeterministicEnablingState;
-import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.Marking;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.CompletionService;
 import java.util.stream.Collectors;
 
 public class BadNestedDAGType extends DAGType{
-    List<DAGEdge> edges;
-
-    public BadNestedDAGType(ArrayList<Activity> children, List<DAGEdge> edges) {
+    public BadNestedDAGType(ArrayList<Activity> children) {
         super(children);
-        this.edges = edges;
     }
 
 
     @Override
     public void initPreconditions(Composite activity, Activity... children) {
-        {
-            List<Integer> startingNodes = edges.stream().map(DAGEdge::getPreInt).collect(Collectors.toList());
-            List<Integer> endingNodes = edges.stream().map(DAGEdge::getPostInt).collect(Collectors.toList());
-            List<Integer> intermediateNodes = (new ArrayList<>(startingNodes));
-            intermediateNodes.retainAll(endingNodes);
-            startingNodes.removeAll(intermediateNodes);
-            endingNodes.removeAll(intermediateNodes);
-
-            for(Activity act: children){
-                if(startingNodes.contains(List.of(children).indexOf(act))){
-                    act.addPrecondition(activity.begin());
-                }
-                if(endingNodes.contains(List.of(children).indexOf(act))){
-                    activity.end().addPrecondition(act);
-                }
+        for(Activity act: children){
+            if(act.pre().isEmpty()){
+                act.addPrecondition(activity.begin());
             }
-
-            for(DAGEdge edge: edges){
-                Arrays.stream(children).collect(Collectors.toList()).get(edge.getPostInt()).addPrecondition(
-                        Arrays.stream(children).collect(Collectors.toList()).get(edge.getPreInt())
-                );
+            if(act.post().isEmpty()){
+                activity.end().addPrecondition(act);
             }
         }
     }
@@ -107,7 +80,7 @@ public class BadNestedDAGType extends DAGType{
 
         // TODO per ora sta trasformando tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
 
-        Activity newAND = treefy(getActivity().end().pre());
+        Activity newAND = dag2tree(getActivity().end().pre());
 
         return newAND.analyze(timeLimit, step, visitor);
     }
@@ -159,7 +132,7 @@ public class BadNestedDAGType extends DAGType{
     }
 
     public Composite copyRecursive(Activity begin, Activity end, String suffix) {
-        Composite copy = new Composite(getActivity().name() + suffix, new BadNestedDAGType(new ArrayList<>(), new ArrayList<>()), ActivityEnumType.DAG);
+        Composite copy = new Composite(getActivity().name() + suffix, new BadNestedDAGType(new ArrayList<>()), ActivityEnumType.DAG);
 
         Map<Activity, Activity> nodeCopies = new HashMap<>();
 
@@ -437,12 +410,12 @@ public class BadNestedDAGType extends DAGType{
         return List.copyOf(theSetOfSuccessors);
     }
 
-    public Activity treefy(List<Activity> nodes){
+    public Activity dag2tree(List<Activity> nodes){
         if (nodes.size() > 1){
             StringBuilder name = new StringBuilder("AND(");
             ArrayList<Activity> forkJoinNodes = new ArrayList<>();
             for(Activity act: nodes){
-                Activity andNode = treefy(Lists.newArrayList(act));
+                Activity andNode = dag2tree(Lists.newArrayList(act));
                 forkJoinNodes.add(andNode);
             }
 
@@ -458,7 +431,7 @@ public class BadNestedDAGType extends DAGType{
             List<Activity> sequenceNodes = new ArrayList<>();
             StringBuilder name = new StringBuilder("SEQ(");
 
-            sequenceNodes.add(treefy(nodes.get(0).pre()));
+            sequenceNodes.add(dag2tree(nodes.get(0).pre()));
             sequenceNodes.add(nodes.get(0));
 
             for(Activity act: sequenceNodes){
@@ -472,7 +445,7 @@ public class BadNestedDAGType extends DAGType{
         if(nodes.size() == 1 && nodes.get(0).pre().size() == 1 && !nodes.get(0).pre().get(0).max().equals(BigDecimal.ZERO)){
             List<Activity> sequenceNodes = new ArrayList<>();
             StringBuilder name = new StringBuilder("SEQ(");
-            sequenceNodes.add(treefy(nodes.get(0).pre()));
+            sequenceNodes.add(dag2tree(nodes.get(0).pre()));
             sequenceNodes.add(nodes.get(0));
 
             for(Activity act: sequenceNodes){

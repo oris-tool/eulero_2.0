@@ -1,9 +1,7 @@
 package org.oristool.eulero.modeling;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.modeling.updates.activitytypes.*;
-import org.oristool.eulero.modeling.updates.Composite;
-import org.oristool.eulero.modeling.updates.Activity;
+import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.activitytypes.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,7 @@ public class ModelFactory {
         return forkJoin;
     };
 
-    public static Composite DAG(List<DAGEdge> edges, Activity... activities){
+    public static Composite DAG(Activity... activities){
         StringBuilder name = new StringBuilder("DAG(");
         for (Activity act: activities) {
             name.append(act.name()).append(", ");
@@ -44,17 +42,9 @@ public class ModelFactory {
         name.deleteCharAt(name.length() - 1).deleteCharAt(name.length() - 1).append(")");
 
         ArrayList<Activity> children = new ArrayList<>(List.of(activities));
-        Composite dag = new Composite(name.toString(), new BadNestedDAGType(children, edges), ActivityEnumType.DAG);
+        Composite dag = new Composite(name.toString(), new BadNestedDAGType(children), ActivityEnumType.DAG);
         dag.getType().initActivity(dag, activities);
         return dag;
-    };
-
-    public static Composite DAG(Activity... activities){
-        return null;
-    }
-
-    public static void setPrecondition(Activity... activities){
-
     }
 
     public static Composite XOR(List<Double> probs, Activity... activities){

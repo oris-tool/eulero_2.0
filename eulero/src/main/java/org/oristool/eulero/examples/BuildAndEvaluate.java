@@ -23,10 +23,10 @@ import org.oristool.eulero.evaluation.approximator.EXPMixtureApproximation;
 import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.DAG;
-import org.oristool.eulero.modeling.Simple;
-import org.oristool.eulero.modeling.XOR;
+import org.oristool.eulero.modeling.deprecated.Activity;
+import org.oristool.eulero.modeling.deprecated.DAG;
+import org.oristool.eulero.modeling.deprecated.Simple;
+import org.oristool.eulero.modeling.deprecated.XOR;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.File;

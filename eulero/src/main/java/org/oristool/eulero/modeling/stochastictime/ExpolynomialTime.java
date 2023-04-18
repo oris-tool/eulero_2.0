@@ -3,10 +3,10 @@ package org.oristool.eulero.modeling.stochastictime;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.backup.AnalysisHeuristics1;
-import org.oristool.eulero.evaluation.heuristics.backup.AnalysisHeuristicsStrategy;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.Simple;
+import org.oristool.eulero.evaluation.heuristics.deprecated.AnalysisHeuristics1;
+import org.oristool.eulero.evaluation.heuristics.deprecated.AnalysisHeuristicsStrategy;
+import org.oristool.eulero.modeling.deprecated.Activity;
+import org.oristool.eulero.modeling.deprecated.Simple;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 

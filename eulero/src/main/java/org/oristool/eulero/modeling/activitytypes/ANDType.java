@@ -1,14 +1,12 @@
-package org.oristool.eulero.modeling.updates.activitytypes;
+package org.oristool.eulero.modeling.activitytypes;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.ActivityEnumType;
-import org.oristool.eulero.modeling.updates.Activity;
-import org.oristool.eulero.modeling.updates.Composite;
+import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.Composite;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ANDType extends DAGType{
     public ANDType(ArrayList<Activity> children) {

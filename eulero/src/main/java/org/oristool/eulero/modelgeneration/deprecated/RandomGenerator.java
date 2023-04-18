@@ -18,12 +18,11 @@
 package org.oristool.eulero.modelgeneration.deprecated;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.modelgeneration.blocksettings.*;
+import org.oristool.eulero.modeling.deprecated.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 

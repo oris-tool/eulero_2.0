@@ -28,7 +28,7 @@ import org.oristool.eulero.modelgeneration.blocksettings.ANDBlockSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.BlockTypeSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.DAGBlockSetting;
 import org.oristool.eulero.modelgeneration.blocksettings.SEQBlockSetting;
-import org.oristool.eulero.modeling.Activity;
+import org.oristool.eulero.modeling.deprecated.Activity;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.File;

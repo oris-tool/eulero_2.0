@@ -1,4 +1,4 @@
-package org.oristool.eulero.modeling;
+package org.oristool.eulero.modeling.deprecated;
 
 public enum ActivityType {
     SIMPLE,

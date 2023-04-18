@@ -1,11 +1,10 @@
-package org.oristool.eulero.modeling.updates;
+package org.oristool.eulero.modeling;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.ActivityEnumType;
+import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
-import org.oristool.eulero.modeling.updates.activitytypes.ActivityType;
-import org.oristool.models.stpn.trees.StochasticTransitionFeature;
+import org.oristool.eulero.modeling.activitytypes.ActivityType;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 

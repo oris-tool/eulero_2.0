@@ -2,7 +2,7 @@ package org.oristool.eulero.examples;
 
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.modeling.*;
+import org.oristool.eulero.modeling.deprecated.Activity;
 
 import java.io.File;
 import java.math.BigDecimal;

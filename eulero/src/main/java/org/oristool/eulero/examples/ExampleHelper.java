@@ -22,7 +22,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
-import org.oristool.eulero.modeling.*;
+import org.oristool.eulero.modeling.deprecated.*;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.io.File;
