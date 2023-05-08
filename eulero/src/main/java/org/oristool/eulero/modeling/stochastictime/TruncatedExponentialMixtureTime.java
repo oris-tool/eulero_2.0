@@ -63,4 +63,9 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
     public String toString() {
         return null;
     }
+
+    @Override
+    public StochasticTime clone() {
+        return new TruncatedExponentialMixtureTime(this.pieces, this.weights);
+    }
 }

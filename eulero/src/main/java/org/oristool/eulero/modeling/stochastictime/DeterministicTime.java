@@ -52,4 +52,9 @@ public class DeterministicTime extends StochasticTime{
     public String toString() {
         return null;
     }
+
+    @Override
+    public StochasticTime clone() {
+        return new DeterministicTime(this.value);
+    }
 }

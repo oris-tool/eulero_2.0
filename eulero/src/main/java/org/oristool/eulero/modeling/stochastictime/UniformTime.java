@@ -63,4 +63,9 @@ public class UniformTime extends StochasticTime {
     public String toString() {
         return "[" + getEFT() + ", " + getLFT() + " ]";
     }
+
+    @Override
+    public StochasticTime clone() {
+        return new UniformTime(this.getEFT(), this.getLFT());
+    }
 }

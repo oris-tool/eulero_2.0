@@ -33,7 +33,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class Activity implements Serializable {
+public abstract class Activity implements Serializable, Cloneable {
     @XmlElementWrapper(name = "activities")
     @XmlElement(name = "activity", required = true)
     private List<Activity> activities;
@@ -729,5 +729,8 @@ public abstract class Activity implements Serializable {
     public ActivityType getType() {
         return type;
     }
+
+    @Override
+    public abstract Activity clone();
 }
 

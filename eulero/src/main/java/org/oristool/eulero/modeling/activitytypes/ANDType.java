@@ -1,12 +1,15 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import org.checkerframework.checker.units.qual.A;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class ANDType extends DAGType{
     public ANDType(ArrayList<Activity> children) {
@@ -53,5 +56,11 @@ public class ANDType extends DAGType{
     @Override
     public double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor){
         return visitor.analyze(this, timeLimit, timeTick);
-    };
+    }
+
+    @Override
+    public ActivityType clone() {
+        ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
+        return new ANDType(clonedActivities);
+    }
 }

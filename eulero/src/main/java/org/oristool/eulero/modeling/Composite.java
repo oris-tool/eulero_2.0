@@ -84,6 +84,13 @@ public class Composite extends Activity {
         return false;
     }
 
+    @Override
+    public Activity clone() {
+        Composite act = new Composite(this.name(), this.getType().clone(), this.type());
+        act.getType().initActivity(act, act.getType().getChildren().toArray(new Activity[0]));
+        return act;
+    }
+
     public BigDecimal getMinBound(Activity activity){
         if(activity.equals(this.begin)){
             return activity.low();

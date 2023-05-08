@@ -7,23 +7,12 @@ import org.oristool.eulero.modeling.Composite;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class SEQType extends DAGType{
     public SEQType(ArrayList<Activity> children) {
         super(children);
     }
-    /*@Override
-    public void initActivity(Composite activity, Activity... children){
-        if (children.length == 0)
-            throw new IllegalArgumentException("Sequence cannot be empty");
-
-        initPreconditions(activity, children);
-
-        activity.setMin(activity.low());
-        activity.setMax(activity.upp());
-        activity.setActivities(new ArrayList<>(List.of(children)));
-        activity.setEnumType(ActivityEnumType.SEQ);
-    }*/
 
     @Override
     public void initPreconditions(Composite activity, Activity... children) {
@@ -48,5 +37,11 @@ public class SEQType extends DAGType{
     @Override
     public double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor){
         return visitor.analyze(this, timeLimit, timeTick);
-    };
+    }
+
+    @Override
+    public ActivityType clone() {
+        ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
+        return new SEQType(clonedActivities);
+    }
 }

@@ -31,6 +31,12 @@ public class HistogramTime extends StochasticTime {
     public String toString() {
         return null;
     }
+
+    @Override
+    public StochasticTime clone() {
+        return new HistogramTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.bins, this.values);
+    }
+
     public Integer bins() {
         return bins;
     }

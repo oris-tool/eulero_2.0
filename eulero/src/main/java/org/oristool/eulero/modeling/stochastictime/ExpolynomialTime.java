@@ -59,6 +59,11 @@ public class ExpolynomialTime extends StochasticTime {
     }
 
     @Override
+    public StochasticTime clone() {
+        return new ExpolynomialTime(this.getEFT(), this.getLFT(), this.getPdf());
+    }
+
+    @Override
     public double[] getNumericalCDF(double step, double limit){
         Activity model = new Simple("Model", getStochasticTransitionFeature());
         Approximator approximator = new TruncatedExponentialMixtureApproximation();

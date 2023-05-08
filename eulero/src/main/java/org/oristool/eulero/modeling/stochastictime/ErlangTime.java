@@ -60,8 +60,26 @@ public class ErlangTime extends StochasticTime{
     }
 
     @Override
+    public double[] getNumericalCDF(double step, double limit) {
+        double[] pdf = getNumericalPDF(step, limit);
+        double[] cdf = new double[pdf.length];
+        double accumulatore = 0.;
+        for(int i = 0; i < cdf.length; i++){
+            accumulatore += pdf[i] * step;
+            cdf[i] = accumulatore;
+        }
+
+        return cdf;
+    }
+
+    @Override
     public String toString() {
         return null;
+    }
+
+    @Override
+    public StochasticTime clone() {
+        return new ErlangTime(this.k, this.rate);
     }
 
     public void setRate(double rate) {

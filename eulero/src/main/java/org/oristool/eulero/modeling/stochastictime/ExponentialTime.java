@@ -60,5 +60,10 @@ public class ExponentialTime extends StochasticTime {
         return null;
     }
 
+    @Override
+    public StochasticTime clone() {
+        return new ExponentialTime(this.rate);
+    }
+
 
 }

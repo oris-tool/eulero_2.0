@@ -15,6 +15,7 @@ import org.oristool.petrinet.Transition;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class DAGType extends ActivityType{
     public DAGType(ArrayList<Activity> children) {
@@ -338,5 +339,7 @@ public abstract class DAGType extends ActivityType{
     public abstract void initPreconditions(Composite activity, Activity... children);
     public abstract void setEnumType(Composite activity);
     public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor);
+    @Override
+    public abstract ActivityType clone();
 
 }

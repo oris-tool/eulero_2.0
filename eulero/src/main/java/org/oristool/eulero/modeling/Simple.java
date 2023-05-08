@@ -116,6 +116,11 @@ public class Simple extends Activity {
         return false;
     }
 
+    @Override
+    public Activity clone() {
+        return new Simple(this.name(), this.getPdf().clone());
+    }
+
 
     public static Simple uniform(String name, BigDecimal a, BigDecimal b) {
         return new Simple(name, new UniformTime(a, b));

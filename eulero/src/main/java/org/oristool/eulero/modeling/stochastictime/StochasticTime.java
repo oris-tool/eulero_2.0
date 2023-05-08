@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class StochasticTime {
+public abstract class StochasticTime implements Cloneable{
     @XmlElements({
             @XmlElement(name = "type", required = true),
             @XmlElement(name = "type", required = true),
@@ -87,4 +87,7 @@ public abstract class StochasticTime {
     public abstract double CDF(double t);
 
     public abstract String toString();
+
+    @Override
+    public abstract StochasticTime clone();
 }

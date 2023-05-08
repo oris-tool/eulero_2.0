@@ -81,6 +81,11 @@ public class TruncatedExponentialTime extends StochasticTime{
         return null;
     }
 
+    @Override
+    public StochasticTime clone() {
+        return new TruncatedExponentialTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.rate.doubleValue());
+    }
+
     public BigDecimal getRate() {
         return rate;
     }

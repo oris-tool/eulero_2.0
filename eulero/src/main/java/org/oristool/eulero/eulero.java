@@ -11,6 +11,7 @@ import org.oristool.eulero.modelgeneration.blocksettings.*;
 import org.oristool.eulero.modeling.deprecated.DAG;
 import org.oristool.eulero.modeling.ModelFactory;
 import org.oristool.eulero.modeling.deprecated.XOR;
+import org.oristool.eulero.modeling.stochastictime.ErlangTime;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.eulero.modeling.stochastictime.UniformTime;
 import org.oristool.eulero.modeling.Activity;
@@ -29,15 +30,23 @@ public class eulero {
     public static void main(String[] args) {
 
         Activity test1 = modelloDAG();
+        Activity testtree = tree();
         org.oristool.eulero.modeling.deprecated.Activity test2 = modelloDAGVecchio();
 
-        AnalysisHeuristicsStrategy strat = new AnalysisHeuristics1(BigInteger.valueOf(2), BigInteger.TEN, new TruncatedExponentialMixtureApproximation());
-        double[] cdf = test1.analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(2), BigInteger.TEN, new TruncatedExponentialMixtureApproximation()));
-        double[] cane2 = strat.analyze(test2, test2.max().add(BigDecimal.ONE), test2.getFairTimeTick());
+        AnalysisHeuristicsStrategy strat = new AnalysisHeuristics1(BigInteger.valueOf(4), BigInteger.TEN, new TruncatedExponentialMixtureApproximation());
+        AnalysisHeuristicsStrategy strat2 = new AnalysisHeuristics1(BigInteger.valueOf(1), BigInteger.ONE, new TruncatedExponentialMixtureApproximation());
+
+        double[] cane2 = strat2.analyze(test2, BigDecimal.valueOf(15), BigDecimal.valueOf(0.01));
+        double[] cdf = strat.analyze(modelloDAGVecchio(), BigDecimal.valueOf(15), BigDecimal.valueOf(0.01));
         int i = 0;
-        ActivityViewer.CompareResults("", List.of("Nuovo", "Vecchio"), List.of(
-                new EvaluationResult("nuovo", cdf, 0, cdf.length, 0.01, 0),
-                new EvaluationResult("nuovo", cane2, 0, cane2.length, 0.01, 0)
+
+        /*double[] cdf = test1.analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(4), BigInteger.TEN, new TruncatedExponentialMixtureApproximation()));
+        double[] cane2 = modelloDAG().analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(1), BigInteger.ONE, new TruncatedExponentialMixtureApproximation()));
+        double[] cane3 = tree().analyze(test1.max().add(BigDecimal.ONE), test1.getFairTimeTick(), new SDFHeuristicsVisitor(BigInteger.valueOf(1), BigInteger.ONE, new TruncatedExponentialMixtureApproximation()));*/
+        ActivityViewer.CompareResults("", List.of("Senza Repl", "Con Repl", "albero diretto"), List.of(
+                new EvaluationResult("Senza Repl", cdf, 0, cdf.length, 0.01, 0),
+                new EvaluationResult("Con Repl", cane2, 0, cane2.length, 0.01, 0)
+
         ));
 
     }
@@ -67,26 +76,43 @@ public class eulero {
     public static Activity modelloDAG() {
         StochasticTime time = new UniformTime(BigDecimal.ZERO, BigDecimal.ONE);
 
-        Activity A = new Simple("A", time);
-        Activity B = new Simple("B", time);
-        Activity C = new Simple("C", time);
-        Activity D = new Simple("D", time);
-        Activity E = new Simple("E", time);
-        D.addPrecondition(A, B, C);
-        E.addPrecondition(B, C);
-        Activity test = ModelFactory.DAG(
-               A, B, C, D, E
-        );
+        Activity A = new Simple("A", new UniformTime(0, 1.0));
+        Activity B = new Simple("B", new UniformTime(0, 1.0));
+        Activity C = new Simple("C", new UniformTime(0, 1.0));
+        Activity D =new Simple("D", new UniformTime(0, 1.0));
+        /*RospoModelFactory.forkJoin(
+                ActivityWithResources.of(new Simple("D", new VariableTruncatedErlangTime(2, 1.)), 1.),
+                ActivityWithResources.of(new Simple("E", new VariableTruncatedErlangTime(2, 1.)), 1.)
+        );*/
 
-        return test;
+        D.addPrecondition(B);
+        C.addPrecondition(A, B);
+
+        return ModelFactory.DAG(A, B, C, D);
+    }
+
+    public static Activity tree(){
+        return ModelFactory.forkJoin(
+                ModelFactory.sequence(
+                        ModelFactory.forkJoin(
+                                new Simple("A", new UniformTime(0, 1.0)),
+                                new Simple("B1", new UniformTime(0, 1.0))
+                        ),
+                        new Simple("C", new UniformTime(0, 1.0))
+                ),
+                ModelFactory.sequence(
+                        new Simple("B", new UniformTime(0, 1.0)),
+                        new Simple("D", new UniformTime(0, 1.0))
+                )
+        );
     }
     public static org.oristool.eulero.modeling.deprecated.Activity modelloDAGVecchio() {
-        StochasticTime time = new UniformTime(BigDecimal.ZERO, BigDecimal.ONE);
-        StochasticTransitionFeature feat = StochasticTransitionFeature.newUniformInstance("0", "1");
+        StochasticTime time = new ErlangTime(2, 0.1);
+        StochasticTransitionFeature feat = StochasticTransitionFeature.newErlangInstance(2, "1.0");
 
 
         DAG test2 = DAG.empty("DAG");
-        org.oristool.eulero.modeling.deprecated.Activity a = DAG.forkJoin("AND(AND(XOR(A, B), C), SEQ(SEQ(D, E), F))",
+        /*org.oristool.eulero.modeling.deprecated.Activity a = DAG.forkJoin("AND(AND(XOR(A, B), C), SEQ(SEQ(D, E), F))",
                 DAG.forkJoin("AND(XOR(A, B), C)",
                         new XOR("XOR(A, B)",
                                 List.of(
@@ -103,20 +129,20 @@ public class eulero {
                         ),
                         new org.oristool.eulero.modeling.deprecated.Simple("F", feat)
                 )
-        );
+        );*/
         org.oristool.eulero.modeling.deprecated.Simple b = new org.oristool.eulero.modeling.deprecated.Simple("B", feat);
         org.oristool.eulero.modeling.deprecated.Simple c = new org.oristool.eulero.modeling.deprecated.Simple("C", feat);
         org.oristool.eulero.modeling.deprecated.Simple d = new org.oristool.eulero.modeling.deprecated.Simple("D", feat);
         org.oristool.eulero.modeling.deprecated.Simple e = new org.oristool.eulero.modeling.deprecated.Simple("E", feat);
-        org.oristool.eulero.modeling.deprecated.Simple f = new org.oristool.eulero.modeling.deprecated.Simple("F", feat);
-        test2.end().addPrecondition(c,d, f);
-        c.addPrecondition(a);
-        d.addPrecondition(a, b);
-        f.addPrecondition(e);
-        a.addPrecondition(test2.begin());
+
+
+        test2.end().addPrecondition(d, e);
+        d.addPrecondition(b, c);
+        e.addPrecondition(c);
         b.addPrecondition(test2.begin());
-        e.addPrecondition(test2.begin());
-        test2.setActivities(new ArrayList<>(List.of(a, b, c, d, e, f)));
+        c.addPrecondition(test2.begin());
+
+        test2.setActivities(new ArrayList<>(List.of(b, c, d, e)));
         test2.resetSupportBounds();
 
         return test2;

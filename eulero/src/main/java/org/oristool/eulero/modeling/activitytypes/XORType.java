@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class XORType extends ActivityType {
     private final List<Double> probs;
@@ -147,5 +148,12 @@ public class XORType extends ActivityType {
     @Override
     public BigDecimal upp() {
         return this.getActivity().max();
+    }
+
+    @Override
+    public ActivityType clone() {
+        ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
+        // TODO le probs() me le copia per davvero o sono dannato?
+        return new XORType(clonedActivities, probs());
     }
 }

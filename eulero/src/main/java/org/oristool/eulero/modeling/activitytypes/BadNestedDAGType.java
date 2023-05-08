@@ -51,7 +51,13 @@ public class BadNestedDAGType extends DAGType{
     @Override
     public double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor){
         return visitor.analyze(this, timeLimit, timeTick);
-    };
+    }
+
+    @Override
+    public ActivityType clone() {
+        ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
+        return new BadNestedDAGType(clonedActivities);
+    }
 
     public double[] forwardTransientAnalysis(BigDecimal timeLimit, BigDecimal step){
         TransientSolution<Marking, RewardRate> transientSolution =  getActivity().forwardAnalyze(timeLimit.toString(), step.toString(), "0.001");
@@ -411,6 +417,7 @@ public class BadNestedDAGType extends DAGType{
     }
 
     public Activity dag2tree(List<Activity> nodes){
+        // TODO: questo origina side effects sul grafo originale. Verificare se si può evitare, e chi è che causa ciò.
         if (nodes.size() > 1){
             StringBuilder name = new StringBuilder("AND(");
             ArrayList<Activity> forkJoinNodes = new ArrayList<>();

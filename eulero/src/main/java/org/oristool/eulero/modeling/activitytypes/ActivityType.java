@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-public abstract class ActivityType {
+public abstract class ActivityType implements Cloneable {
     private Composite activity;
     private ArrayList<Activity> children;
 
@@ -41,6 +41,6 @@ public abstract class ActivityType {
     public abstract Activity copyRecursive(String suffix);
     public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor);
     public abstract BigDecimal upp();
-
-
+    @Override
+    public abstract ActivityType clone();
 }
