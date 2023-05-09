@@ -1,7 +1,8 @@
-eulero/.idea/
 /eulero/results/
 eulero/target/
 .project
 .classpath
 .DS_Store
 eulero/pom.xml
+.*
+eulero/.idea/compiler.xml
