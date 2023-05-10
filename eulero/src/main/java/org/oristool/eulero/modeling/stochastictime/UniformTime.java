@@ -35,7 +35,7 @@ public class UniformTime extends StochasticTime {
 
     @Override
     public double getExpectedValue() {
-        return 0;
+        return getEFT().add(getLFT()).doubleValue()/2.;
     }
 
     @Override

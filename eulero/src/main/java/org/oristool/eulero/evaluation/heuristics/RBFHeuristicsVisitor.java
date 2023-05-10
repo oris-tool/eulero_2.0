@@ -34,6 +34,32 @@ public class RBFHeuristicsVisitor extends AnalysisHeuristicsVisitor {
 
     @Override
     public double[] analyze(BadNestedDAGType modelType, BigDecimal timeLimit, BigDecimal step) {
-        return new double[0];
+        // check complexty
+        //model.resetComplexityMeasure();
+        BigInteger C = modelType.getActivity().C();
+        BigInteger c = modelType.getActivity().simplifiedC();
+        BigInteger Q = modelType.getActivity().Q();
+        BigInteger q = modelType.getActivity().simplifiedQ();
+
+        // Check Complexity
+        if (!(c.compareTo(C) == 0) || !(q.compareTo(Q) == 0)) {
+            if (c.compareTo(this.CThreshold()) > 0 || q.compareTo(this.QThreshold()) > 0) {
+//                return modelType.innerBlockReplication(timeLimit, step);
+                return modelType.innerBlockAnalysis(timeLimit, step, this.CThreshold(), this.QThreshold(), this, approximator());
+
+            }
+
+            if(C.compareTo(this.CThreshold()) > 0 || Q.compareTo(this.QThreshold()) > 0){
+                return modelType.innerBlockReplication(timeLimit, step, this.CThreshold(), this.QThreshold(), this);
+            }
+        } else {
+            if (c.compareTo(this.CThreshold()) > 0 || q.compareTo(this.QThreshold()) > 0) {
+                //return modelType.innerBlockReplication(timeLimit, step);
+                return modelType.innerBlockReplication(timeLimit, step, this.CThreshold(), this.QThreshold(), this);
+            }
+        }
+
+        // if not complex
+        return modelType.forwardTransientAnalysis(timeLimit, step);
     }
 }

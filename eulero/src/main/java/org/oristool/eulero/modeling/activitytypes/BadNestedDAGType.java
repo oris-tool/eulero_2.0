@@ -92,7 +92,9 @@ public class BadNestedDAGType extends DAGType{
     }
 
     public double[] innerBlockAnalysis(BigDecimal timeLimit, BigDecimal step, BigInteger CThreshold, BigInteger QThreshold, AnalysisHeuristicsVisitor visitor, Approximator approximator){
-        Map<String, Activity> toBeSimplifiedActivityMap = getMostComplexChild(getActivity(), CThreshold, QThreshold);
+        // TODO Add clone() support in modo che il modello originale non venga mai aggiornato
+        Activity clonedActivity =  getActivity().clone();
+        Map<String, Activity> toBeSimplifiedActivityMap = getMostComplexChild((Composite) clonedActivity, CThreshold, QThreshold);
         Activity toBeSimplifiedActivity = toBeSimplifiedActivityMap.get("activity");
         Activity toBeSimplifiedActivityParent = toBeSimplifiedActivityMap.get("parent");
         double aux = toBeSimplifiedActivity.max().doubleValue();
@@ -115,9 +117,9 @@ public class BadNestedDAGType extends DAGType{
         toBeSimplifiedActivityParent.activities().set(activityIndex, newActivity);
         toBeSimplifiedActivityParent.resetComplexityMeasure();
 
-        getActivity().resetComplexityMeasure();
+        clonedActivity.resetComplexityMeasure();
 
-        return visitor.analyze(this, timeLimit, step);
+        return visitor.analyze((BadNestedDAGType) clonedActivity.getType(), timeLimit, step);
     }
 
     public Map<String, Activity> getMostComplexChild(Composite model, BigInteger CThreshold, BigInteger QThreshold){
@@ -439,7 +441,7 @@ public class BadNestedDAGType extends DAGType{
             StringBuilder name = new StringBuilder("SEQ(");
 
             sequenceNodes.add(dag2tree(nodes.get(0).pre()));
-            sequenceNodes.add(nodes.get(0));
+            sequenceNodes.add(nodes.get(0).clone());
 
             for(Activity act: sequenceNodes){
                 act.pre().clear();
@@ -453,7 +455,7 @@ public class BadNestedDAGType extends DAGType{
             List<Activity> sequenceNodes = new ArrayList<>();
             StringBuilder name = new StringBuilder("SEQ(");
             sequenceNodes.add(dag2tree(nodes.get(0).pre()));
-            sequenceNodes.add(nodes.get(0));
+            sequenceNodes.add(nodes.get(0).clone());
 
             for(Activity act: sequenceNodes){
                 act.pre().clear();
@@ -463,6 +465,6 @@ public class BadNestedDAGType extends DAGType{
             return ModelFactory.sequence(sequenceNodes.toArray(Activity[]::new));
         }
 
-        return nodes.get(0);
+        return nodes.get(0).clone();
     }
 }
