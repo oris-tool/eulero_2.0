@@ -293,12 +293,12 @@ public abstract class Activity implements Serializable, Cloneable {
      */
     public void addPrecondition(Activity... others) {
         for (Activity other : others) {
-            if (pre.contains(other))
+            if (pre().contains(other))
                 throw new IllegalArgumentException(other + " already present in " + this);
-            if (other.post.contains(this))
+            if (other.post().contains(this))
                 throw new IllegalArgumentException(this + " already present in " + other);
-            pre.add(other);
-            other.post.add(this);
+            pre().add(other);
+            other.post().add(this);
         }
     }
 
@@ -306,17 +306,17 @@ public abstract class Activity implements Serializable, Cloneable {
      * Removes an activity as a direct dependency; also removes
      * this activity from the dependency's post().
      */
-    public final void removePrecondition(Activity other) {
-        if (!pre.remove(other))
+    public void removePrecondition(Activity other) {
+        if (!pre().remove(other))
             throw new IllegalArgumentException(other + " not present in " + this);
-        if (!other.post.remove(this))
+        if (!other.post().remove(this))
             throw new IllegalArgumentException(this + " not present in " + other);
     }
 
     /**
      * Replaces this activity with another in all pre/post.
      */
-    public final void replace(Activity withOther) {
+    public void replace(Activity withOther) {
         for (Activity p : new ArrayList<>(pre)) {
             this.removePrecondition(p);
             withOther.addPrecondition(p);

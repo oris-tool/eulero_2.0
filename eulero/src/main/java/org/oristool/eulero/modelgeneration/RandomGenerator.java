@@ -17,9 +17,25 @@ public class RandomGenerator {
     private Set<Pair<List<StochasticTransitionFeature>, List<BigDecimal>>> features;
     private ArrayList<Set<BlockTypeSetting>> settings;
 
-    // TODO, questo va capio come sistemarlo
-    private StochasticTime stochasticTime = new UniformTime(0,1);
+    // TODO, questo va capito come sistemarlo
+    private StochasticTime stochasticTime;
 
+    public ArrayList<Set<BlockTypeSetting>> settings() {
+        return settings;
+    }
+
+    public Set<Pair<List<StochasticTransitionFeature>, List<BigDecimal>>> features() {
+        return features;
+    }
+
+    public StochasticTime stochasticTime() {
+        return stochasticTime;
+    }
+
+    public RandomGenerator(StochasticTime stochasticTime, ArrayList<Set<BlockTypeSetting>> settings){
+        this.settings = settings;
+        this.stochasticTime = stochasticTime;
+    }
     public RandomGenerator(StochasticTransitionFeature feature, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
         this.features = Set.of(Pair.of(List.of(feature), List.of(BigDecimal.ONE)));
@@ -160,5 +176,4 @@ public class RandomGenerator {
         Collections.shuffle(myList);
         return new Simple(name, stochasticTime);
     }
-
 }
