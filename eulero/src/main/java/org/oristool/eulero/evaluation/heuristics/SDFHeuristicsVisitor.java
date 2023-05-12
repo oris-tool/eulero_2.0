@@ -50,7 +50,7 @@ public class SDFHeuristicsVisitor extends AnalysisHeuristicsVisitor {
             }
 
             if(C.compareTo(this.CThreshold()) > 0 || Q.compareTo(this.QThreshold()) > 0){
-                return modelType.innerBlockAnalysis(timeLimit, step, this.CThreshold(), this.QThreshold(), this, approximator());
+                return modelType.innerBlockReplication(timeLimit, step, this.CThreshold(), this.QThreshold(), this);
             }
         } else {
             if (c.compareTo(this.CThreshold()) > 0 || q.compareTo(this.QThreshold()) > 0) {
