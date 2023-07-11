@@ -1,7 +1,7 @@
 
 HEURISTIC 0
-E1
---- Performing DAG Inner Block Analysis on E1
+experiments.E1
+--- Performing DAG Inner Block Analysis on experiments.E1
 ------ Numerical AND Analysis of S
 --------- Numerical SEQ Analysis of S1
 ------------ Forward Analysis of block Act8
@@ -22,7 +22,7 @@ E1
 ------ Analysis of S done in 0,303 seconds...
 ------ Block Analysis: Choose inner block S
 ------ Approximated inner block S
---- Performing DAG Inner Block Analysis on E1
+--- Performing DAG Inner Block Analysis on experiments.E1
 ------ Numerical SEQ Analysis of T
 --------- Numerical AND Analysis of T1
 ------------ Forward Analysis of block Act23
@@ -39,7 +39,7 @@ E1
 ------ Analysis of T done in 0,092 seconds...
 ------ Block Analysis: Choose inner block T
 ------ Approximated inner block T
---- Performing DAG Inner Block Analysis on E1
+--- Performing DAG Inner Block Analysis on experiments.E1
 ------ Numerical SEQ Analysis of Q
 --------- Numerical AND Analysis of Q1
 ------------ Forward Analysis of block Act0
@@ -56,7 +56,7 @@ E1
 ------ Analysis of Q done in 0,062 seconds...
 ------ Block Analysis: Choose inner block Q
 ------ Approximated inner block Q
---- Performing DAG Inner Block Analysis on E1
+--- Performing DAG Inner Block Analysis on experiments.E1
 ------ Numerical AND Analysis of R
 ------------ Forward Analysis of block Act4
 ------------ Analysis done in 0,009 seconds...
@@ -71,6 +71,6 @@ E1
 ------ Analysis of R done in 0,029 seconds...
 ------ Block Analysis: Choose inner block R
 ------ Approximated inner block R
---- Forward Analysis of block E1
+--- Forward Analysis of block experiments.E1
 --- Analysis done in 6,679 seconds...
 Evaluation took 7,586 seconds

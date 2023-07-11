@@ -31,7 +31,7 @@ import org.oristool.models.stpn.TransientSolutionViewer;
 import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
-public class E1 {
+public class experiments.E1 {
     public static void main(String[] args) {
         StochasticTransitionFeature unif01 =
                 StochasticTransitionFeature.newUniformInstance(BigDecimal.ZERO, BigDecimal.ONE);
