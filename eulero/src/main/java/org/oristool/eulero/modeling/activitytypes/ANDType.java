@@ -1,6 +1,5 @@
 package org.oristool.eulero.modeling.activitytypes;
 
-import org.checkerframework.checker.units.qual.A;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.Activity;
