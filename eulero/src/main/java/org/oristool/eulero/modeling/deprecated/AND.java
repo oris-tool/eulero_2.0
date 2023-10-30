@@ -18,6 +18,7 @@
 package org.oristool.eulero.modeling.deprecated;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 
 import java.util.List;
 

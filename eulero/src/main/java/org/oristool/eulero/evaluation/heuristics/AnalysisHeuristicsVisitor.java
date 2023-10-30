@@ -19,10 +19,7 @@ package org.oristool.eulero.evaluation.heuristics;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.activitytypes.ANDType;
-import org.oristool.eulero.modeling.activitytypes.BadNestedDAGType;
-import org.oristool.eulero.modeling.activitytypes.SEQType;
-import org.oristool.eulero.modeling.activitytypes.XORType;
+import org.oristool.eulero.modeling.activitytypes.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -54,6 +51,7 @@ public abstract class AnalysisHeuristicsVisitor {
     }
 
     public abstract double[] analyze(BadNestedDAGType modelType, BigDecimal timeLimit, BigDecimal step);
+
     public double[] analyze(XORType modelType, BigDecimal timeLimit, BigDecimal timeTick) {
         double[] CDF = new double[timeLimit.divide(timeTick).intValue() + 1];
 
@@ -66,6 +64,7 @@ public abstract class AnalysisHeuristicsVisitor {
         }
         return CDF;
     }
+
     public double[] analyze(ANDType modelType, BigDecimal timeLimit, BigDecimal step) {
         double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
 
@@ -81,6 +80,13 @@ public abstract class AnalysisHeuristicsVisitor {
 
         return CDF;
     }
+
+    public double[] analyze(ORType modelType, BigDecimal timeLimit, BigDecimal step) {
+        double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
+
+        return CDF;
+    }
+
     public double[] analyze(SEQType modelType, BigDecimal timeLimit, BigDecimal step) {
         double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
 
@@ -103,6 +109,7 @@ public abstract class AnalysisHeuristicsVisitor {
         }
         return CDF;
     }
+
     public boolean verbose() { return verbose; }
     public BigInteger CThreshold() {
         return CThreshold;

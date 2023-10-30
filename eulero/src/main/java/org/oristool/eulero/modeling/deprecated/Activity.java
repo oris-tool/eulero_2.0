@@ -17,16 +17,12 @@
 
 package org.oristool.eulero.modeling.deprecated;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
-
 import jakarta.xml.bind.annotation.*;
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.activitytypes.ActivityType;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
@@ -38,13 +34,7 @@ import org.oristool.models.tpn.ConcurrencyTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
 import org.oristool.models.tpn.TimedAnalysis.Builder;
 import org.oristool.models.tpn.TimedTransitionFeature;
-import org.oristool.petrinet.Marking;
-import org.oristool.petrinet.MarkingCondition;
-import org.oristool.petrinet.PetriNet;
-import org.oristool.petrinet.Place;
-import org.oristool.petrinet.Postcondition;
-import org.oristool.petrinet.Precondition;
-import org.oristool.petrinet.Transition;
+import org.oristool.petrinet.*;
 import org.oristool.simulator.Sequencer;
 import org.oristool.simulator.TimeSeriesRewardResult;
 import org.oristool.simulator.rewards.ContinuousRewardTime;
@@ -53,6 +43,11 @@ import org.oristool.simulator.rewards.RewardEvaluatorTimeout;
 import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
 import org.oristool.util.Pair;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
 
 /**
  * Represents a node in an activity DAG.
@@ -64,7 +59,6 @@ public abstract class Activity implements Serializable {
     @XmlElement(name = "activity", required = true)
     private List<Activity> activities;
     private ActivityEnumType enumType;
-
     private ActivityType type;
     @XmlElements({
             @XmlElement(name = "EFT", type = Simple.class, required = true),

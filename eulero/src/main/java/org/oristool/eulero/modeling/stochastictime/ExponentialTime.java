@@ -31,7 +31,7 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        return null;
+        return List.of(getStochasticTransitionFeature());
     }
 
     @Override

@@ -1,8 +1,9 @@
 package org.oristool.eulero.modeling;
 
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 import org.oristool.eulero.modeling.activitytypes.ActivityType;
 import org.oristool.petrinet.PetriNet;
@@ -11,6 +12,7 @@ import org.oristool.petrinet.Place;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@XmlRootElement(name = "Composite")
 public class Composite extends Activity {
     @XmlElement(name = "begin", required = true)
     private Activity begin;
@@ -26,6 +28,11 @@ public class Composite extends Activity {
         this.end = new Simple(name + "_END",
                 new DeterministicTime(BigDecimal.ZERO));
     }
+
+    public Composite(){
+        super("", null, null);
+    }
+
     @Override
     public Activity copyRecursive(String suffix) {
         return this.getType().copyRecursive(suffix);
@@ -38,7 +45,9 @@ public class Composite extends Activity {
 
     @Override
     public void resetSupportBounds() {
-
+        this.setMax(
+                this.getType().upp()
+        );
     }
 
     @Override
@@ -58,12 +67,16 @@ public class Composite extends Activity {
 
     @Override
     public BigDecimal low() {
-        return getMinBound(this.end);
+        BigDecimal low = getMinBound(this.end);
+        setMin(low);
+        return low;
     }
 
     @Override
     public BigDecimal upp() {
-        return this.getType().upp();
+        BigDecimal upp = this.getType().upp();
+        setMax(upp);
+        return upp;
     }
 
     public Activity begin() {

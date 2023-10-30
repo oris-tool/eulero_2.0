@@ -1,7 +1,9 @@
 package org.oristool.eulero.modeling;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.stochastictime.ExponentialTime;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.eulero.modeling.stochastictime.UniformTime;
@@ -17,7 +19,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement(name = "Simple")
 public class Simple extends Activity {
+    @XmlElement(name = "pdf", required = true)
     private StochasticTime pdf;
 
     public Simple(String name, StochasticTime pdf) {
@@ -33,6 +37,13 @@ public class Simple extends Activity {
         setActivities(new ArrayList<>());
         this.pdf = pdf;
     }
+
+    public Simple(){
+        super("");
+        setEnumType(ActivityEnumType.SIMPLE);
+    }
+
+
     @Override
     public Activity copyRecursive(String suffix) {
         return new Simple(this.name() + suffix, getPdf());
@@ -45,7 +56,8 @@ public class Simple extends Activity {
 
     @Override
     public void resetSupportBounds() {
-
+        this.setMin(this.getPdf().getEFT());
+        this.setMax(this.getPdf().getLFT());
     }
 
     @Override
@@ -103,12 +115,16 @@ public class Simple extends Activity {
 
     @Override
     public BigDecimal low() {
-        return this.min();
+        BigDecimal low = this.pdf.getEFT();
+        setMin(low);
+        return low;
     }
 
     @Override
     public BigDecimal upp() {
-        return this.max();
+        BigDecimal max = this.pdf.getLFT();
+        setMax(max);
+        return max;
     }
 
     @Override

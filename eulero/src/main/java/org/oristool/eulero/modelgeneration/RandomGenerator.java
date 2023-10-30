@@ -5,9 +5,7 @@ import org.oristool.eulero.modelgeneration.blocksettings.*;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.ModelFactory;
 import org.oristool.eulero.modeling.Simple;
-import org.oristool.eulero.modeling.deprecated.DAGEdge;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
-import org.oristool.eulero.modeling.stochastictime.UniformTime;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -35,6 +33,7 @@ public class RandomGenerator {
     public RandomGenerator(StochasticTime stochasticTime, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
         this.stochasticTime = stochasticTime;
+        this.features = Set.of(Pair.of(List.of(stochasticTime.getStochasticTransitionFeature()), List.of(BigDecimal.ONE)));
     }
     public RandomGenerator(StochasticTransitionFeature feature, ArrayList<Set<BlockTypeSetting>> settings){
         this.settings = settings;
@@ -116,7 +115,7 @@ public class RandomGenerator {
                     levels.add(level);
                 }
 
-                ArrayList<DAGEdge> edges = new ArrayList<>();
+                //ArrayList<DAGEdge> edges = new ArrayList<>();
                 // Set intermediate
                 for(int i = 0; i < levels.size(); i++){
                     ArrayList<Activity> nodes = levels.get(i);
@@ -142,8 +141,8 @@ public class RandomGenerator {
                             for(int j = 0; j < maximumPredecessorNumber; j++){
                                 int nodeIndex = rand.nextInt(predecessors.size());
                                 act.addPrecondition(predecessors.get(nodeIndex));
-                                DAGEdge edge = new DAGEdge(predecessors.get(nodeIndex).name(), act.name());
-                                edges.add(edge);
+                                //DAGEdge edge = new DAGEdge(predecessors.get(nodeIndex).name(), act.name());
+                                //edges.add(edge);
                                 removed.add(predecessors.remove(nodeIndex));
                             }
                             predecessors.addAll(removed);
@@ -155,8 +154,8 @@ public class RandomGenerator {
                             for (int j = 0; j < maximumSuccessorNumber; j++) {
                                 int nodeIndex = rand.nextInt(successors.size());
                                 successors.get(nodeIndex).addPrecondition(act);
-                                DAGEdge edge = new DAGEdge(act.name(), successors.get(nodeIndex).name());
-                                edges.add(edge);
+                                //DAGEdge edge = new DAGEdge(act.name(), successors.get(nodeIndex).name());
+                                //edges.add(edge);
                                 removed.add(successors.remove(nodeIndex));
                             }
                             successors.addAll(removed);

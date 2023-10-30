@@ -1,7 +1,9 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
 import org.oristool.models.pn.Priority;
@@ -20,11 +22,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@XmlRootElement(name = "xor-type")
 public class XORType extends ActivityType {
+    @XmlElementWrapper(name = "probs")
+    @XmlElement(name = "prob", required = true)
     private final List<Double> probs;
+
     public XORType(ArrayList<Activity> children, List<Double> probs){
         super(children);
         this.probs = probs;
+    }
+
+    public XORType(){
+        super(new ArrayList<>());
+        this.probs = new ArrayList<>();
     }
 
     public List<Double> probs() {
@@ -47,6 +58,9 @@ public class XORType extends ActivityType {
         List<Place> act_outs = new ArrayList<>();
 
         for (int i = 0; i < getActivity().activities().size(); i++) {
+            // Setting immediate transition for XOR branches
+            // In pratica lui mi crea le IMM, le appende a in, e tiene traccia di quese per fare qualcosa
+
             Transition branch = pn.addTransition(getActivity().name() + "_case" + i);
             // same priority for all branches to create conflict
             branch.addFeature(new Priority(prio));
@@ -75,6 +89,7 @@ public class XORType extends ActivityType {
         }
 
         for (int i = 0; i < getActivity().activities().size(); i++) {
+            // Questo mi sa che tutto sommato non serve davvero.
             Transition merge = pn.addTransition(getActivity().name() + "_merge" + i);
             merge.addFeature(StochasticTransitionFeature
                     .newDeterministicInstance(BigDecimal.ZERO));

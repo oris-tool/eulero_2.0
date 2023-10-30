@@ -5,8 +5,7 @@ import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.*;
-import org.oristool.eulero.modeling.deprecated.Simple;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.activitytypes.ActivityType;
 import org.oristool.models.pn.PetriStateFeature;
 import org.oristool.models.stpn.RewardRate;
@@ -34,51 +33,29 @@ import java.util.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable, Cloneable {
+
     @XmlElementWrapper(name = "activities")
     @XmlElement(name = "activity", required = true)
     private List<Activity> activities;
     private ActivityEnumType enumType;
-
     private ActivityType type;
-    @XmlElements({
-            @XmlElement(name = "EFT", type = Simple.class, required = true),
-            @XmlElement(name = "EFT", type = SEQ.class, required = true),
-            @XmlElement(name = "EFT", type = AND.class, required = true),
-            @XmlElement(name = "EFT", type = XOR.class, required = true),
-            @XmlElement(name = "EFT", type = DAG.class, required = true),
-    })
     private BigDecimal min;
-
-    @XmlElements({
-            @XmlElement(name = "LFT", type = org.oristool.eulero.modeling.deprecated.Simple.class, required = true),
-            @XmlElement(name = "LFT", type = SEQ.class, required = true),
-            @XmlElement(name = "LFT", type = AND.class, required = true),
-            @XmlElement(name = "LFT", type = XOR.class, required = true),
-            @XmlElement(name = "LFT", type = DAG.class, required = true),
-    })
     private BigDecimal max;
-
     private BigInteger C;
-
     private BigInteger Q;
-
     private BigInteger simplifiedC;
-
     private BigInteger simplifiedQ;
 
+    //@XmlElementWrapper(name = "pre-conditions")
+    //@XmlElement(name = "pre-condition", required = true)
     @XmlTransient
     private List<Activity> pre = new ArrayList<>();
 
+    //@XmlElementWrapper(name = "post-conditions")
+    //@XmlElement(name = "post-condition", required = true)
     @XmlTransient
     private List<Activity> post = new ArrayList<>();
 
-    @XmlElements({
-            @XmlElement(name = "name", type = Simple.class, required = true),
-            @XmlElement(name = "name", type = SEQ.class, required = true),
-            @XmlElement(name = "name", type = AND.class, required = true),
-            @XmlElement(name = "name", type = XOR.class, required = true),
-            @XmlElement(name = "name", type = DAG.class, required = true),
-    })
     private String name;
 
     public Activity(){}
@@ -124,6 +101,10 @@ public abstract class Activity implements Serializable, Cloneable {
      */
     public String name() {
         return name;
+    }
+
+    public void setName(String name){
+        this.name = name;
     }
 
     public BigDecimal min() {
@@ -189,7 +170,7 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     public BigDecimal getFairTimeTick(){
-        double aux = this.max().doubleValue();
+        double aux = this.upp().doubleValue();
         int mag = 1;
         while (aux > 10) {
             mag = mag * 10;

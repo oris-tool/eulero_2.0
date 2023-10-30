@@ -17,14 +17,10 @@
 
 package org.oristool.eulero.modeling.deprecated;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.math.domain.DBMZone;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.math.expression.Variable;
@@ -37,6 +33,11 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 import org.oristool.petrinet.Transition;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity with an analytical CDF.

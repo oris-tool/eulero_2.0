@@ -1,16 +1,11 @@
 package org.oristool.eulero.modeling.activitytypes;
 
 import com.google.common.collect.Lists;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
-import org.oristool.eulero.modeling.ModelFactory;
+import org.oristool.eulero.modeling.*;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.Composite;
-import org.oristool.eulero.modeling.DFSObserver;
-import org.oristool.eulero.modeling.Simple;
 import org.oristool.models.stpn.RewardRate;
 import org.oristool.models.stpn.TransientSolution;
 import org.oristool.petrinet.Marking;
@@ -20,11 +15,15 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class BadNestedDAGType extends DAGType{
+@XmlRootElement(name = "bad-nested-dag-type")
+public class BadNestedDAGType extends DAGType {
     public BadNestedDAGType(ArrayList<Activity> children) {
         super(children);
     }
 
+    public BadNestedDAGType(){
+        super(new ArrayList<>());
+    }
 
     @Override
     public void initPreconditions(Composite activity, Activity... children) {

@@ -1,8 +1,10 @@
 package org.oristool.eulero.modeling;
 
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.activitytypes.*;
+import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,5 +62,19 @@ public class ModelFactory {
         return xor;
     }
 
+    public static Composite OR(List<Double> probs, Activity... activities){
+        ArrayList<Activity> xor_acts = new ArrayList<>();
+        for(Activity act: activities){
+            Double prob = probs.get(List.of(activities).indexOf(act));
+            xor_acts.add(ModelFactory.XOR(
+                    List.of(prob, 1. - prob),
+                    act,
+                    new Simple(act.name() + "_missed", new DeterministicTime(BigDecimal.ZERO))
+            ));
+        }
 
+        return ModelFactory.forkJoin(
+                xor_acts.toArray(new Activity[0])
+        );
+    }
 }

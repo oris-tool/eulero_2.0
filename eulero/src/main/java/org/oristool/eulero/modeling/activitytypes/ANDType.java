@@ -1,18 +1,21 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class ANDType extends DAGType{
+@XmlRootElement(name = "and-type")
+public class ANDType extends DAGType {
     public ANDType(ArrayList<Activity> children) {
         super(children);
+    }
+    public ANDType(){
+        super(new ArrayList<>());
     }
     @Override
     public void initPreconditions(Composite activity, Activity... children) {

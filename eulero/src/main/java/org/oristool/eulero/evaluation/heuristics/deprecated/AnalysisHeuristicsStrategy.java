@@ -3,6 +3,7 @@ package org.oristool.eulero.evaluation.heuristics.deprecated;
 import org.apache.commons.lang3.tuple.Pair;
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.deprecated.*;
 import org.oristool.eulero.ui.ActivityViewer;
 import org.oristool.models.stpn.RewardRate;

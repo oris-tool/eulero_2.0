@@ -19,7 +19,7 @@ package org.oristool.eulero.evaluation.heuristics.deprecated;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
 import org.oristool.eulero.modeling.deprecated.Activity;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
+import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

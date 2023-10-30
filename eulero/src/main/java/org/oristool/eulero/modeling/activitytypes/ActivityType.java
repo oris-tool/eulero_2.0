@@ -1,5 +1,6 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import jakarta.xml.bind.annotation.*;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
@@ -10,8 +11,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ActivityType implements Cloneable {
+    @XmlTransient
     private Composite activity;
+    @XmlElementWrapper(name = "children")
+    @XmlElement(name = "child", required = true)
     private ArrayList<Activity> children;
 
     public ActivityType(ArrayList<Activity> children){

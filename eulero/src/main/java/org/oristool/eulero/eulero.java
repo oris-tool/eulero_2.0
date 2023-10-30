@@ -3,14 +3,13 @@ package org.oristool.eulero;
 import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
 import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
+
 import org.oristool.eulero.evaluation.heuristics.deprecated.AnalysisHeuristics1;
 import org.oristool.eulero.evaluation.heuristics.deprecated.AnalysisHeuristicsStrategy;
-
 import org.oristool.eulero.modelgeneration.RandomGenerator;
 import org.oristool.eulero.modelgeneration.blocksettings.*;
-import org.oristool.eulero.modeling.deprecated.DAG;
 import org.oristool.eulero.modeling.ModelFactory;
-import org.oristool.eulero.modeling.deprecated.XOR;
+import org.oristool.eulero.modeling.deprecated.DAG;
 import org.oristool.eulero.modeling.stochastictime.ErlangTime;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
 import org.oristool.eulero.modeling.stochastictime.UniformTime;

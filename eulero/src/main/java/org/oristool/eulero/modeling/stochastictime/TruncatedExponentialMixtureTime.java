@@ -1,13 +1,13 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+@XmlRootElement(name = "truncated-exp-mixt")
 public class TruncatedExponentialMixtureTime extends StochasticTime{
     ArrayList<TruncatedExponentialTime> pieces;
     ArrayList<BigDecimal> weights;

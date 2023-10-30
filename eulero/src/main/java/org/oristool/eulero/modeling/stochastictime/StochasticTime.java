@@ -1,9 +1,13 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElements;
 import org.apache.commons.lang3.ArrayUtils;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -12,14 +16,14 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class StochasticTime implements Cloneable{
     @XmlElements({
-            @XmlElement(name = "type", required = true),
-            @XmlElement(name = "type", required = true),
             @XmlElement(name = "type", required = true)
     })
     private SIRIOType type;
     private BigDecimal EFT;
     private BigDecimal LFT;
+
     public StochasticTime(){}
+
     public StochasticTime(BigDecimal EFT, BigDecimal LFT, SIRIOType type){
         this.EFT = EFT;
         this.LFT = LFT;
@@ -33,7 +37,6 @@ public abstract class StochasticTime implements Cloneable{
     public abstract StochasticTransitionFeature getStochasticTransitionFeature();
     public abstract List<StochasticTransitionFeature> getStochasticTransitionFeatures();
     public abstract List<BigDecimal> getWeights();
-
 
     public BigDecimal getEFT() {
         return EFT;

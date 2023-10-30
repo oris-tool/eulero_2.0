@@ -1,7 +1,7 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.modeling.deprecated.ActivityEnumType;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
 
@@ -9,9 +9,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class SEQType extends DAGType{
+@XmlRootElement(name = "seq-type")
+public class SEQType extends DAGType {
     public SEQType(ArrayList<Activity> children) {
         super(children);
+    }
+
+    public SEQType(){
+        super(new ArrayList<>());
     }
 
     @Override

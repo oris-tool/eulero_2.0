@@ -1,17 +1,25 @@
 package org.oristool.eulero.modeling.stochastictime;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@XmlRootElement(name = "Deterministic")
 public class DeterministicTime extends StochasticTime{
-    private final BigDecimal value;
+    private BigDecimal value;
+
+    public DeterministicTime(){
+        super(BigDecimal.ZERO, BigDecimal.ZERO, SIRIOType.IMM);
+        this.value = BigDecimal.ZERO;
+    }
 
     public DeterministicTime(BigDecimal value){
         super(value, value, SIRIOType.DET);
         this.value = value;
     }
+
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
         return StochasticTransitionFeature.newDeterministicInstance(value);

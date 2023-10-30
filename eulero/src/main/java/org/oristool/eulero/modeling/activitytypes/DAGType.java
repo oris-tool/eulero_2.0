@@ -1,5 +1,7 @@
 package org.oristool.eulero.modeling.activitytypes;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
@@ -14,12 +16,20 @@ import org.oristool.petrinet.Transition;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-public abstract class DAGType extends ActivityType{
+@XmlRootElement(name = "dag-type")
+@XmlSeeAlso({BadNestedDAGType.class, SEQType.class, ANDType.class})
+public abstract class DAGType extends ActivityType {
     public DAGType(ArrayList<Activity> children) {
         super(children);
+    }
+
+    public DAGType(){
+        super(new ArrayList<>());
     }
 
     @Override
