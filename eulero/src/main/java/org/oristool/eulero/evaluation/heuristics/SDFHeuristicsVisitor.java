@@ -36,6 +36,7 @@ public class SDFHeuristicsVisitor extends AnalysisHeuristicsVisitor {
     public double[] analyze(BadNestedDAGType modelType, BigDecimal timeLimit, BigDecimal step) {
         // check complexty
         //model.resetComplexityMeasure();
+        long time = System.nanoTime();
         BigInteger C = modelType.getActivity().C();
         BigInteger c = modelType.getActivity().simplifiedC();
         BigInteger Q = modelType.getActivity().Q();

@@ -67,7 +67,8 @@ public class Composite extends Activity {
 
     @Override
     public BigDecimal low() {
-        BigDecimal low = getMinBound(this.end);
+        BigDecimal low = this.getType().low();
+        getMinBound(this.end);
         setMin(low);
         return low;
     }

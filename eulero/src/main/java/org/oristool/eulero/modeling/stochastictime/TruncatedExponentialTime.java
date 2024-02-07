@@ -1,15 +1,20 @@
 package org.oristool.eulero.modeling.stochastictime;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.math.expression.Expolynomial;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement(name = "TruncatedExp")
 public class TruncatedExponentialTime extends StochasticTime{
     private BigDecimal rate;
-
+    public TruncatedExponentialTime(){}
     public TruncatedExponentialTime(double EFT, double LFT, double rate){
         super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT), SIRIOType.EXPO);
         this.rate = BigDecimal.valueOf(rate);
@@ -41,7 +46,13 @@ public class TruncatedExponentialTime extends StochasticTime{
 
     @Override
     public double getExpectedValue() {
-        return 0;
+        double rate = getRate().doubleValue();
+        double a = getEFT().doubleValue();
+        double b = getLFT().doubleValue();
+
+        double mean = a + (a - b) / (Math.exp((b - a) * rate) - 1) + 1 / rate;
+
+        return mean;
     }
 
     @Override
@@ -51,10 +62,10 @@ public class TruncatedExponentialTime extends StochasticTime{
         double b = getLFT().doubleValue();
         double c = rate > 0 ? a : b;
 
-
-        if(t >= getEFT().doubleValue() || t <= getLFT().doubleValue()){
+        if(t >= getEFT().doubleValue() && t <= getLFT().doubleValue()){
             return  rate * Math.exp(Math.abs(rate) * c) / (1 - Math.exp(-Math.abs(rate) * (b-a))) * Math.exp(-rate * t);
         }
+
         return 0;
     }
 

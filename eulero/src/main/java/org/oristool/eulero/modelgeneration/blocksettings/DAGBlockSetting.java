@@ -40,9 +40,9 @@ public class DAGBlockSetting extends BlockTypeSetting{
     public DAGBlockSetting(double probability){
         super("DAG", probability);
         this.minimumLevels = 2;
-        this.maximumLevels = 5;
+        this.maximumLevels = 4;
         this.minimumLevelBreadth = 2;
-        this.maximumLevelBreadth = 4;
+        this.maximumLevelBreadth = 3;
         this.maximumAdjacencyDistance = 1;
         this.maximumNodeConnection = 2;
         this.minimumNodeConnection = 1;

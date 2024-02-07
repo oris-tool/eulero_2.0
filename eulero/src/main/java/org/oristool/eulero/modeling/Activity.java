@@ -170,7 +170,7 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     public BigDecimal getFairTimeTick(){
-        double aux = this.upp().doubleValue();
+        double aux = this.max().doubleValue();
         int mag = 1;
         while (aux > 10) {
             mag = mag * 10;

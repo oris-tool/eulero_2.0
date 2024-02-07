@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "truncated-exp-mixt")
+@XmlRootElement(name = "truncatedExpMixt")
 public class TruncatedExponentialMixtureTime extends StochasticTime{
     ArrayList<TruncatedExponentialTime> pieces;
     ArrayList<BigDecimal> weights;

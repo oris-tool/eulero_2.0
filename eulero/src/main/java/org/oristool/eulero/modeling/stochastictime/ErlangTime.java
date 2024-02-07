@@ -19,12 +19,12 @@ public class ErlangTime extends StochasticTime{
     }
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
-        return StochasticTransitionFeature.newErlangInstance(k, String.valueOf(rate));
+        return StochasticTransitionFeature.newErlangInstance(k,new BigDecimal(rate));
     }
 
     @Override
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        return List.of(StochasticTransitionFeature.newErlangInstance(k, String.valueOf(rate)));
+        return List.of(StochasticTransitionFeature.newErlangInstance(k, new BigDecimal(rate)));
     }
 
     @Override
@@ -60,6 +60,7 @@ public class ErlangTime extends StochasticTime{
         return 1 - v;//IntStream.range(0, k - 1).mapToDouble(x -> Math.exp(-rate * t) * Math.pow(rate * t, x) / BigIntegerMath.factorial(x).doubleValue()).sum() ;
     }
 
+    //TODO Qui ci sono problemi numerici perchè se sbaglio a scelgiere lo step sono finito; in realtà la cosa vale su PDF
     @Override
     public double[] getNumericalCDF(double step, double limit) {
         double[] pdf = getNumericalPDF(step, limit);

@@ -30,6 +30,23 @@ public class SEQType extends DAGType {
     }
 
     @Override
+    public BigDecimal upp(){
+        // Check if any children has infinite support
+        if (getChildren().stream().map(Activity::upp).filter(t -> t.doubleValue() == Double.MAX_VALUE).count() > 0){
+            return BigDecimal.valueOf(Double.MAX_VALUE);
+        }
+
+        return BigDecimal.valueOf(getChildren().stream().map(Activity::upp).mapToDouble(BigDecimal::doubleValue).sum());
+    }
+
+    @Override
+    public BigDecimal low(){
+        // Check if any children has infinite support
+        return BigDecimal.valueOf(getChildren().stream().map(Activity::low).mapToDouble(BigDecimal::doubleValue).sum());
+    }
+
+
+    @Override
     public void setEnumType(Composite activity) {
         activity.setEnumType(ActivityEnumType.SEQ);
     }

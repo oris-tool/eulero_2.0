@@ -1,9 +1,6 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElements;
+import jakarta.xml.bind.annotation.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 

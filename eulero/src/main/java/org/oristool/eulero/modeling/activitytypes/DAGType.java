@@ -323,8 +323,12 @@ public abstract class DAGType extends ActivityType {
     }
 
     @Override
+    //TODO qui c'è sempore qualche problema quando si rimettono in vita oggeti in XML per via delle dipendendze circolari.
     public BigDecimal upp() {
         return getMaxBound(this.getActivity().end());
+    }
+    public BigDecimal low() {
+        return getMinBound(this.getActivity().end());
     }
 
     private BigDecimal getMaxBound(Activity activity){
@@ -345,6 +349,19 @@ public abstract class DAGType extends ActivityType {
         }
 
         return activity.upp().add(maximumPredecessorUpp);
+    }
+
+    private BigDecimal getMinBound(Activity activity){
+        if(activity.equals(this.getActivity().begin())){
+            return activity.low();
+        }
+
+        BigDecimal maximumPredecessorLow = BigDecimal.ZERO;
+        for(Activity predecessor: activity.pre()){
+            maximumPredecessorLow = maximumPredecessorLow.max(getMinBound(predecessor));
+        }
+
+        return activity.low().add(maximumPredecessorLow);
     }
     public abstract void initPreconditions(Composite activity, Activity... children);
     public abstract void setEnumType(Composite activity);

@@ -84,7 +84,6 @@ public class BadNestedDAGType extends DAGType {
         }*/
 
         // TODO per ora sta trasformando tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
-
         Activity newAND = dag2tree(getActivity().end().pre());
 
         return newAND.analyze(timeLimit, step, visitor);
@@ -419,6 +418,7 @@ public class BadNestedDAGType extends DAGType {
 
     public Activity dag2tree(List<Activity> nodes){
         // TODO: questo origina side effects sul grafo originale. Verificare se si può evitare, e chi è che causa ciò.
+        int breakPoint = 0;
         if (nodes.size() > 1){
             StringBuilder name = new StringBuilder("AND(");
             ArrayList<Activity> forkJoinNodes = new ArrayList<>();

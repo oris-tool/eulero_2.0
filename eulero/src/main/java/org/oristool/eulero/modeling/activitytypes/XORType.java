@@ -162,7 +162,17 @@ public class XORType extends ActivityType {
 
     @Override
     public BigDecimal upp() {
-        return this.getActivity().max();
+        if(getChildren().stream().map(Activity::upp).filter(t -> t.doubleValue() == Double.MAX_VALUE).count() > 0)
+            return BigDecimal.valueOf(Double.MAX_VALUE);
+
+        return BigDecimal.valueOf(getChildren().stream().map(Activity::upp).mapToDouble(BigDecimal::doubleValue).max().getAsDouble());
+        // return this.getActivity().max();
+    }
+
+    @Override
+    public BigDecimal low() {
+        return BigDecimal.valueOf(getChildren().stream().map(Activity::low).mapToDouble(BigDecimal::doubleValue).min().getAsDouble());
+        // return this.getActivity().max();
     }
 
     @Override

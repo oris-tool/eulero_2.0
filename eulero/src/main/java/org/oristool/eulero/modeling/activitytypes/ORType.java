@@ -6,7 +6,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.Activity;
 import org.oristool.eulero.modeling.Composite;
-import org.oristool.eulero.modeling.ModelFactory;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
@@ -176,6 +175,11 @@ public class ORType extends ActivityType {
     @Override
     public BigDecimal upp() {
         return this.getActivity().max();
+    }
+
+    @Override
+    public BigDecimal low() {
+        return this.getActivity().min();
     }
 
     @Override

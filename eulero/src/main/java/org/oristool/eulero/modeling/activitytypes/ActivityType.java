@@ -19,6 +19,8 @@ public abstract class ActivityType implements Cloneable {
     @XmlElement(name = "child", required = true)
     private ArrayList<Activity> children;
 
+    public ActivityType(){}
+
     public ActivityType(ArrayList<Activity> children){
         this.children = children;
     }
@@ -46,6 +48,7 @@ public abstract class ActivityType implements Cloneable {
     public abstract Activity copyRecursive(String suffix);
     public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeTick, AnalysisHeuristicsVisitor visitor);
     public abstract BigDecimal upp();
+    public abstract BigDecimal low();
     @Override
     public abstract ActivityType clone();
 }
