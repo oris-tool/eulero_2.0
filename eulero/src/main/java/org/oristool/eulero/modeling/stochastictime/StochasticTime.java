@@ -1,34 +1,21 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import jakarta.xml.bind.annotation.*;
-import org.apache.commons.lang3.ArrayUtils;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class StochasticTime implements Cloneable{
-    @XmlElements({
-            @XmlElement(name = "type", required = true)
-    })
-    private SIRIOType type;
     private BigDecimal EFT;
     private BigDecimal LFT;
 
     public StochasticTime(){}
 
-    public StochasticTime(BigDecimal EFT, BigDecimal LFT, SIRIOType type){
+    public StochasticTime(BigDecimal EFT, BigDecimal LFT){
         this.EFT = EFT;
         this.LFT = LFT;
-        this.type = type;
-    }
-
-    public SIRIOType getType() {
-        return type;
     }
 
     public abstract StochasticTransitionFeature getStochasticTransitionFeature();
@@ -58,7 +45,8 @@ public abstract class StochasticTime implements Cloneable{
             pdf.add(PDF(step * (double) counter));
             counter++;
         }
-        return ArrayUtils.toPrimitive(pdf.toArray(new Double[0]));
+
+        return pdf.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
     public double[] getNumericalCDF(double step, double limit){
@@ -68,7 +56,7 @@ public abstract class StochasticTime implements Cloneable{
             cdf.add(CDF(step * (double) counter));
             counter++;
         }
-        return ArrayUtils.toPrimitive(cdf.toArray(new Double[0]));
+        return cdf.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
     public double[] getSpecularNumericalCDF(double step, double limit){
@@ -85,9 +73,7 @@ public abstract class StochasticTime implements Cloneable{
 
     public abstract double PDF(double t);
     public abstract double CDF(double t);
-
     public abstract String toString();
-
     @Override
     public abstract StochasticTime clone();
 }

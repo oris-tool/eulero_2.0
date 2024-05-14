@@ -18,7 +18,7 @@ public class HistogramTime extends StochasticTime {
 
     public HistogramTime(){}
     public HistogramTime(Double EFT, Double LFT, Integer bins, ArrayList<Double> values){
-        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT), SIRIOType.HIST);
+        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT));
         this.bins = bins;
         this.values = values;
     }

@@ -3,33 +3,32 @@ package org.oristool.eulero.modeling.stochastictime;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
-public class ExponentialTime extends StochasticTime {
-    private BigDecimal rate;
+public class BernsteinTime extends StochasticTime {
+    private ArrayList<Double> c;
+    private Integer N;
 
-    public ExponentialTime(){}
-    public ExponentialTime(BigDecimal rate) {
-        super(BigDecimal.ZERO, BigDecimal.valueOf(Double.MAX_VALUE));
-        this.rate = rate;
+    public BernsteinTime(BigDecimal EFT, BigDecimal LFT, Integer N, ArrayList<Double> c){
+        super(EFT, LFT);
+        this.c = c;
+        this.N = N;
     }
 
-    public BigDecimal getRate() {
-        return rate;
+    public ArrayList<Double> getC() {
+        return c;
     }
 
-    public void setRate(BigDecimal rate) {
-        this.rate = rate;
-    }
 
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
-        return StochasticTransitionFeature.newExponentialInstance(getRate().toString());
+        return null;
     }
 
     @Override
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        return List.of(getStochasticTransitionFeature());
+        return null;
     }
 
     @Override
@@ -39,19 +38,18 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public double getExpectedValue() {
-        return 1 / getRate().doubleValue();
+        return 0;
     }
 
     @Override
     public double PDF(double t) {
-        return rate.doubleValue() * Math.exp(-rate.doubleValue() * t);
+        return 0;
     }
 
     @Override
     public double CDF(double t) {
-        return 1 - Math.exp(-rate.doubleValue() * t);
+        return 0;
     }
-
 
     @Override
     public String toString() {
@@ -60,8 +58,6 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public StochasticTime clone() {
-        return new ExponentialTime(this.rate);
+        return null;
     }
-
-
 }

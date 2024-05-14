@@ -1,22 +1,20 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "Uniform")
 public class UniformTime extends StochasticTime {
     public UniformTime(){}
 
     public UniformTime(BigDecimal EFT, BigDecimal LFT) {
-        super(EFT, LFT, SIRIOType.UNI);
+        super(EFT, LFT);
     }
 
     public UniformTime(double EFT, double LFT) {
-        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT), SIRIOType.UNI);
+        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT));
     }
 
     public StochasticTransitionFeature getStochasticTransitionFeature(){

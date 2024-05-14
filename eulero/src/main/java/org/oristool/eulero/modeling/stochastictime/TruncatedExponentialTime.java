@@ -1,14 +1,10 @@
 package org.oristool.eulero.modeling.stochastictime;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.math.OmegaBigDecimal;
-import org.oristool.math.expression.Expolynomial;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "TruncatedExp")
@@ -16,7 +12,7 @@ public class TruncatedExponentialTime extends StochasticTime{
     private BigDecimal rate;
     public TruncatedExponentialTime(){}
     public TruncatedExponentialTime(double EFT, double LFT, double rate){
-        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT), SIRIOType.EXPO);
+        super(BigDecimal.valueOf(EFT), BigDecimal.valueOf(LFT));
         this.rate = BigDecimal.valueOf(rate);
     }
 

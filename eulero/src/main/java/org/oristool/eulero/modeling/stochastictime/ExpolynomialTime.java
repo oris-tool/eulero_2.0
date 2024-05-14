@@ -1,17 +1,10 @@
 package org.oristool.eulero.modeling.stochastictime;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.oristool.eulero.evaluation.approximator.Approximator;
-import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
-import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
-import org.oristool.eulero.evaluation.heuristics.SDFHeuristicsVisitor;
-import org.oristool.eulero.modeling.Activity;
-import org.oristool.eulero.modeling.Simple;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
 @XmlRootElement(name = "Expolynomial")
@@ -21,7 +14,7 @@ public class ExpolynomialTime extends StochasticTime {
     public ExpolynomialTime(){}
 
     public ExpolynomialTime(BigDecimal EFT, BigDecimal LFT, String pdf) {
-        super(EFT, LFT, SIRIOType.EXPO);
+        super(EFT, LFT);
         this.pdf = pdf;
     }
 
@@ -63,7 +56,7 @@ public class ExpolynomialTime extends StochasticTime {
         return new ExpolynomialTime(this.getEFT(), this.getLFT(), this.getPdf());
     }
 
-    @Override
+    /*@Override
     public double[] getNumericalCDF(double step, double limit){
         Activity model = new Simple("Model", this);
         Approximator approximator = new TruncatedExponentialMixtureApproximation();
@@ -80,9 +73,9 @@ public class ExpolynomialTime extends StochasticTime {
         }
 
         return pdf;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public double[] getSpecularNumericalCDF(double step, double limit){
         double[] cdf = getNumericalCDF(step, limit);
         double[] specularCDF = new double[cdf.length];
@@ -91,7 +84,7 @@ public class ExpolynomialTime extends StochasticTime {
         }
 
         return  specularCDF;
-    }
+    }*/
 
     @Override
     public double getExpectedValue() {

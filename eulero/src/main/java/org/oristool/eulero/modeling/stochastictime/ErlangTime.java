@@ -1,19 +1,17 @@
 package org.oristool.eulero.modeling.stochastictime;
 
 import com.google.common.math.BigIntegerMath;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@XmlRootElement(name = "Erlang")
 public class ErlangTime extends StochasticTime{
     private final int k;
     private double rate;
 
     public ErlangTime(int k, double rate){
-        super(BigDecimal.ZERO, BigDecimal.valueOf(Double.MAX_VALUE), SIRIOType.EXPO);
+        super(BigDecimal.ZERO, BigDecimal.valueOf(Double.MAX_VALUE));
         this.k = k;
         this.rate = rate;
     }

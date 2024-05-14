@@ -15,8 +15,7 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
     public TruncatedExponentialMixtureTime(ArrayList<TruncatedExponentialTime> pieces, ArrayList<BigDecimal> weights){
         super(
                 pieces.stream().reduce((a, b)-> a.getEFT().compareTo(b.getEFT()) != 1 ? a : b).get().getEFT(),
-                pieces.stream().reduce((a, b)-> a.getEFT().compareTo(b.getEFT()) != 1 ? a : b).get().getLFT(),
-                SIRIOType.EXPO
+                pieces.stream().reduce((a, b)-> a.getEFT().compareTo(b.getEFT()) != 1 ? a : b).get().getLFT()
         );
         this.pieces = pieces;
         this.weights = weights;
