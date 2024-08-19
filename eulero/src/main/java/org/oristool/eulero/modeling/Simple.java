@@ -1,14 +1,11 @@
 package org.oristool.eulero.modeling;
 
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.stochastictime.ExponentialTime;
 import org.oristool.eulero.modeling.stochastictime.StochasticTime;
-import org.oristool.eulero.modeling.stochastictime.TruncatedExponentialTime;
 import org.oristool.eulero.modeling.stochastictime.UniformTime;
 import org.oristool.models.pn.Priority;
 import org.oristool.models.stpn.MarkingExpr;
@@ -133,6 +130,11 @@ public class Simple extends Activity {
     @Override
     public boolean isWellNested() {
         return false;
+    }
+
+    @Override
+    public int countSimpleActivities() {
+        return 1;
     }
 
     @Override

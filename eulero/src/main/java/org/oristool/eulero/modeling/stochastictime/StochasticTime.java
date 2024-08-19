@@ -25,7 +25,7 @@ public abstract class StochasticTime implements Cloneable{
     public BigDecimal getEFT() {
         return EFT;
     }
-
+g
     public void setEFT(BigDecimal EFT) {
         this.EFT = EFT;
     }

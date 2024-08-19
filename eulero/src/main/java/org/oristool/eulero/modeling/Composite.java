@@ -4,8 +4,8 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.evaluation.heuristics.AnalysisHeuristicsVisitor;
 import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
-import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 import org.oristool.eulero.modeling.activitytypes.ActivityType;
+import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 import org.oristool.petrinet.PetriNet;
 import org.oristool.petrinet.Place;
 
@@ -96,6 +96,18 @@ public class Composite extends Activity {
     @Override
     public boolean isWellNested() {
         return false;
+    }
+
+    @Override
+    public int countSimpleActivities() {
+        int counter = 0;
+
+        for(Activity a: this.activities()){
+            counter += a.countSimpleActivities();
+        }
+
+        return counter;
+
     }
 
     @Override

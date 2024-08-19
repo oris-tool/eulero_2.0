@@ -39,8 +39,13 @@ public abstract class Activity implements Serializable, Cloneable {
     private List<Activity> activities;
     private ActivityEnumType enumType;
     private ActivityType type;
+
+    //Eearliest Firing Time
     private BigDecimal min;
+    // Latest Firing Time
     private BigDecimal max;
+
+    // Misure di complessità: C - concorrenza, Q - grado di sequenza
     private BigInteger C;
     private BigInteger Q;
     private BigInteger simplifiedC;
@@ -131,6 +136,7 @@ public abstract class Activity implements Serializable, Cloneable {
         return !Objects.isNull(simplifiedQ) ? simplifiedQ : computeQ(true);
     }
 
+    // Per ricalcolare le misure di complessità, a fronte di una variazione topologica del modello
     public void resetComplexityMeasure(){
         computeC(true);
         computeC(false);
@@ -169,6 +175,8 @@ public abstract class Activity implements Serializable, Cloneable {
         this.simplifiedQ = simplifiedQ;
     }
 
+    // Determina in base a Max, qual è un time tick che garantisce una buona accuratezza
+    // di 2 ordini di gradezza inferiore a max
     public BigDecimal getFairTimeTick(){
         double aux = this.max().doubleValue();
         int mag = 1;
@@ -220,16 +228,24 @@ public abstract class Activity implements Serializable, Cloneable {
         // Get C
         BigInteger maxC = BigInteger.ZERO;
         BigInteger simplifiedMaxC = BigInteger.ZERO;
+
+        // Per ogni classe di stato...
         for (State s: graph.getStates()) {
             BigInteger maximumTestValue = BigInteger.ZERO;
             BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
+
+            // ...Controlla il numero di transizioni non immediate che sono abilitate...
             for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
                 if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+                    // .. e somma il grado di concorrenza ...
                     maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
+
+                    // ... che è sempre pari a 1, nel caso della metrica semplificata
                     simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
                 }
             }
 
+            // e sceglie il massimo
             if(maximumTestValue.compareTo(maxC) > 0){
                 maxC = maximumTestValue;
             }
@@ -240,8 +256,6 @@ public abstract class Activity implements Serializable, Cloneable {
 
         setC(maxC);
         setSimplifiedC(simplifiedMaxC);
-    /*System.out.println("C computed in " + String.format("%.3f seconds",
-            (System.nanoTime() - time)/1e9) + "...");*/
 
         return getSimplified ? simplifiedMaxC : maxC;
     }
@@ -706,6 +720,8 @@ public abstract class Activity implements Serializable, Cloneable {
 
         return result;
     }
+
+    public abstract int countSimpleActivities();
 
     public ActivityType getType() {
         return type;

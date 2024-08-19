@@ -41,7 +41,8 @@ public abstract class ActivityType implements Cloneable {
         this.activity = activity;
     }
 
-    public abstract void initActivity(Composite activity, Activity... children);
+    public abstract void
+    initActivity(Composite activity, Activity... children);
     public abstract void buildTPN(PetriNet pn, Place in, Place out, int prio);
     public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
     public abstract BigInteger computeQ(Composite activity, boolean getSimplified);
