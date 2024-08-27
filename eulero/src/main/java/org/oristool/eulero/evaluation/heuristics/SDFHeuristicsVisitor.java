@@ -18,6 +18,7 @@
 package org.oristool.eulero.evaluation.heuristics;
 
 import org.oristool.eulero.evaluation.approximator.Approximator;
+import org.oristool.eulero.evaluation.approximator.TruncatedExponentialMixtureApproximation;
 import org.oristool.eulero.modeling.activitytypes.BadNestedDAGType;
 
 import java.math.BigDecimal;
@@ -53,7 +54,7 @@ public class SDFHeuristicsVisitor extends AnalysisHeuristicsVisitor {
 
             if(C.compareTo(this.CThreshold()) > 0 || Q.compareTo(this.QThreshold()) > 0){
                 //System.out.println("Replico!");
-                return modelType.innerBlockReplication(timeLimit, step, this.CThreshold(), this.QThreshold(), this);
+                return modelType.innerBlockAnalysis(timeLimit, step, this.CThreshold(), this.QThreshold(), this, new TruncatedExponentialMixtureApproximation());
             }
         } else {
             if (c.compareTo(this.CThreshold()) > 0 || q.compareTo(this.QThreshold()) > 0) {

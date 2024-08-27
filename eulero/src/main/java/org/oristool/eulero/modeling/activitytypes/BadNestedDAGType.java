@@ -70,22 +70,58 @@ public class BadNestedDAGType extends DAGType {
     }
 
     public double[] innerBlockReplication(BigDecimal timeLimit, BigDecimal step, BigInteger CThreshold, BigInteger QThreshold, AnalysisHeuristicsVisitor visitor){
-        /*ArrayList<Activity> replicatedBlocks = new ArrayList<>();
-        ArrayList<Composite> sortedReplicatedBlocks = new ArrayList<>();
+        ArrayList<Activity> replicatedBlocks = new ArrayList<>();
         for(Activity activity: getActivity().end().pre()){
-            Activity replicatedBlock = this.copyRecursive((getActivity()).begin(), activity, "_before_" + activity.name());
-            //sortedReplicatedBlocks.add(replicatedBlock);
-            if(checkWellNesting((Composite) replicatedBlock)){
-                replicatedBlock = wellNestIt(replicatedBlock.activities());
-            }
+            Activity replicatedBlock = this.getReplicatedBlockFromActivity(activity);
             replicatedBlock.C();
             replicatedBlock.Q();
             replicatedBlocks.add(replicatedBlock);
-        }*/
+        }
 
-        // TODO per ora sta trasformando tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
+        replicatedBlocks.sort(Comparator.comparing(Activity::C).thenComparing(Activity::Q));
+        Activity chosenReplicatedBlock = replicatedBlocks.get(replicatedBlocks.size() - 1);
+        List<String> chosenReplicatedBlockString = chosenReplicatedBlock.activities().stream().map(Activity::name).collect(Collectors.toList());
+        Composite thisActivity = getActivity();
+        List<Activity> activityDAGs = new ArrayList<>();
+
+        for(Activity act: getActivity().activities()){
+            if(!chosenReplicatedBlockString.contains(act.name())){
+                activityDAGs.add(act.clone());
+            } else if (!act.post().stream().map(Activity::name).filter(t -> !chosenReplicatedBlockString.contains(t)).collect(Collectors.toList()).isEmpty()
+                    && act.post().stream().map(Activity::name).filter(t -> t.contains("END")).collect(Collectors.toList()).isEmpty()){
+                activityDAGs.add(act.clone());
+            }
+        }
+
+        for(Activity act: getActivity().activities().stream().filter(t -> activityDAGs.stream().map(Activity::name).collect(Collectors.toList()).contains(t.name())).collect(Collectors.toList())){
+            List<String> preconditions = act.pre().stream().map(Activity::name).filter(t -> !t.contains("BEGIN")).collect(Collectors.toList());
+            activityDAGs.stream().filter(t -> t.name().equals(act.name())).findFirst().get().addPrecondition(
+                    activityDAGs.stream().filter(t -> preconditions.contains(t.name())).toArray(Activity[]::new));
+
+        }
+
+        Activity restOfTheDAG = ModelFactory.DAG(activityDAGs.toArray(Activity[]::new));
+
+        if(checkWellNesting((Composite) chosenReplicatedBlock)){
+            chosenReplicatedBlock = dag2tree(((Composite) chosenReplicatedBlock).end().pre());
+        }
+
+        if(checkWellNesting((Composite) restOfTheDAG)){
+            restOfTheDAG = dag2tree(((Composite) restOfTheDAG).end().pre());
+        }
+
+        Composite newAND = ModelFactory.forkJoin(restOfTheDAG, chosenReplicatedBlock);
+
+        return newAND.analyze(timeLimit, step, visitor);
+
+        // TODO per ROSPO trasformo tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
+        /*Activity newAND = dag2tree(getActivity().end().pre());
+
+        return newAND.analyze(timeLimit, step, visitor);*/
+    }
+
+    public double[] treeficationAnalysis(BigDecimal timeLimit, BigDecimal step, BigInteger CThreshold, BigInteger QThreshold, AnalysisHeuristicsVisitor visitor){
         Activity newAND = dag2tree(getActivity().end().pre());
-
         return newAND.analyze(timeLimit, step, visitor);
     }
 
@@ -136,6 +172,33 @@ public class BadNestedDAGType extends DAGType {
             );
 
     }
+
+    public Composite getReplicatedBlockFromActivity(Activity end) {
+        Stack<Activity> activityStack = new Stack<>();
+        activityStack.push(end);
+        Set<Activity> clonedActivities = new HashSet<>();
+
+        while(!activityStack.isEmpty()){
+            Activity a = activityStack.pop();
+            Activity clone = a.clone();
+            clonedActivities.add(clone);
+
+            for(Activity post: a.post().stream().filter(t -> clonedActivities.stream().map(Activity::name).collect(Collectors.toList()).contains(t.name())).collect(Collectors.toList())){
+                if(!post.name().contains("END") && !post.name().contains("BEGIN"))
+                    clonedActivities.stream().filter(t -> t.name().equals(post.name())).findFirst().get().addPrecondition(clone);
+            }
+
+            for(Activity pre: a.pre()){
+                if(!pre.name().contains("END") && !pre.name().contains("BEGIN"))
+                    activityStack.push(pre);
+            }
+        }
+
+
+        return ModelFactory.DAG(clonedActivities.toArray(new Activity[0]));
+    }
+
+
 
     public Composite copyRecursive(Activity begin, Activity end, String suffix) {
         Composite copy = new Composite(getActivity().name() + suffix, new BadNestedDAGType(new ArrayList<>()), ActivityEnumType.DAG);
