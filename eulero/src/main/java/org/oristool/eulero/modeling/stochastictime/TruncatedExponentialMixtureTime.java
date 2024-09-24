@@ -50,17 +50,54 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
 
     @Override
     public double PDF(double t) {
-        return 0;
+        if(t >= pieces.get(pieces.size() - 1).getLFT().doubleValue()){
+            return 0;
+        }
+
+        if(t < pieces.get(0).getEFT().doubleValue()){
+            return 0;
+        }
+
+        TruncatedExponentialTime myTime = pieces.stream().filter(k -> k.getLFT().compareTo(BigDecimal.valueOf(t)) > 0).findFirst().get();
+
+        return myTime.PDF(t) * weights.get(pieces.indexOf(myTime)).doubleValue();
     }
 
     @Override
     public double CDF(double t) {
-        return 0;
+        // TODO: soluzione temporanea, ma che può essere atta meglio e resa + efficiente
+        /*double step = 0.01;
+        double counter = 0.;
+        double cdf = 0.;
+        while(counter <= t){
+            cdf += PDF(counter);
+            counter += step;
+        }
+
+        return cdf;*/
+
+        if(t >= pieces.get(pieces.size() - 1).getLFT().doubleValue()){
+            return 1;
+        }
+
+        if(t < pieces.get(0).getEFT().doubleValue()){
+            return 0;
+        }
+
+        TruncatedExponentialTime myTime = pieces.stream().filter(k -> k.getLFT().compareTo(BigDecimal.valueOf(t)) > 0).findFirst().get();
+        return weights.stream().mapToDouble(BigDecimal::doubleValue).limit(pieces.indexOf(myTime)).sum() +
+                myTime.CDF(t) * weights.get(pieces.indexOf(myTime)).doubleValue();
+
     }
 
     @Override
     public String toString() {
-        return null;
+        StringBuilder b = new StringBuilder();
+        for(TruncatedExponentialTime piece: pieces){
+            b.append("\nPiece ").append(pieces.indexOf(piece)).append(": ").append(piece.toString());
+        }
+
+        return b.toString();
     }
 
     @Override

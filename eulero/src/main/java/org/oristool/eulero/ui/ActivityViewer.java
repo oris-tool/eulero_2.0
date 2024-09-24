@@ -17,16 +17,6 @@
 
 package org.oristool.eulero.ui;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -37,6 +27,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.oristool.eulero.evaluation.heuristics.EvaluationResult;
 import org.oristool.models.stpn.TransientSolution;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Swing plot visualizer.
@@ -287,8 +285,8 @@ public class ActivityViewer extends JFrame {
 
             // JS divergence
             // TODO La GT è ora in posizione 1
-            labels.add(stringList.get(i) + String.format(" (JS %.6f)",
-                    results.get(i).jsDistance(results.get(0).pdf())));
+            labels.add(stringList.get(i) );
+            //+ String.format(" (JS %.6f)", results.get(i).jsDistance(results.get(0).pdf())));
         }
 
         ChartPanel cdf = solutionChart("CDF - " + title, labels, step, upper, cdfs);

@@ -85,7 +85,7 @@ public class TruncatedExponentialTime extends StochasticTime{
 
     @Override
     public String toString() {
-        return null;
+        return "[EFT: " + this.getEFT() + ", LFT: " + this.getLFT() + ", lambda: " + this.getRate().toString() + "]";
     }
 
     @Override
