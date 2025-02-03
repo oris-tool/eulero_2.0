@@ -63,5 +63,9 @@ public class ExponentialTime extends StochasticTime {
         return new ExponentialTime(this.rate);
     }
 
+    @Override
+    public void randomizeParameters() {
+    }
+
 
 }

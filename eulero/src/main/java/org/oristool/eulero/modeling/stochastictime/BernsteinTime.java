@@ -60,4 +60,8 @@ public class BernsteinTime extends StochasticTime {
     public StochasticTime clone() {
         return null;
     }
+
+    @Override
+    public void randomizeParameters() {
+    }
 }

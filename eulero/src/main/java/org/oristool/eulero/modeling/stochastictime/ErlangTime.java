@@ -5,9 +5,10 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 
 public class ErlangTime extends StochasticTime{
-    private final int k;
+    private int k;
     private double rate;
 
     public ErlangTime(int k, double rate){
@@ -15,6 +16,10 @@ public class ErlangTime extends StochasticTime{
         this.k = k;
         this.rate = rate;
     }
+
+    public ErlangTime() {
+    }
+
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
         return StochasticTransitionFeature.newErlangInstance(k,new BigDecimal(rate));
@@ -82,12 +87,22 @@ public class ErlangTime extends StochasticTime{
         return new ErlangTime(this.k, this.rate);
     }
 
+    @Override
+    public void randomizeParameters() {
+        this.setRate(0.01 + (new Random().nextDouble() * 10));
+        this.setK(1 + (new Random().nextInt(4)));
+    }
+
     public void setRate(double rate) {
         this.rate = rate;
     }
 
     public double getRate() {
         return rate;
+    }
+
+    public void setK(int k) {
+        this.k = k;
     }
 
     public int getK() {

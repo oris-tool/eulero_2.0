@@ -5,6 +5,7 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class UniformTime extends StochasticTime {
     public UniformTime(){}
@@ -65,5 +66,13 @@ public class UniformTime extends StochasticTime {
     @Override
     public StochasticTime clone() {
         return new UniformTime(this.getEFT(), this.getLFT());
+    }
+
+    @Override
+    public void randomizeParameters() {
+        double a = (new Random()).nextDouble();
+        double b = a + new Random().nextDouble() * (5 - a);
+        this.setEFT(BigDecimal.valueOf(a));
+        this.setLFT(BigDecimal.valueOf(b));
     }
 }

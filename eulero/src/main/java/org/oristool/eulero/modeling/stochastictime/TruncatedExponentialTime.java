@@ -6,6 +6,7 @@ import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 
 @XmlRootElement(name = "TruncatedExp")
 public class TruncatedExponentialTime extends StochasticTime{
@@ -46,9 +47,7 @@ public class TruncatedExponentialTime extends StochasticTime{
         double a = getEFT().doubleValue();
         double b = getLFT().doubleValue();
 
-        double mean = a + (a - b) / (Math.exp((b - a) * rate) - 1) + 1 / rate;
-
-        return mean;
+        return a + (a - b) / (Math.exp((b - a) * rate) - 1) + 1 / rate;
     }
 
     @Override
@@ -91,6 +90,16 @@ public class TruncatedExponentialTime extends StochasticTime{
     @Override
     public StochasticTime clone() {
         return new TruncatedExponentialTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.rate.doubleValue());
+    }
+
+    @Override
+    public void randomizeParameters() {
+        double a = new Random().nextDouble();
+        double b = a + new Random().nextDouble() * 5;
+        double rate = new Random().nextDouble() * 3;
+        this.setEFT(BigDecimal.valueOf((a)));
+        this.setLFT(BigDecimal.valueOf((b)));
+        this.setRate(BigDecimal.valueOf(rate));
     }
 
     public BigDecimal getRate() {

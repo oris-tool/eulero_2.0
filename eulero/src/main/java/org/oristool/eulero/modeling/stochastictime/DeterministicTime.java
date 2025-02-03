@@ -63,4 +63,8 @@ public class DeterministicTime extends StochasticTime{
     public StochasticTime clone() {
         return new DeterministicTime(this.value);
     }
+
+    @Override
+    public void randomizeParameters() {
+    }
 }

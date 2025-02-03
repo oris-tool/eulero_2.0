@@ -76,4 +76,6 @@ public abstract class StochasticTime implements Cloneable{
     public abstract String toString();
     @Override
     public abstract StochasticTime clone();
+
+    public abstract void randomizeParameters();
 }

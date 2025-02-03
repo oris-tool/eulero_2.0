@@ -56,6 +56,10 @@ public class ExpolynomialTime extends StochasticTime {
         return new ExpolynomialTime(this.getEFT(), this.getLFT(), this.getPdf());
     }
 
+    @Override
+    public void randomizeParameters() {
+    }
+
     /*@Override
     public double[] getNumericalCDF(double step, double limit){
         Activity model = new Simple("Model", this);

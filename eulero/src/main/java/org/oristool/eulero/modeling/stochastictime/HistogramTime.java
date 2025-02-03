@@ -37,6 +37,10 @@ public class HistogramTime extends StochasticTime {
         return new HistogramTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.bins, this.values);
     }
 
+    @Override
+    public void randomizeParameters() {
+    }
+
     public Integer bins() {
         return bins;
     }
