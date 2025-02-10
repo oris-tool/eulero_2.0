@@ -1,5 +1,6 @@
 package org.oristool.eulero.modeling.stochastictime;
 
+import org.oristool.eulero.math.Continuous;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -69,6 +70,7 @@ public abstract class StochasticTime implements Cloneable{
         return specularCDF;
     }
 
+    public abstract Continuous time2QueuingEulero();
     public abstract double getExpectedValue();
 
     public abstract double PDF(double t);

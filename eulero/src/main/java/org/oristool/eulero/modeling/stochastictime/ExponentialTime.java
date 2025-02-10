@@ -1,5 +1,6 @@
 package org.oristool.eulero.modeling.stochastictime;
 
+import org.oristool.eulero.math.Continuous;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -35,6 +36,11 @@ public class ExponentialTime extends StochasticTime {
     @Override
     public List<BigDecimal> getWeights() {
         return null;
+    }
+
+    @Override
+    public Continuous time2QueuingEulero() {
+        return Continuous.exp(this.rate.doubleValue());
     }
 
     @Override

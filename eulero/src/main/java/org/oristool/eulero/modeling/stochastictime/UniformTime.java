@@ -1,5 +1,6 @@
 package org.oristool.eulero.modeling.stochastictime;
 
+import org.oristool.eulero.math.Continuous;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -30,6 +31,11 @@ public class UniformTime extends StochasticTime {
     @Override
     public List<BigDecimal> getWeights() {
         return List.of(BigDecimal.ONE);
+    }
+
+    @Override
+    public Continuous time2QueuingEulero() {
+        return Continuous.unif(this.getEFT().doubleValue(), this.getLFT().doubleValue());
     }
 
     @Override

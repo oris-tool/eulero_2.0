@@ -1,6 +1,7 @@
 package org.oristool.eulero.modeling.stochastictime;
 
 import com.google.common.math.BigIntegerMath;
+import org.oristool.eulero.math.Continuous;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -75,6 +76,11 @@ public class ErlangTime extends StochasticTime{
         }
 
         return cdf;
+    }
+
+    @Override
+    public Continuous time2QueuingEulero() {
+        return Continuous.erlang(this.getK(), this.getRate());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.oristool.eulero.modeling.stochastictime;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.oristool.eulero.math.Continuous;
 import org.oristool.math.OmegaBigDecimal;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
@@ -39,6 +40,11 @@ public class TruncatedExponentialTime extends StochasticTime{
     @Override
     public List<BigDecimal> getWeights() {
         return List.of(BigDecimal.ONE);
+    }
+
+    @Override
+    public Continuous time2QueuingEulero() {
+        return null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.oristool.eulero.modeling.stochastictime;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.oristool.eulero.math.Continuous;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -72,6 +73,11 @@ public class HistogramTime extends StochasticTime {
             weights.add(BigDecimal.valueOf(values.get(i) / normalizationFactor));
         }
         return weights;
+    }
+
+    @Override
+    public Continuous time2QueuingEulero() {
+        return null;
     }
 
     @Override
