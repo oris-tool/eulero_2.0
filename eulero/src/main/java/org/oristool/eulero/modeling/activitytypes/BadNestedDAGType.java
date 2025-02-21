@@ -102,17 +102,23 @@ public class BadNestedDAGType extends DAGType {
 
         Activity restOfTheDAG = ModelFactory.DAG(activityDAGs.toArray(Activity[]::new));
 
-        if(checkWellNesting((Composite) chosenReplicatedBlock)){
-            chosenReplicatedBlock = dag2tree(((Composite) chosenReplicatedBlock).end().pre());
+        if (replicatedBlocks.size() > 1){
+            if(checkWellNesting((Composite) chosenReplicatedBlock)){
+                chosenReplicatedBlock = dag2tree(((Composite) chosenReplicatedBlock).end().pre());
+            }
+
+            if(checkWellNesting((Composite) restOfTheDAG)){
+                restOfTheDAG = dag2tree(((Composite) restOfTheDAG).end().pre());
+            }
+            Composite newAND = ModelFactory.forkJoin(restOfTheDAG, chosenReplicatedBlock);
+
+            return newAND.analyze(timeLimit, step, visitor);
         }
 
-        if(checkWellNesting((Composite) restOfTheDAG)){
-            restOfTheDAG = dag2tree(((Composite) restOfTheDAG).end().pre());
-        }
+        chosenReplicatedBlock = dag2tree(((Composite) chosenReplicatedBlock).end().pre());
 
-        Composite newAND = ModelFactory.forkJoin(restOfTheDAG, chosenReplicatedBlock);
+return chosenReplicatedBlock.analyze(timeLimit, step, visitor);
 
-        return newAND.analyze(timeLimit, step, visitor);
 
         // TODO per ROSPO trasformo tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
         /*Activity newAND = dag2tree(getActivity().end().pre());
@@ -178,14 +184,13 @@ public class BadNestedDAGType extends DAGType {
         activityStack.push(end);
         Set<Activity> clonedActivities = new HashSet<>();
 
+        // Retrieve activities backward and clone it.
         while(!activityStack.isEmpty()){
             Activity a = activityStack.pop();
-            Activity clone = a.clone();
-            clonedActivities.add(clone);
-
-            for(Activity post: a.post().stream().filter(t -> clonedActivities.stream().map(Activity::name).collect(Collectors.toList()).contains(t.name())).collect(Collectors.toList())){
-                if(!post.name().contains("END") && !post.name().contains("BEGIN"))
-                    clonedActivities.stream().filter(t -> t.name().equals(post.name())).findFirst().get().addPrecondition(clone);
+            if(!a.name().contains("END") && !a.name().contains("BEGIN")
+                    &&  clonedActivities.stream().noneMatch(obj -> obj.name().equals(a.name()))) {
+                Activity clone = a.clone();
+                clonedActivities.add(clone);
             }
 
             for(Activity pre: a.pre()){
@@ -194,6 +199,18 @@ public class BadNestedDAGType extends DAGType {
             }
         }
 
+        activityStack.push(end);
+        while(!activityStack.isEmpty()){
+            Activity a = activityStack.pop();
+            Activity currentClone = clonedActivities.stream().filter(obj -> obj.name().equals(a.name())).findFirst().orElseThrow();
+
+            for(Activity pre: a.pre().stream().filter(t -> clonedActivities.stream().map(Activity::name).collect(Collectors.toList()).contains(t.name())).collect(Collectors.toList())){
+                if(!pre.name().contains("END") && !pre.name().contains("BEGIN")) {
+                    currentClone.addPrecondition(clonedActivities.stream().filter(t -> t.name().equals(pre.name())).findFirst().get());
+                    activityStack.push(pre);
+                }
+            }
+        }
 
         return ModelFactory.DAG(clonedActivities.toArray(new Activity[0]));
     }
