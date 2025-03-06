@@ -289,9 +289,11 @@ public abstract class Activity implements Serializable, Cloneable {
     public void addPrecondition(Activity... others) {
         for (Activity other : others) {
             if (pre().contains(other))
-                throw new IllegalArgumentException(other + " already present in " + this);
+                return;
+                //throw new IllegalArgumentException(other + " already present in " + this);
             if (other.post().contains(this))
-                throw new IllegalArgumentException(this + " already present in " + other);
+                return;
+                //throw new IllegalArgumentException(this + " already present in " + other);
             pre().add(other);
             other.post().add(this);
         }

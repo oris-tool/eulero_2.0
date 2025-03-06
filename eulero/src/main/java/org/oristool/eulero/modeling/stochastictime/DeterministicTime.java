@@ -7,6 +7,14 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class DeterministicTime extends StochasticTime{
+    public BigDecimal getValue() {
+        return value;
+    }
+
+    public void setValue(BigDecimal value) {
+        this.value = value;
+    }
+
     private BigDecimal value;
 
     public DeterministicTime(){
