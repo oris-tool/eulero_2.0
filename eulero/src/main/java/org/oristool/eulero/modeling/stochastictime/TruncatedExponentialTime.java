@@ -44,8 +44,9 @@ public class TruncatedExponentialTime extends StochasticTime{
 
     @Override
     public Continuous time2QueuingEulero() {
-        return null;
+        return Continuous.truncatedExp(getRate().doubleValue(), getEFT().doubleValue(), getLFT().doubleValue());
     }
+
 
     @Override
     public double getExpectedValue() {
