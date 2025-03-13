@@ -117,7 +117,7 @@ public class BadNestedDAGType extends DAGType {
 
         chosenReplicatedBlock = dag2tree(((Composite) chosenReplicatedBlock).end().pre());
 
-return chosenReplicatedBlock.analyze(timeLimit, step, visitor);
+        return chosenReplicatedBlock.analyze(timeLimit, step, visitor);
 
 
         // TODO per ROSPO trasformo tutto in albero (e questo può impattare sull'accuratezza, dovremmo cambiare alcune cose, ma lo potremmo fare più avanti)
@@ -147,8 +147,8 @@ return chosenReplicatedBlock.analyze(timeLimit, step, visitor);
 
 
         StochasticTime approximatedStochasticTime =  approximator.getApproximatedStochasticTime(
-                toBeSimplifiedActivity.analyze(toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max(), step, visitor),
-                toBeSimplifiedActivity.min().doubleValue(), (toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max()).doubleValue(), innerActivityStep);
+                toBeSimplifiedActivity.analyze(toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max(), toBeSimplifiedActivity.getFairTimeTick(), visitor),
+                toBeSimplifiedActivity.min().doubleValue(), (toBeSimplifiedActivity.max().precision() >= 309 ? timeLimit : toBeSimplifiedActivity.max()).doubleValue(), toBeSimplifiedActivity.getFairTimeTick());
 
         Activity newActivity = new Simple(toBeSimplifiedActivity.name() + "_N", approximatedStochasticTime);
 
