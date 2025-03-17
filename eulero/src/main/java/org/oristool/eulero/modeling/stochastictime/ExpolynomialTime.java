@@ -43,6 +43,11 @@ public class ExpolynomialTime extends StochasticTime {
     }
 
     @Override
+    public StochasticTime time2JobSize(double resources) {
+        return null;
+    }
+
+    @Override
     public double PDF(double t) {
         return 0;
     }

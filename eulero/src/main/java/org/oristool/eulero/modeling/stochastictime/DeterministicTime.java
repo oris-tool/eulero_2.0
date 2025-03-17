@@ -48,6 +48,11 @@ public class DeterministicTime extends StochasticTime{
     }
 
     @Override
+    public StochasticTime time2JobSize(double resources) {
+        return new DeterministicTime(this.value.multiply(BigDecimal.valueOf(resources)));
+    }
+
+    @Override
     public double getExpectedValue() {
         return 0;
     }

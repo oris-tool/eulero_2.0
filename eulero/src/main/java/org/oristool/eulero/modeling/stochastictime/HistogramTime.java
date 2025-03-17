@@ -81,6 +81,11 @@ public class HistogramTime extends StochasticTime {
     }
 
     @Override
+    public StochasticTime time2JobSize(double resources) {
+        return null;
+    }
+
+    @Override
     public double getExpectedValue() {
         return 0;
     }

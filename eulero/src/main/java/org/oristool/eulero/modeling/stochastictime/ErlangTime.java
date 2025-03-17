@@ -84,6 +84,11 @@ public class ErlangTime extends StochasticTime{
     }
 
     @Override
+    public StochasticTime time2JobSize(double resources) {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return null;
     }

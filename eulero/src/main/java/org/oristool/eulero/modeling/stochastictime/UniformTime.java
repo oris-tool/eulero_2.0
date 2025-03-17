@@ -39,6 +39,11 @@ public class UniformTime extends StochasticTime {
     }
 
     @Override
+    public StochasticTime time2JobSize(double resources) {
+        return new UniformTime(this.getEFT().doubleValue()*resources, this.getLFT().doubleValue()*resources);
+    }
+
+    @Override
     public double getExpectedValue() {
         return getEFT().add(getLFT()).doubleValue()/2.;
     }

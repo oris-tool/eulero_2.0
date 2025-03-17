@@ -47,6 +47,12 @@ public class TruncatedExponentialTime extends StochasticTime{
         return Continuous.truncatedExp(getRate().doubleValue(), getEFT().doubleValue(), getLFT().doubleValue());
     }
 
+    @Override
+    public StochasticTime time2JobSize(double resources) {
+        return new TruncatedExponentialTime(this.getEFT().doubleValue()*resources,
+                this.getLFT().doubleValue()*resources, this.rate.doubleValue()/resources);
+    }
+
 
     @Override
     public double getExpectedValue() {
