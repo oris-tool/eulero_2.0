@@ -45,6 +45,14 @@ public class Composite extends Activity {
 
     @Override
     public void resetSupportBounds() {
+        for(Activity a: activities()){
+            a.resetSupportBounds();
+        }
+
+        this.setMin(
+                this.getType().low()
+        );
+
         this.setMax(
                 this.getType().upp()
         );
