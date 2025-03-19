@@ -71,7 +71,9 @@ public abstract class StochasticTime implements Cloneable{
     }
 
     public abstract Continuous time2QueuingEulero();
-    public abstract StochasticTime time2JobSize(double resources);
+    public abstract StochasticTime computeJobSizeLinear(double resources);
+    public abstract StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p);
+    public abstract StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax);
     public abstract double getExpectedValue();
 
     public abstract double PDF(double t);

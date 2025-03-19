@@ -48,9 +48,20 @@ public class TruncatedExponentialTime extends StochasticTime{
     }
 
     @Override
-    public StochasticTime time2JobSize(double resources) {
+    public StochasticTime computeJobSizeLinear(double resources) {
         return new TruncatedExponentialTime(this.getEFT().doubleValue()*resources,
                 this.getLFT().doubleValue()*resources, this.rate.doubleValue()/resources);
+    }
+
+    @Override
+    public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
+        double gamma = 1/( p/resources + 1 - p);
+        return new TruncatedExponentialTime(this.getEFT().doubleValue()*gamma, this.getLFT().doubleValue()*gamma, this.rate.doubleValue()/gamma);
+    }
+
+    @Override
+    public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
+        return computeJobSizeLinear(Math.min(resources, Rmax));
     }
 
 
