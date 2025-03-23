@@ -54,12 +54,13 @@ public class DeterministicTime extends StochasticTime{
 
     @Override
     public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
-        return null;
+        double gamma = 1/( p/resources + 1 - p);
+        return new DeterministicTime(this.value.multiply(BigDecimal.valueOf(gamma)));
     }
 
     @Override
     public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
-        return null;
+        return new DeterministicTime(this.value.multiply(BigDecimal.valueOf(Math.min(Rmax, resources))));
     }
 
     @Override
