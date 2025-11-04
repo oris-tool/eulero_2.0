@@ -35,7 +35,7 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public List<BigDecimal> getWeights() {
-        return null;
+        return List.of(BigDecimal.ONE);
     }
 
     @Override
@@ -50,12 +50,12 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public String toString() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
@@ -86,6 +86,7 @@ public class ExponentialTime extends StochasticTime {
 
     @Override
     public void randomizeParameters() {
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
 

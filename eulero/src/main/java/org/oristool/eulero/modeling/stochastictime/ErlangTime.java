@@ -85,22 +85,22 @@ public class ErlangTime extends StochasticTime{
 
     @Override
     public StochasticTime computeJobSizeLinear(double resources) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public String toString() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override

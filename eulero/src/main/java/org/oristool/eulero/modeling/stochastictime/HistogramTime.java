@@ -25,12 +25,12 @@ public class HistogramTime extends StochasticTime {
     }
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public String toString() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
@@ -40,6 +40,7 @@ public class HistogramTime extends StochasticTime {
 
     @Override
     public void randomizeParameters() {
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     public Integer bins() {
@@ -77,27 +78,27 @@ public class HistogramTime extends StochasticTime {
 
     @Override
     public Continuous time2QueuingEulero() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizeLinear(double resources) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public double getExpectedValue() {
-        return 0;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override

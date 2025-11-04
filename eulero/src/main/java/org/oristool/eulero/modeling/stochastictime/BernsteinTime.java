@@ -24,65 +24,66 @@ public class BernsteinTime extends StochasticTime {
 
     @Override
     public StochasticTransitionFeature getStochasticTransitionFeature() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public List<BigDecimal> getWeights() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public Continuous time2QueuingEulero() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizeLinear(double resources) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax) {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public double getExpectedValue() {
-        return 0;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public double PDF(double t) {
-        return 0;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public double CDF(double t) {
-        return 0;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public String toString() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public StochasticTime clone() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
     public void randomizeParameters() {
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 }

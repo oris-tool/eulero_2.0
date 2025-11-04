@@ -65,7 +65,7 @@ public class DeterministicTime extends StochasticTime{
 
     @Override
     public double getExpectedValue() {
-        return 0;
+        return this.value.doubleValue();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class DeterministicTime extends StochasticTime{
 
     @Override
     public String toString() {
-        return null;
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 
     @Override
@@ -96,5 +96,6 @@ public class DeterministicTime extends StochasticTime{
 
     @Override
     public void randomizeParameters() {
+        throw new UnsupportedOperationException("Method not implemented yet");
     }
 }
