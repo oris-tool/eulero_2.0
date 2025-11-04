@@ -23,6 +23,7 @@ import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+
 public class Fitter {
 
     String baseDir;

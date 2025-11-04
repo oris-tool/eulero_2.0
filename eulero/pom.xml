@@ -114,6 +114,20 @@
       <version>2.0.4-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
+            <dependency>
+            <groupId>org.oris-tool</groupId>
+            <artifactId>eulero-queueing</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+    <dependency>
+      <groupId>com.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>5.12.0</version>
+    </dependency>
+
+
   </dependencies>
   <build>
     <plugins>
