@@ -762,13 +762,15 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     private double calcTimeTickWithRounding(double expectedValue) {
-        if (expectedValue <= 0 || expectedValue == Double.MAX_VALUE) {
-            return 0.1; // just an arbitrary timestep...
-        }
-        double result = expectedValue / 100.0;
-        // rounding with 0.5 step
-        double flooredToStep = Math.floor(result * 20.0) / 20.0;
-        return flooredToStep;
+        double scaled = expectedValue / 100.0; // two orders
+        if (scaled == 0.0) {
+            return 0.01; // just an arbitrary timestep...
+        } 
+        double firstSignificantOrder = Math.floor(Math.log10(Math.abs(scaled)));
+        double roundingUnit = 5.0 * Math.pow(10, firstSignificantOrder - 1);
+
+        return Math.floor(scaled / roundingUnit)
+                * roundingUnit;
     }
 
     public abstract double getMinimumExpectedValue();
