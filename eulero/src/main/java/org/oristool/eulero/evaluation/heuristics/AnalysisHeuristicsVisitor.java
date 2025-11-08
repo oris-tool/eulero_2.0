@@ -23,6 +23,7 @@ import org.oristool.eulero.modeling.activitytypes.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.*;
 
 public abstract class AnalysisHeuristicsVisitor {
@@ -53,7 +54,7 @@ public abstract class AnalysisHeuristicsVisitor {
     public abstract double[] analyze(BadNestedDAGType modelType, BigDecimal timeLimit, BigDecimal step);
 
     public double[] analyze(XORType modelType, BigDecimal timeLimit, BigDecimal timeTick) {
-        double[] CDF = new double[timeLimit.divide(timeTick).intValue() + 1];
+        double[] CDF = new double[timeLimit.divide(timeTick, MathContext.DECIMAL64).intValue() + 1];
 
         for(Activity act: modelType.getChildren()){
             double[] activityCDF = act.analyze(timeLimit, timeTick, this);
@@ -66,7 +67,7 @@ public abstract class AnalysisHeuristicsVisitor {
     }
 
     public double[] analyze(ANDType modelType, BigDecimal timeLimit, BigDecimal step) {
-        double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
+        double[] CDF = new double[timeLimit.divide(step, MathContext.DECIMAL64).intValue() + 1];
 
         long time = System.nanoTime();
 
@@ -82,13 +83,13 @@ public abstract class AnalysisHeuristicsVisitor {
     }
 
     public double[] analyze(ORType modelType, BigDecimal timeLimit, BigDecimal step) {
-        double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
+        double[] CDF = new double[timeLimit.divide(step, MathContext.DECIMAL64).intValue() + 1];
 
         return CDF;
     }
 
     public double[] analyze(SEQType modelType, BigDecimal timeLimit, BigDecimal step) {
-        double[] CDF = new double[timeLimit.divide(step).intValue() + 1];
+        double[] CDF = new double[timeLimit.divide(step, MathContext.DECIMAL64).intValue() + 1];
 
         long time = System.nanoTime();
 
