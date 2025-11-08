@@ -1,6 +1,7 @@
 package org.oristool.eulero.modeling.stochastictime;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.oristool.eulero.math.Continuous;
@@ -56,8 +57,8 @@ public class HypoExponentialTime extends StochasticTime {
 
     @Override
     public double getExpectedValue() {
-        return BigDecimal.ONE.divide(rate1).doubleValue()
-                + BigDecimal.ONE.divide(rate2).doubleValue();
+        return BigDecimal.ONE.divide(rate1, RoundingMode.HALF_UP).doubleValue()
+                + BigDecimal.ONE.divide(rate2, RoundingMode.HALF_UP).doubleValue();
     }
 
     @Override
