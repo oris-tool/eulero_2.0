@@ -58,7 +58,7 @@ public abstract class Activity implements Serializable, Cloneable {
     private ActivityEnumType enumType;
     private ActivityType type;
 
-    //Eearliest Firing Time
+    // Eearliest Firing Time
     private BigDecimal min;
     // Latest Firing Time
     private BigDecimal max;
@@ -69,19 +69,20 @@ public abstract class Activity implements Serializable, Cloneable {
     private BigInteger simplifiedC;
     private BigInteger simplifiedQ;
 
-    //@XmlElementWrapper(name = "pre-conditions")
-    //@XmlElement(name = "pre-condition", required = true)
+    // @XmlElementWrapper(name = "pre-conditions")
+    // @XmlElement(name = "pre-condition", required = true)
     @XmlTransient
     private List<Activity> pre = new ArrayList<>();
 
-    //@XmlElementWrapper(name = "post-conditions")
-    //@XmlElement(name = "post-condition", required = true)
+    // @XmlElementWrapper(name = "post-conditions")
+    // @XmlElement(name = "post-condition", required = true)
     @XmlTransient
     private List<Activity> post = new ArrayList<>();
 
     private String name;
 
-    public Activity(){}
+    public Activity() {
+    }
 
     /**
      * The activities that this activity directly depends on.
@@ -98,14 +99,16 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     /**
-     * @param pre the preconditions to set
+     * @param pre
+     *                the preconditions to set
      */
     public void setPre(List<Activity> pre) {
         this.pre = pre;
     }
 
     /**
-     * @param post the postconditions to set
+     * @param post
+     *                 the postconditions to set
      */
     public void setPost(List<Activity> post) {
         this.post = post;
@@ -126,7 +129,7 @@ public abstract class Activity implements Serializable, Cloneable {
         return name;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -154,18 +157,20 @@ public abstract class Activity implements Serializable, Cloneable {
         return !Objects.isNull(simplifiedQ) ? simplifiedQ : computeQ(true);
     }
 
-    // Per ricalcolare le misure di complessità, a fronte di una variazione topologica del modello
-    public void resetComplexityMeasure(){
+    // Per ricalcolare le misure di complessità, a fronte di una variazione
+    // topologica del modello
+    public void resetComplexityMeasure() {
         computeC(true);
         computeC(false);
         computeQ(true);
         computeQ(false);
     }
 
-    public ActivityEnumType type(){
+    public ActivityEnumType type() {
         return enumType;
     }
-    public void setEnumType(ActivityEnumType enumType){
+
+    public void setEnumType(ActivityEnumType enumType) {
         this.enumType = enumType;
     }
 
@@ -193,9 +198,10 @@ public abstract class Activity implements Serializable, Cloneable {
         this.simplifiedQ = simplifiedQ;
     }
 
-    // Determina in base a Max, qual è un time tick che garantisce una buona accuratezza
+    // Determina in base a Max, qual è un time tick che garantisce una buona
+    // accuratezza
     // di 2 ordini di gradezza inferiore a max
-    public BigDecimal getFairTimeTick(){
+    public BigDecimal getFairTimeTick() {
         double aux = this.max().doubleValue();
         int mag = 1;
         while (aux > 10) {
@@ -222,8 +228,8 @@ public abstract class Activity implements Serializable, Cloneable {
 
     public abstract Activity copyRecursive(String suffix);
 
-    public BigInteger computeC(boolean getSimplified){
-        //System.out.println("Calcolo C");
+    public BigInteger computeC(boolean getSimplified) {
+        // System.out.println("Calcolo C");
 
         long time = System.nanoTime();
         PetriNet pn = new PetriNet();
@@ -248,15 +254,16 @@ public abstract class Activity implements Serializable, Cloneable {
         BigInteger simplifiedMaxC = BigInteger.ZERO;
 
         // Per ogni classe di stato...
-        for (State s: graph.getStates()) {
+        for (State s : graph.getStates()) {
             BigInteger maximumTestValue = BigInteger.ZERO;
             BigInteger simplifiedMaximumTestValue = BigInteger.ZERO;
 
             // ...Controlla il numero di transizioni non immediate che sono abilitate...
-            for(Transition t: s.getFeature(PetriStateFeature.class).getEnabled()){
-                if(!t.getFeature(TimedTransitionFeature.class).isImmediate()){
+            for (Transition t : s.getFeature(PetriStateFeature.class).getEnabled()) {
+                if (!t.getFeature(TimedTransitionFeature.class).isImmediate()) {
                     // .. e somma il grado di concorrenza ...
-                    maximumTestValue = maximumTestValue.add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
+                    maximumTestValue = maximumTestValue
+                            .add(t.getFeature(ConcurrencyTransitionFeature.class).getC());
 
                     // ... che è sempre pari a 1, nel caso della metrica semplificata
                     simplifiedMaximumTestValue = simplifiedMaximumTestValue.add(BigInteger.ONE);
@@ -264,10 +271,10 @@ public abstract class Activity implements Serializable, Cloneable {
             }
 
             // e sceglie il massimo
-            if(maximumTestValue.compareTo(maxC) > 0){
+            if (maximumTestValue.compareTo(maxC) > 0) {
                 maxC = maximumTestValue;
             }
-            if(simplifiedMaximumTestValue.compareTo(simplifiedMaxC) > 0){
+            if (simplifiedMaximumTestValue.compareTo(simplifiedMaxC) > 0) {
                 simplifiedMaxC = simplifiedMaximumTestValue;
             }
         }
@@ -287,13 +294,16 @@ public abstract class Activity implements Serializable, Cloneable {
     /**
      * Adds the activity as an STPN transition.
      *
-     * @param pn STPN where the activity is added
-     * @param prio initial priority of the transitions of this activity
+     * @param pn
+     *                 STPN where the activity is added
+     * @param prio
+     *                 initial priority of the transitions of this activity
      * @return next priority level for the rest of the network
      */
     public abstract int buildSTPN(PetriNet pn, Place in, Place out, int prio);
 
-    public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor);
+    public abstract double[] analyze(BigDecimal timeLimit, BigDecimal timeStep,
+            AnalysisHeuristicsVisitor visitor);
 
     @Override
     public final String toString() {
@@ -301,25 +311,25 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     /**
-     * Adds activities as a direct dependency; also adds this
-     * activity to the dependencies' post().
+     * Adds activities as a direct dependency; also adds this activity to the
+     * dependencies' post().
      */
     public void addPrecondition(Activity... others) {
         for (Activity other : others) {
             if (pre().contains(other))
                 return;
-                //throw new IllegalArgumentException(other + " already present in " + this);
+            // throw new IllegalArgumentException(other + " already present in " + this);
             if (other.post().contains(this))
                 return;
-                //throw new IllegalArgumentException(this + " already present in " + other);
+            // throw new IllegalArgumentException(this + " already present in " + other);
             pre().add(other);
             other.post().add(this);
         }
     }
 
     /**
-     * Removes an activity as a direct dependency; also removes
-     * this activity from the dependency's post().
+     * Removes an activity as a direct dependency; also removes this activity from
+     * the dependency's post().
      */
     public void removePrecondition(Activity other) {
         if (!pre().remove(other))
@@ -344,9 +354,9 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     /**
-     * Explores this activity and the ones that it transitively depends on (pre
-     * == true) or that depend on it (pre == false), in DFS order. Returns false
-     * if the visit is interrupted by the observer.
+     * Explores this activity and the ones that it transitively depends on (pre ==
+     * true) or that depend on it (pre == false), in DFS order. Returns false if the
+     * visit is interrupted by the observer.
      */
     public final boolean dfs(boolean pre, DFSObserver observer) {
         Set<Activity> opened = new HashSet<>();
@@ -389,9 +399,8 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     /**
-     * Explores, in DFS order, this activity and the activities that it
-     * transitively depends on. If any activity is has nested components,
-     * explore them first.
+     * Explores, in DFS order, this activity and the activities that it transitively
+     * depends on. If any activity is has nested components, explore them first.
      *
      * Returns false if the visit is interrupted by the observer.
      */
@@ -399,7 +408,8 @@ public abstract class Activity implements Serializable, Cloneable {
 
         observer.onNestedStart(this);
         this.dfs(pre, new DFSObserver() {
-            @Override public boolean onOpen(Activity opened, Activity from) {
+            @Override
+            public boolean onOpen(Activity opened, Activity from) {
                 if (!observer.onOpen(opened, from))
                     return false;
 
@@ -410,10 +420,13 @@ public abstract class Activity implements Serializable, Cloneable {
                 return true;
             }
 
-            @Override public boolean onSkip(Activity skipped, Activity from) {
+            @Override
+            public boolean onSkip(Activity skipped, Activity from) {
                 return observer.onSkip(skipped, from);
             }
-            @Override public boolean onClose(Activity closed) {
+
+            @Override
+            public boolean onClose(Activity closed) {
                 return observer.onClose(closed);
             }
         });
@@ -423,9 +436,9 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     /**
-     * Explores, in DFS order, this activity and the activities that it
-     * transitively depends on. Then explores their nested activities,
-     * recursively (one nesting level at a time).
+     * Explores, in DFS order, this activity and the activities that it transitively
+     * depends on. Then explores their nested activities, recursively (one nesting
+     * level at a time).
      *
      * Returns false if the visit is interrupted by the observer.
      */
@@ -440,18 +453,21 @@ public abstract class Activity implements Serializable, Cloneable {
                 return false;
 
             next.dfs(pre, new DFSObserver() {
-                @Override public boolean onOpen(Activity opened, Activity from) {
+                @Override
+                public boolean onOpen(Activity opened, Activity from) {
                     if (opened.nested().size() > 0)
                         nested.addAll(opened.nested());
 
                     return observer.onOpen(opened, from);
                 }
 
-                @Override public boolean onClose(Activity closed) {
+                @Override
+                public boolean onClose(Activity closed) {
                     return observer.onClose(closed);
                 }
 
-                @Override public boolean onSkip(Activity skipped, Activity from) {
+                @Override
+                public boolean onSkip(Activity skipped, Activity from) {
                     return observer.onSkip(skipped, from);
                 }
             });
@@ -524,8 +540,8 @@ public abstract class Activity implements Serializable, Cloneable {
     public abstract boolean isWellNested();
 
     /**
-     * Returns a string representation of the preconditions and postconditions
-     * for the STPN of this activity.
+     * Returns a string representation of the preconditions and postconditions for
+     * the STPN of this activity.
      *
      * @return string representation of STPN edges
      */
@@ -547,8 +563,8 @@ public abstract class Activity implements Serializable, Cloneable {
         return b.toString();
     }
 
-    public TransientSolution<DeterministicEnablingState, RewardRate>
-    analyze(String timeBound, String timeStep, String error) {
+    public TransientSolution<DeterministicEnablingState, RewardRate> analyze(String timeBound,
+            String timeStep, String error) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -574,18 +590,18 @@ public abstract class Activity implements Serializable, Cloneable {
 
         RegTransient analysis = builder.build();
         long start = System.nanoTime();
-        TransientSolution<DeterministicEnablingState, Marking> probs =
-                analysis.compute(pn, m);
-    /*System.out.println(String.format("Analysis took %.3f seconds",
-            (System.nanoTime() - start)/1e9));*/
+        TransientSolution<DeterministicEnablingState, Marking> probs = analysis.compute(pn, m);
+        /*
+         * System.out.println(String.format("Analysis took %.3f seconds",
+         * (System.nanoTime() - start)/1e9));
+         */
 
         // evaluate reward
-        return TransientSolution.computeRewards(false, probs,
-                RewardRate.fromString(cond));
+        return TransientSolution.computeRewards(false, probs, RewardRate.fromString(cond));
     }
 
-    public TransientSolution<Marking, RewardRate>
-    forwardAnalyze(String timeBound, String timeStep, String error) {
+    public TransientSolution<Marking, RewardRate> forwardAnalyze(String timeBound, String timeStep,
+            String error) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -611,14 +627,14 @@ public abstract class Activity implements Serializable, Cloneable {
 
         TreeTransient analysis = builder.build();
         long start = System.nanoTime();
-        TransientSolution<Marking, Marking> probs =
-                analysis.compute(pn, m);
-    /*System.out.println(String.format("Analysis took %.3f seconds",
-            (System.nanoTime() - start)/1e9));*/
+        TransientSolution<Marking, Marking> probs = analysis.compute(pn, m);
+        /*
+         * System.out.println(String.format("Analysis took %.3f seconds",
+         * (System.nanoTime() - start)/1e9));
+         */
 
         // evaluate reward
-        return TransientSolution.computeRewards(false, probs,
-                RewardRate.fromString(cond));
+        return TransientSolution.computeRewards(false, probs, RewardRate.fromString(cond));
     }
 
     public Pair<SuccessionGraph, PetriNet> classGraph() {
@@ -636,10 +652,8 @@ public abstract class Activity implements Serializable, Cloneable {
         m.addTokens(in, 1);
 
         // analyze
-        TimedAnalysis.Builder builder = TimedAnalysis.builder()
-                .excludeZeroProb(true)
-                .markRegenerations(true)
-                .stopOn(MarkingCondition.fromString(cond));
+        TimedAnalysis.Builder builder = TimedAnalysis.builder().excludeZeroProb(true)
+                .markRegenerations(true).stopOn(MarkingCondition.fromString(cond));
 
         TimedAnalysis analysis = builder.build();
         SuccessionGraph graph = analysis.compute(pn, m);
@@ -647,8 +661,8 @@ public abstract class Activity implements Serializable, Cloneable {
         return Pair.of(graph, pn);
     }
 
-    public TransientSolution<DeterministicEnablingState, RewardRate>
-    simulate(String timeBound, String timeStep, int runs) {
+    public TransientSolution<DeterministicEnablingState, RewardRate> simulate(String timeBound,
+            String timeStep, int runs) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -666,24 +680,23 @@ public abstract class Activity implements Serializable, Cloneable {
         m.addTokens(in, 1);
 
         // simulate
-        Sequencer s = new Sequencer(pn, m,
-                new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
-        TransientMarkingConditionProbability reward =
-                new TransientMarkingConditionProbability(s,
-                        new ContinuousRewardTime(step), samples,
-                        MarkingCondition.fromString(cond));
+        Sequencer s = new Sequencer(pn, m, new STPNSimulatorComponentsFactory(),
+                NoOpLogger.INSTANCE);
+        TransientMarkingConditionProbability reward = new TransientMarkingConditionProbability(s,
+                new ContinuousRewardTime(step), samples, MarkingCondition.fromString(cond));
         RewardEvaluator rewardEvaluator = new RewardEvaluator(reward, runs);
         long start = System.nanoTime();
         s.simulate();
-    /*System.out.println(String.format("Simulation took %.3f seconds",
-            (System.nanoTime() - start)/1e9));*/
+        /*
+         * System.out.println(String.format("Simulation took %.3f seconds",
+         * (System.nanoTime() - start)/1e9));
+         */
 
         // evaluate reward
         TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
         DeterministicEnablingState initialReg = new DeterministicEnablingState(m, pn);
-        TransientSolution<DeterministicEnablingState, RewardRate> result =
-                new TransientSolution<>(bound, step, List.of(initialReg),
-                        List.of(RewardRate.fromString(cond)), initialReg);
+        TransientSolution<DeterministicEnablingState, RewardRate> result = new TransientSolution<>(
+                bound, step, List.of(initialReg), List.of(RewardRate.fromString(cond)), initialReg);
 
         for (int t = 0; t < result.getSolution().length; t++) {
             for (Marking x : probs.getMarkings()) {
@@ -694,8 +707,8 @@ public abstract class Activity implements Serializable, Cloneable {
         return result;
     }
 
-    public TransientSolution<DeterministicEnablingState, RewardRate>
-    simulate(String timeBound, String timeStep, long timeout) {
+    public TransientSolution<DeterministicEnablingState, RewardRate> simulate(String timeBound,
+            String timeStep, long timeout) {
 
         // input data
         BigDecimal bound = new BigDecimal(timeBound);
@@ -713,24 +726,21 @@ public abstract class Activity implements Serializable, Cloneable {
         m.addTokens(in, 1);
 
         // simulate
-        Sequencer s = new Sequencer(pn, m,
-                new STPNSimulatorComponentsFactory(), NoOpLogger.INSTANCE);
-        TransientMarkingConditionProbability reward =
-                new TransientMarkingConditionProbability(s,
-                        new ContinuousRewardTime(step), samples,
-                        MarkingCondition.fromString(cond));
+        Sequencer s = new Sequencer(pn, m, new STPNSimulatorComponentsFactory(),
+                NoOpLogger.INSTANCE);
+        TransientMarkingConditionProbability reward = new TransientMarkingConditionProbability(s,
+                new ContinuousRewardTime(step), samples, MarkingCondition.fromString(cond));
         RewardEvaluatorTimeout rewardEvaluator = new RewardEvaluatorTimeout(reward, timeout);
         long start = System.nanoTime();
         s.simulate();
-        System.out.println(String.format("Simulation took %.3f seconds",
-                (System.nanoTime() - start) / 1e9));
+        System.out.println(
+                String.format("Simulation took %.3f seconds", (System.nanoTime() - start) / 1e9));
 
         // evaluate reward
         TimeSeriesRewardResult probs = (TimeSeriesRewardResult) rewardEvaluator.getResult();
         DeterministicEnablingState initialReg = new DeterministicEnablingState(m, pn);
-        TransientSolution<DeterministicEnablingState, RewardRate> result =
-                new TransientSolution<>(bound, step, List.of(initialReg),
-                        List.of(RewardRate.fromString(cond)), initialReg);
+        TransientSolution<DeterministicEnablingState, RewardRate> result = new TransientSolution<>(
+                bound, step, List.of(initialReg), List.of(RewardRate.fromString(cond)), initialReg);
 
         for (int t = 0; t < result.getSolution().length; t++) {
             for (Marking x : probs.getMarkings()) {
@@ -746,10 +756,23 @@ public abstract class Activity implements Serializable, Cloneable {
     public ActivityType getType() {
         return type;
     }
-    
+
+    public double getLeastExpectedTimeTick() {
+        return calcTimeTickWithRounding(getMinimumExpectedValue());
+    }
+
+    private double calcTimeTickWithRounding(double expectedValue) {
+        if (expectedValue <= 0 || expectedValue == Double.MAX_VALUE) {
+            return 0.1; // just an arbitrary timestep...
+        }
+        double result = expectedValue / 100.0;
+        // rounding with 0.5 step
+        double flooredToStep = Math.floor(result * 20.0) / 20.0;
+        return flooredToStep;
+    }
+
     public abstract double getMinimumExpectedValue();
 
     @Override
     public abstract Activity clone();
 }
-
