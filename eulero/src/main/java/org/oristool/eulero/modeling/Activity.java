@@ -1,6 +1,17 @@
 package org.oristool.eulero.modeling;
 
-import jakarta.xml.bind.annotation.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import org.oristool.analyzer.graph.SuccessionGraph;
 import org.oristool.analyzer.log.NoOpLogger;
 import org.oristool.analyzer.state.State;
@@ -16,7 +27,13 @@ import org.oristool.models.stpn.trees.DeterministicEnablingState;
 import org.oristool.models.tpn.ConcurrencyTransitionFeature;
 import org.oristool.models.tpn.TimedAnalysis;
 import org.oristool.models.tpn.TimedTransitionFeature;
-import org.oristool.petrinet.*;
+import org.oristool.petrinet.Marking;
+import org.oristool.petrinet.MarkingCondition;
+import org.oristool.petrinet.PetriNet;
+import org.oristool.petrinet.Place;
+import org.oristool.petrinet.Postcondition;
+import org.oristool.petrinet.Precondition;
+import org.oristool.petrinet.Transition;
 import org.oristool.simulator.Sequencer;
 import org.oristool.simulator.TimeSeriesRewardResult;
 import org.oristool.simulator.rewards.ContinuousRewardTime;
@@ -26,10 +43,11 @@ import org.oristool.simulator.stpn.STPNSimulatorComponentsFactory;
 import org.oristool.simulator.stpn.TransientMarkingConditionProbability;
 import org.oristool.util.Pair;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Activity implements Serializable, Cloneable {
@@ -728,6 +746,8 @@ public abstract class Activity implements Serializable, Cloneable {
     public ActivityType getType() {
         return type;
     }
+    
+    public abstract double getMinimumExpectedValue();
 
     @Override
     public abstract Activity clone();

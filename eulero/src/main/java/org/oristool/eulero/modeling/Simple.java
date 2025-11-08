@@ -142,6 +142,11 @@ public class Simple extends Activity {
         return new Simple(this.name(), this.getPdf().clone());
     }
 
+    @Override
+    public double getMinimumExpectedValue() {
+        return pdf.getExpectedValue();
+    }
+
 
     public static Simple uniform(String name, BigDecimal a, BigDecimal b) {
         return new Simple(name, new UniformTime(a, b));
@@ -163,4 +168,5 @@ public class Simple extends Activity {
     public void setPdf(StochasticTime pdf) {
         this.pdf = pdf;
     }
+
 }

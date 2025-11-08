@@ -20,16 +20,14 @@ public class Composite extends Activity {
     @XmlElement(name = "end", required = true)
     private Activity end;
 
-    public Composite(String name, ActivityType type, ActivityEnumType enumType){
+    public Composite(String name, ActivityType type, ActivityEnumType enumType) {
         super(name, type, enumType);
         this.getType().setActivity(this);
-        this.begin = new Simple(name + "_BEGIN",
-                new DeterministicTime(BigDecimal.ZERO));
-        this.end = new Simple(name + "_END",
-                new DeterministicTime(BigDecimal.ZERO));
+        this.begin = new Simple(name + "_BEGIN", new DeterministicTime(BigDecimal.ZERO));
+        this.end = new Simple(name + "_END", new DeterministicTime(BigDecimal.ZERO));
     }
 
-    public Composite(){
+    public Composite() {
         super("", null, null);
     }
 
@@ -45,17 +43,13 @@ public class Composite extends Activity {
 
     @Override
     public void resetSupportBounds() {
-        for(Activity a: activities()){
+        for (Activity a : activities()) {
             a.resetSupportBounds();
         }
 
-        this.setMin(
-                this.getType().low()
-        );
+        this.setMin(this.getType().low());
 
-        this.setMax(
-                this.getType().upp()
-        );
+        this.setMax(this.getType().upp());
     }
 
     @Override
@@ -69,7 +63,8 @@ public class Composite extends Activity {
     }
 
     @Override
-    public double[] analyze(BigDecimal timeLimit, BigDecimal timeStep, AnalysisHeuristicsVisitor visitor) {
+    public double[] analyze(BigDecimal timeLimit, BigDecimal timeStep,
+            AnalysisHeuristicsVisitor visitor) {
         return this.getType().analyze(timeLimit, timeStep, visitor);
     }
 
@@ -110,7 +105,7 @@ public class Composite extends Activity {
     public int countSimpleActivities() {
         int counter = 0;
 
-        for(Activity a: this.activities()){
+        for (Activity a : this.activities()) {
             counter += a.countSimpleActivities();
         }
 
@@ -125,36 +120,47 @@ public class Composite extends Activity {
         return act;
     }
 
-    public BigDecimal getMinBound(Activity activity){
-        if(activity.equals(this.begin)){
+    public BigDecimal getMinBound(Activity activity) {
+        if (activity.equals(this.begin)) {
             return activity.low();
         }
 
         BigDecimal maximumPredecessorLow = BigDecimal.ZERO;
-        for(Activity predecessor: activity.pre()){
+        for (Activity predecessor : activity.pre()) {
             maximumPredecessorLow = maximumPredecessorLow.max(getMinBound(predecessor));
         }
 
         return activity.low().add(maximumPredecessorLow);
     }
 
-    public BigDecimal getMaxBound(Activity activity){
+    public BigDecimal getMaxBound(Activity activity) {
         // TODO something not working here
-        //System.out.println("\nCurrent activity: " + activity.name());
-        if(activity.equals(this.begin)){
+        // System.out.println("\nCurrent activity: " + activity.name());
+        if (activity.equals(this.begin)) {
             return activity.upp();
         }
 
         BigDecimal maximumPredecessorUpp = BigDecimal.ZERO;
-        for(Activity predecessor: activity.pre()){
-            //System.out.println("\nPredecessor of activity " + activity.name() + ": is " + predecessor.name());
-            //System.out.println("\nIts bound is " + getMaxBound(predecessor));
+        for (Activity predecessor : activity.pre()) {
+            // System.out.println("\nPredecessor of activity " + activity.name() + ": is " +
+            // predecessor.name());
+            // System.out.println("\nIts bound is " + getMaxBound(predecessor));
             maximumPredecessorUpp = maximumPredecessorUpp.max(getMaxBound(predecessor));
-            if(maximumPredecessorUpp.doubleValue() >= Double.MAX_VALUE){
+            if (maximumPredecessorUpp.doubleValue() >= Double.MAX_VALUE) {
                 return BigDecimal.valueOf(Double.MAX_VALUE);
             }
         }
 
         return activity.upp().add(maximumPredecessorUpp);
+    }
+
+    @Override
+    public double getMinimumExpectedValue() {
+        double minExpectedValue = Double.MAX_VALUE;
+        for (Activity child : activities()) {
+            double childsLeastValue = child.getMinimumExpectedValue();
+            minExpectedValue = Math.min(minExpectedValue, childsLeastValue);
+        }
+        return minExpectedValue;
     }
 }
