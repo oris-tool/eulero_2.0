@@ -41,6 +41,12 @@ public class ErlangTime extends StochasticTime{
         return k/rate;
     }
 
+
+    @Override
+    public double getVariance() {
+        return k/Math.pow(rate, 2);
+    }
+
     @Override
     public double PDF(double t) {
         if(t < 0.){

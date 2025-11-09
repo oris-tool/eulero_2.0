@@ -102,6 +102,11 @@ public class HistogramTime extends StochasticTime {
     }
 
     @Override
+    public double getVariance() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+
+    @Override
     public double PDF(double t) {
         if(t < getEFT().doubleValue() || t >= getLFT().doubleValue()){
             return 0.0;

@@ -63,6 +63,11 @@ public class BernsteinTime extends StochasticTime {
     }
 
     @Override
+    public double getVariance() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+
+    @Override
     public double PDF(double t) {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
@@ -86,4 +91,5 @@ public class BernsteinTime extends StochasticTime {
     public void randomizeParameters() {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
+
 }

@@ -69,6 +69,11 @@ public class DeterministicTime extends StochasticTime{
     }
 
     @Override
+    public double getVariance() {
+        return 0;
+    }
+
+    @Override
     public double PDF(double t) {
         if(t == value.doubleValue()){
             return Double.MAX_VALUE;
@@ -98,4 +103,5 @@ public class DeterministicTime extends StochasticTime{
     public void randomizeParameters() {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
+
 }

@@ -116,4 +116,10 @@ public class ExpolynomialTime extends StochasticTime {
     public double getExpectedValue() {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
+
+    @Override
+    public double getVariance() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+
 }

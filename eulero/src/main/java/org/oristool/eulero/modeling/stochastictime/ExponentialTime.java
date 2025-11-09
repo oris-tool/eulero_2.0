@@ -64,6 +64,11 @@ public class ExponentialTime extends StochasticTime {
     }
 
     @Override
+    public double getVariance() {
+        return 1/ Math.pow(rate.doubleValue(),2);
+    }
+
+    @Override
     public double PDF(double t) {
         return rate.doubleValue() * Math.exp(-rate.doubleValue() * t);
     }

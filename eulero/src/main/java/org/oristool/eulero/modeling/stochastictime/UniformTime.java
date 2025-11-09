@@ -59,6 +59,11 @@ public class UniformTime extends StochasticTime {
     }
 
     @Override
+    public double getVariance() {
+        return Math.pow(getLFT().subtract(getEFT()).doubleValue(),2) / 12.0;
+    }
+
+    @Override
     public double PDF(double t) {
         if(t < getEFT().doubleValue() || t > getLFT().doubleValue()){
             return 0.0;
@@ -96,4 +101,5 @@ public class UniformTime extends StochasticTime {
         this.setEFT(BigDecimal.valueOf(a));
         this.setLFT(BigDecimal.valueOf(b));
     }
+
 }

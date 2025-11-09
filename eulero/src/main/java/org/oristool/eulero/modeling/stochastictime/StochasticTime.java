@@ -75,6 +75,7 @@ public abstract class StochasticTime implements Cloneable{
     public abstract StochasticTime computeJobSizeInhomogeneousLinear(double resources, double p);
     public abstract StochasticTime computeJobSizePiecewiseLinear(double resources, double Rmax);
     public abstract double getExpectedValue();
+    public abstract double getVariance();
 
     public abstract double PDF(double t);
     public abstract double CDF(double t);

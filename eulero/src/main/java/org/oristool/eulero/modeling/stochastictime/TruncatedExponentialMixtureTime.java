@@ -70,6 +70,11 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
     }
 
     @Override
+    public double getVariance() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+
+    @Override
     public double PDF(double t) {
         if(t >= pieces.get(pieces.size() - 1).getLFT().doubleValue()){
             return 0;
@@ -130,4 +135,5 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
     public void randomizeParameters() {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
+
 }
