@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-experiments.E1-Class: org.oristool.eulero.examples.BuildAndEvaluate
-
