@@ -774,6 +774,8 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     public abstract double getMinimumExpectedValue();
+    
+    public abstract double getFairTimeLimit();
 
     @Override
     public abstract Activity clone();

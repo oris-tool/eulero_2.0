@@ -21,6 +21,7 @@ import java.util.List;
 
 @XmlRootElement(name = "Simple")
 public class Simple extends Activity {
+    private static final double TIME_LIMIT_EPSILON = 0.01;
     @XmlElement(name = "pdf", required = true)
     private StochasticTime pdf;
 
@@ -147,6 +148,27 @@ public class Simple extends Activity {
         return pdf.getExpectedValue();
     }
 
+    @Override
+    public double getFairTimeLimit() {
+        if(upp().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) != 0)
+            return max().doubleValue();
+        else
+            return calcTimeLimitHeuristically();
+    }
+    
+    private double calcTimeLimitHeuristically(){
+        int times = 3;
+        double expectedValue = this.getPdf().getExpectedValue();
+        double variance = this.getPdf().getVariance();
+        double fairTimeLimit; 
+        do{
+            fairTimeLimit = expectedValue + times * variance;
+            times ++;
+        }
+        while(this.getPdf().CDF(fairTimeLimit) < 1 - TIME_LIMIT_EPSILON ); 
+        return fairTimeLimit;
+    }
+
 
     public static Simple uniform(String name, BigDecimal a, BigDecimal b) {
         return new Simple(name, new UniformTime(a, b));
@@ -168,5 +190,6 @@ public class Simple extends Activity {
     public void setPdf(StochasticTime pdf) {
         this.pdf = pdf;
     }
+
 
 }

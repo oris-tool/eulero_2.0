@@ -163,4 +163,10 @@ public class Composite extends Activity {
         }
         return minExpectedValue;
     }
+
+    @Override
+    public double getFairTimeLimit() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getFairTimeLimit'");
+    }
 }
