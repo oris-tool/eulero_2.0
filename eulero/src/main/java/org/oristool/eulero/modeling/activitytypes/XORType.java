@@ -170,6 +170,11 @@ public class XORType extends ActivityType {
     }
 
     @Override
+    public double getFairTimeLimit() {
+        return getChildren().stream().mapToDouble(Activity::getFairTimeLimit).max().orElse(1.);
+    }
+
+    @Override
     public BigDecimal low() {
         return BigDecimal.valueOf(getChildren().stream().map(Activity::low).mapToDouble(BigDecimal::doubleValue).min().getAsDouble());
         // return this.getActivity().max();
@@ -181,4 +186,5 @@ public class XORType extends ActivityType {
         // TODO le probs() me le copia per davvero o sono dannato?
         return new XORType(clonedActivities, probs());
     }
+
 }

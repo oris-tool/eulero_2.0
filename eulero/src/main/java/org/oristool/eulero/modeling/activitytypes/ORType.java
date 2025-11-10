@@ -183,9 +183,15 @@ public class ORType extends ActivityType {
     }
 
     @Override
+    public double getFairTimeLimit() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+
+    @Override
     public ActivityType clone() {
         ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
         // TODO le probs() me le copia per davvero o sono dannato?
         return new ORType(clonedActivities, probs());
     }
+
 }

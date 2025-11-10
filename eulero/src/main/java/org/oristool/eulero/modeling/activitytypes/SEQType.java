@@ -40,6 +40,12 @@ public class SEQType extends DAGType {
     }
 
     @Override
+    public double getFairTimeLimit() {
+        double sum = getChildren().stream().mapToDouble(Activity::getFairTimeLimit).sum();
+        return (sum == 0.0) ? 1.0 : sum; 
+    }
+
+    @Override
     public BigDecimal low(){
         // Check if any children has infinite support
         return BigDecimal.valueOf(getChildren().stream().map(Activity::low).mapToDouble(BigDecimal::doubleValue).sum());
@@ -66,4 +72,5 @@ public class SEQType extends DAGType {
         ArrayList<Activity> clonedActivities = getChildren().stream().map(Activity::clone).collect(Collectors.toCollection(ArrayList::new));
         return new SEQType(clonedActivities);
     }
+
 }

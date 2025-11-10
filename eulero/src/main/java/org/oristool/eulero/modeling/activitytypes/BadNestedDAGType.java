@@ -546,4 +546,9 @@ public class BadNestedDAGType extends DAGType {
 
         return nodes.get(0).clone();
     }
+
+    @Override
+    public double getFairTimeLimit() {
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
 }

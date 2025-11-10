@@ -52,4 +52,6 @@ public abstract class ActivityType implements Cloneable {
     public abstract BigDecimal low();
     @Override
     public abstract ActivityType clone();
+
+    public abstract double getFairTimeLimit();
 }
