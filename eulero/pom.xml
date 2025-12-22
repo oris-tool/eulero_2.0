@@ -111,20 +111,29 @@
     <dependency>
       <groupId>org.oris-tool</groupId>
       <artifactId>sirio</artifactId>
-      <version>2.0.4-SNAPSHOT</version>
+      <version>2.0.5</version>
       <scope>compile</scope>
     </dependency>
-            <dependency>
-            <groupId>org.oris-tool</groupId>
-            <artifactId>eulero-queueing</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+    
+    <dependency>
+      <groupId>org.oris-tool</groupId>
+      <artifactId>eulero-queueing</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/eulero-queueing-1.0-SNAPSHOT-jar-with-dependencies.jar</systemPath>
+    </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>5.12.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.20.1</version>
     </dependency>
 
 
