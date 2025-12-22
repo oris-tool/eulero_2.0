@@ -762,9 +762,12 @@ public abstract class Activity implements Serializable, Cloneable {
     }
 
     private double calcTimeTickWithRounding(double expectedValue) {
-        double scaled = expectedValue / 100.0; // two orders
+        double scaled = expectedValue / 10.0; // one order
+        
+        // If scaled == 0 (expectedValue == 0) all the children have deterministic(0) distribution
+        // In this case an arbitrary time step is selected
         if (scaled == 0.0) {
-            return 0.01; // just an arbitrary timestep...
+            return 0.1;
         } 
         double firstSignificantOrder = Math.floor(Math.log10(Math.abs(scaled)));
         double roundingUnit = 5.0 * Math.pow(10, firstSignificantOrder - 1);

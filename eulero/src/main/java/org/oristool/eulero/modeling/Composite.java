@@ -159,8 +159,17 @@ public class Composite extends Activity {
         double minExpectedValue = Double.MAX_VALUE;
         for (Activity child : activities()) {
             double childsLeastValue = child.getMinimumExpectedValue();
-            minExpectedValue = Math.min(minExpectedValue, childsLeastValue);
+            // We ignore all the children with deterministic(0) distribution
+            if (childsLeastValue != 0.0) {
+                minExpectedValue = Math.min(minExpectedValue, childsLeastValue);
+            }
         }
+
+        // If all the children are deterministic(0) we return 0 
+        if (minExpectedValue == Double.MAX_VALUE) {
+            minExpectedValue = 0;
+        }
+
         return minExpectedValue;
     }
 

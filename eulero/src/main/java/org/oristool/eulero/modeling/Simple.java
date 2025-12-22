@@ -151,7 +151,7 @@ public class Simple extends Activity {
     @Override
     public double getFairTimeLimit() {
         if(upp().compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) != 0)
-            return max().doubleValue();
+            return this.upp().doubleValue();
         else
             return calcTimeLimitHeuristically();
     }
