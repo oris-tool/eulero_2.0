@@ -63,7 +63,7 @@ public class ErlangTime extends StochasticTime{
         }
 
         double v = 0;
-        for(int n = 0; n < k - 1; n++){
+        for(int n = 0; n < k ; n++){
             v += Math.exp(-rate * t) * Math.pow(rate * t, n) / BigIntegerMath.factorial(n).doubleValue();
         }
 
