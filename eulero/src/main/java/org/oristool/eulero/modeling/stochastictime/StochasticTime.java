@@ -39,6 +39,9 @@ public abstract class StochasticTime implements Cloneable{
         this.LFT = LFT;
     }
 
+    
+    public abstract StochasticTimeType getType();
+
     public double[] getNumericalPDF(double step, double limit){
         int counter = 0;
         ArrayList<Double> pdf = new ArrayList<>();

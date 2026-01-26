@@ -102,4 +102,9 @@ public class UniformTime extends StochasticTime {
         this.setLFT(BigDecimal.valueOf(b));
     }
 
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.UNIFORM;
+    }
+
 }

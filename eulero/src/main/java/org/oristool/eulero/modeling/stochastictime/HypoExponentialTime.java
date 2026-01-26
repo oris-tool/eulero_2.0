@@ -71,7 +71,7 @@ public class HypoExponentialTime extends StochasticTime {
     public double PDF(double t) {
         return (rate1.doubleValue() * rate2.doubleValue())
                 / (rate2.doubleValue() - rate1.doubleValue())
-                * (Math.exp(-rate1.doubleValue() * t));
+                * (Math.exp(-rate1.doubleValue() * t) - Math.exp(-rate2.doubleValue() * t));
     }
 
     @Override
@@ -104,6 +104,11 @@ public class HypoExponentialTime extends StochasticTime {
 
     public BigDecimal getRate2() {
         return rate2;
+    }
+
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.HYPO_EXPONENTIAL;
     }
 
 

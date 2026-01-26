@@ -122,4 +122,9 @@ public class ExpolynomialTime extends StochasticTime {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
 
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.EXPOLYNOMIAL;
+    }
+
 }

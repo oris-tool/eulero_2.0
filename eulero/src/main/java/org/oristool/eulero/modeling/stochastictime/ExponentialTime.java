@@ -93,6 +93,10 @@ public class ExponentialTime extends StochasticTime {
     public void randomizeParameters() {
         throw new UnsupportedOperationException("Method not implemented yet");
     }
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.EXPONENTIAL;
+    }
 
 
 }

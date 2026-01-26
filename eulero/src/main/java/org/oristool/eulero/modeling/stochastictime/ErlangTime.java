@@ -135,4 +135,9 @@ public class ErlangTime extends StochasticTime{
     public int getK() {
         return k;
     }
+
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.ERLANG;
+    }
 }

@@ -168,5 +168,10 @@ public class TruncatedExponentialTime extends StochasticTime {
         this.rate = rate;
     }
 
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.TRUNC_EXPONENTIAL;
+    }
+
 
 }

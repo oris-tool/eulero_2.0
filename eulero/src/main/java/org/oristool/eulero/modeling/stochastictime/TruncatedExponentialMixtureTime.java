@@ -136,4 +136,9 @@ public class TruncatedExponentialMixtureTime extends StochasticTime{
         throw new UnsupportedOperationException("Method not implemented yet");
     }
 
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.TRUNC_EXPONENTIAL_MIXTURE;
+    }
+
 }

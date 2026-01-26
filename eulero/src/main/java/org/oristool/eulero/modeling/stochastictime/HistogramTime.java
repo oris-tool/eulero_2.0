@@ -127,4 +127,8 @@ public class HistogramTime extends StochasticTime {
         int interval = (int) ((t - getEFT().doubleValue())/ ((getLFT().doubleValue() - getEFT().doubleValue()) / bins));
         return values.subList(0, interval).stream().mapToDouble(x -> x / getNormalizationFactor()).sum();
     }
+    @Override
+    public StochasticTimeType getType() {
+        return StochasticTimeType.HISTOGRAM;
+    }
 }
