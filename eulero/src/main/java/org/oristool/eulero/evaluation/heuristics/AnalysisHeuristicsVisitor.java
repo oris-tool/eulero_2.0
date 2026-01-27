@@ -58,6 +58,7 @@ public abstract class AnalysisHeuristicsVisitor {
 
         for(Activity act: modelType.getChildren()){
             double[] activityCDF = act.analyze(timeLimit, timeTick, this);
+            activityCDF = this.fixCdfLength(activityCDF, CDF.length);
 
             for(int t = 0; t < CDF.length; t++){
                 CDF[t] += modelType.probs().get(modelType.getChildren().indexOf(act)) * activityCDF[t];
@@ -74,6 +75,8 @@ public abstract class AnalysisHeuristicsVisitor {
         Arrays.fill(CDF, 1.0);
         for(Activity act: modelType.getChildren()){
             double[] activityCDF = act.analyze(timeLimit, step, this);
+            activityCDF = this.fixCdfLength(activityCDF, CDF.length);
+            
             for(int t = 0; t < CDF.length; t++){
                 CDF[t] *= activityCDF[t];
             }
@@ -100,6 +103,8 @@ public abstract class AnalysisHeuristicsVisitor {
                 double[] convolution = new double[CDF.length];
                 double[] activityCDF = act.analyze(timeLimit, step, this);
 
+                activityCDF = this.fixCdfLength(activityCDF, convolution.length);
+
                 for (int x = 1; x < CDF.length; x++) {
                     for (int u = 1; u <= x; u++)
                         convolution[x] += (CDF[u] - CDF[u - 1]) * (activityCDF[x - u + 1] + activityCDF[x - u]) * 0.5;
@@ -109,6 +114,29 @@ public abstract class AnalysisHeuristicsVisitor {
             }
         }
         return CDF;
+    }
+
+    /**
+     * Funzione di supporto per l'analisi
+     * Dalla sperimentazione si è visto che talvolta succede che queste due misure
+     * non sono uguali (differiscono di un elemento).
+     * Quando succede replico l'ultimo elemento per colmare il gap.
+     * Altrimenti ritorno la cdf.
+     * @param activityCDF cdf dell'attività frutto di analisi
+     * @param targetCdfLength lunghezza che si vuole raggiungere
+     * @return {@code activityCdf} se {@code activityCdf.length == targetCdfLength} altrimenti {@code activityCdf}
+     * con l'ultimo elemento replicato.
+     */
+    private double[] fixCdfLength(double[] activityCDF, int targetCdfLength) {
+        if (activityCDF.length < targetCdfLength) {
+            double[] tempActivityCDF = new double[targetCdfLength];
+            int ii;
+            for (ii = 0; ii < activityCDF.length; ii++) tempActivityCDF[ii] = activityCDF[ii];
+            int difference = targetCdfLength - activityCDF.length;
+            for (int iii = ii; iii < ii+difference; iii++) tempActivityCDF[iii] = activityCDF[ii-1];
+            return tempActivityCDF;
+        }
+        return activityCDF;
     }
 
     public boolean verbose() { return verbose; }
