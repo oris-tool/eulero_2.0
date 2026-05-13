@@ -190,24 +190,4 @@ public class GeneralizeErlangTime extends StochasticTime {
     public StochasticTimeType getType() {
         return StochasticTimeType.GENERALIZED_ERLANG;
     }
-
-    public static void main(String[] args) {
-        Simple task = new Simple("null", new GeneralizeErlangTime(2, new BigDecimal(1) , new BigDecimal(1)));
-        AnalysisHeuristicsVisitor analyzer = new SDFHeuristicsVisitor(
-            BigInteger.valueOf(2),
-            BigInteger.valueOf(5),
-            new TruncatedExponentialMixtureApproximation());
-        double[] cdf = task.analyze(new BigDecimal(20), new BigDecimal(0.1), analyzer);
-        try (PrintWriter writer = new PrintWriter(new FileWriter("generalized_erlang_mia.csv"))) {
-            writer.println("time,cdf");
-            for (int i = 0; i < cdf.length; i++) {
-                double time = i * 0.1;
-                writer.println(time + "," + cdf[i]);
-            }
-            System.out.println("CDF saved");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
