@@ -1,6 +1,5 @@
 package org.oristool.eulero.modeling;
 
-import org.oristool.eulero.modeling.activitytypes.ActivityEnumType;
 import org.oristool.eulero.modeling.activitytypes.*;
 import org.oristool.eulero.modeling.stochastictime.DeterministicTime;
 
@@ -10,11 +9,11 @@ import java.util.List;
 
 public class ModelFactory {
     public static Composite sequence(Activity... activities){
-        StringBuilder name = new StringBuilder("SEQ(");
+        StringBuilder name = new StringBuilder("SEQ_");
         for (Activity act: activities) {
-            name.append(act.name()).append(", ");
+            name.append(act.name()).append("_");
         }
-        name.deleteCharAt(name.length() - 1).deleteCharAt(name.length() - 1).append(")");
+        name.deleteCharAt(name.length() - 1);
 
         ArrayList<Activity> children = new ArrayList<>(List.of(activities));
         Composite sequence = new Composite(name.toString(), new SEQType(children), ActivityEnumType.SEQ);
@@ -23,11 +22,11 @@ public class ModelFactory {
     };
 
     public static Composite forkJoin(Activity... activities){
-        StringBuilder name = new StringBuilder("AND(");
+        StringBuilder name = new StringBuilder("AND_");
         for (Activity act: activities) {
-            name.append(act.name()).append(", ");
+            name.append(act.name()).append("_");
         }
-        name.deleteCharAt(name.length() - 1).deleteCharAt(name.length() - 1).append(")");
+        name.deleteCharAt(name.length() - 1);
 
         ArrayList<Activity> children = new ArrayList<>(List.of(activities));
         Composite forkJoin = new Composite(name.toString(), new ANDType(children), ActivityEnumType.AND);
@@ -37,11 +36,11 @@ public class ModelFactory {
     };
 
     public static Composite DAG(Activity... activities){
-        StringBuilder name = new StringBuilder("DAG(");
+        StringBuilder name = new StringBuilder("DAG_");
         for (Activity act: activities) {
-            name.append(act.name()).append(", ");
+            name.append(act.name()).append("_");
         }
-        name.deleteCharAt(name.length() - 1).deleteCharAt(name.length() - 1).append(")");
+        name.deleteCharAt(name.length() - 1);
 
         ArrayList<Activity> children = new ArrayList<>(List.of(activities));
         Composite dag = new Composite(name.toString(), new BadNestedDAGType(children), ActivityEnumType.DAG);
@@ -50,11 +49,11 @@ public class ModelFactory {
     }
 
     public static Composite XOR(List<Double> probs, Activity... activities){
-        StringBuilder name = new StringBuilder("XOR(");
+        StringBuilder name = new StringBuilder("XOR_");
         for (Activity act: activities) {
-            name.append(act.name()).append(", ");
+            name.append(act.name()).append("_");
         }
-        name.deleteCharAt(name.length() - 1).deleteCharAt(name.length() - 1).append(")");
+        name.deleteCharAt(name.length() - 1);
 
         ArrayList<Activity> children = new ArrayList<>(List.of(activities));
         Composite xor = new Composite(name.toString(), new XORType(children, probs), ActivityEnumType.XOR);
