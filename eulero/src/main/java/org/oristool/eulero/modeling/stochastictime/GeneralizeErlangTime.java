@@ -61,7 +61,7 @@ public class GeneralizeErlangTime extends StochasticTime {
 
     @Override
     public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        throw new UnsupportedOperationException("Method not implemented yet");
+        return List.of(StochasticTransitionFeature.newErlangInstance(this.k, this.rate1), StochasticTransitionFeature.newExponentialInstance(this.rate2));
     }
 
     @Override
