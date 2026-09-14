@@ -4,6 +4,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.oristool.eulero.math.Continuous;
+import org.oristool.math.OmegaBigDecimal;
+import org.oristool.math.function.GEN;
+import org.oristool.math.function.PartitionedGEN;
 import org.oristool.models.stpn.trees.StochasticTransitionFeature;
 
 import java.math.BigDecimal;
@@ -23,10 +26,6 @@ public class HistogramTime extends StochasticTime {
         this.bins = bins;
         this.values = values;
     }
-    @Override
-    public StochasticTransitionFeature getStochasticTransitionFeature() {
-        throw new UnsupportedOperationException("Method not implemented yet");
-    }
 
     @Override
     public String toString() {
@@ -34,8 +33,11 @@ public class HistogramTime extends StochasticTime {
     }
 
     @Override
-    public StochasticTime clone() {
-        return new HistogramTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.bins, this.values);
+    public HistogramTime clone() {
+        HistogramTime clone = (HistogramTime)super.clone();
+        clone.bins = this.bins;
+        clone.values = this.values;
+        return clone;
     }
 
     @Override
@@ -60,13 +62,30 @@ public class HistogramTime extends StochasticTime {
         return normalize;
     }
 
-    public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
-        ArrayList<StochasticTransitionFeature> features = new ArrayList<>();
-        for(int i = 0; i < bins; i++){
-            features.add(StochasticTransitionFeature.newDeterministicInstance(BigDecimal.valueOf(getEFT().doubleValue() + i * (getLFT().doubleValue() - getEFT().doubleValue()) / (double) bins)));
+    @Override
+    public StochasticTransitionFeature getStochasticTransitionFeature() {
+        double eft = getEFT().doubleValue();
+        double w   = (getLFT().doubleValue() - eft) / bins;
+        double N   = getNormalizationFactor();
+
+        List<GEN> pieces = new ArrayList<>();
+        for (int i = 0; i < bins; i++) {
+            double h = (values.get(i) / N) / w;
+            double a = eft + i * w;
+            double b = eft + (i + 1) * w;
+            pieces.add(GEN.newExpolynomial(
+                    String.valueOf(h),
+                    new OmegaBigDecimal(BigDecimal.valueOf(a)),
+                    new OmegaBigDecimal(BigDecimal.valueOf(b))));
         }
-        return features;
+        return StochasticTransitionFeature.of(new PartitionedGEN(pieces));
     }
+
+    @Override
+    public List<StochasticTransitionFeature> getStochasticTransitionFeatures() {
+        return List.of(getStochasticTransitionFeature());       // caso size==1 in buildSTPN
+    }
+
     public List<BigDecimal> getWeights() {
         ArrayList<BigDecimal> weights = new ArrayList<>();
         Double normalizationFactor = getNormalizationFactor();
@@ -108,24 +127,34 @@ public class HistogramTime extends StochasticTime {
 
     @Override
     public double PDF(double t) {
-        if(t < getEFT().doubleValue() || t >= getLFT().doubleValue()){
+        double eft = getEFT().doubleValue();
+        double lft = getLFT().doubleValue();
+        if(t < eft || t >= lft){
             return 0.0;
         }
-        int interval = (int) ((t - getEFT().doubleValue()) / ((getLFT().doubleValue() - getEFT().doubleValue()) / bins));
-        return values.get(interval) * (getLFT().doubleValue() - getEFT().doubleValue()) / bins;
+        double w = (lft - eft) / bins;
+        int interval = (int) ((t - eft) / w);
+        return (values.get(interval) / getNormalizationFactor()) / w;
     }
 
     @Override
     public double CDF(double t) {
-        if(t < getEFT().doubleValue()){
+        double eft = getEFT().doubleValue();
+        double lft = getLFT().doubleValue();
+        if(t < eft){
             return 0.0;
         }
-
-        if(t > getLFT().doubleValue()){
+        if(t >= lft){
             return 1.0;
         }
-        int interval = (int) ((t - getEFT().doubleValue())/ ((getLFT().doubleValue() - getEFT().doubleValue()) / bins));
-        return values.subList(0, interval).stream().mapToDouble(x -> x / getNormalizationFactor()).sum();
+        double N = getNormalizationFactor();
+        double w = (lft - eft) / bins;
+        int interval = (int) ((t - eft) / w);
+        double cumulativeBefore = values.subList(0, interval).stream()
+                .mapToDouble(x -> x / N).sum();
+        double binStart = eft + interval * w;
+        double partial = (values.get(interval) / N) * (t - binStart) / w;
+        return cumulativeBefore + partial;
     }
     @Override
     public StochasticTimeType getType() {
