@@ -34,10 +34,8 @@ public class HistogramTime extends StochasticTime {
 
     @Override
     public HistogramTime clone() {
-        HistogramTime clone = (HistogramTime)super.clone();
-        clone.bins = this.bins;
-        clone.values = this.values;
-        return clone;
+        ArrayList<Double> values = new ArrayList<>(this.values); 
+        return new HistogramTime(this.getEFT().doubleValue(), this.getLFT().doubleValue(), this.bins, values);
     }
 
     @Override
